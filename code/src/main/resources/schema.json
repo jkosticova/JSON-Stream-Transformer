@@ -1,0 +1,294 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "array",
+  "minItems": 1,
+  "additionalItems": false,
+  "items": {
+    "anyOf": [
+      {
+        "type": "object",
+        "properties": {
+          "identity": {
+            "type": "object",
+            "properties": {
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "identity"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "rename": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "key": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "key"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "rename"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "remove": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "remove"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "replace": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "key": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "replace"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "add": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "key": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "key",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "add"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "add": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "index": {
+                "type": "integer"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "index",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "add"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "flatten": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "flatten"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "copy": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "destPath": {
+                "type": "string"
+              },
+              "index": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "path",
+              "destPath",
+              "index"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "copy"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "copy": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "destPath": {
+                "type": "string"
+              },
+              "key": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "destPath",
+              "key"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "copy"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "move": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "destPath": {
+                "type": "string"
+              },
+              "key": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "destPath",
+              "key"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "move"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "move": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "destPath": {
+                "type": "string"
+              },
+              "index": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "path",
+              "destPath",
+              "index"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "move"
+        ],
+        "additionalProperties": false
+      }
+    ]
+  }
+}

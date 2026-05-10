@@ -1,0 +1,8 @@
+[
+  {
+    "rename": {
+      "path": "$[0].contact.phone",
+      "key": "telephone"
+    }
+  }
+]

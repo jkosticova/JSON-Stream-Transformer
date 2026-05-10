@@ -1,0 +1,8 @@
+[
+  {
+    "replace": {
+      "path": "$[0].address",
+      "value": "{\"state\": \"Texas\",\"city\": \"Dallas\",\"street\": \"Howie Street\",\"postalCode\": 43855,\"number\": 28}"
+    }
+  }
+]

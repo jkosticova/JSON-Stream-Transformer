@@ -1,0 +1,76 @@
+package Prototype.StateArchitecture.State;
+
+import Prototype.SpecificationParser.AddTransformation;
+import Prototype.SpecificationParser.RenameTransformation;
+import Prototype.SpecificationParser.ReplaceTransformation;
+import Prototype.SpecificationParser.TransformationFormat;
+import Prototype.StateArchitecture.Transducer.Transducer;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+
+import java.io.IOException;
+
+import static Prototype.Utils.Helper.isNumeric;
+import static Prototype.Utils.Helper.writeJsonValue;
+
+public class Match implements State {
+    private final Transducer transducer;
+    private final JsonGenerator generator;
+    private final TransformationFormat specification;
+
+    public Match(Transducer transducer) {
+        this.transducer = transducer;
+        this.generator = transducer.getGenerator();
+        this.specification = transducer.getSpecification();
+    }
+
+    @Override
+    public void process(JsonToken event, JsonParser parser) {
+        switch (specification.getType()) {
+            case "rename":
+                try {
+                    generator.writeFieldName(((RenameTransformation) specification).getKey());
+                    transducer.setState(new Gen(transducer));
+                    transducer.setPaused(false);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case "remove":
+                transducer.setState(new Del(transducer));
+                transducer.setPaused(false);
+                break;
+            case "replace":
+                try {
+                    if (((ReplaceTransformation) specification).getKey() != null) {
+                        generator.writeFieldName(((ReplaceTransformation) specification).getKey());
+                    } else if (!isNumeric(transducer.getPathStack().peek()) && !transducer.getPathStack().peek().equals("arr") && !transducer.getPathStack().peek().equals("obj")) {
+                        generator.copyCurrentEvent(parser);
+                    }
+                    writeJsonValue(generator, ((ReplaceTransformation) specification).getValue());
+                    transducer.setState(new Del(transducer));
+                    transducer.setPaused(false);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case "add":
+                try {
+                    if (((AddTransformation) specification).getKey() != null) {
+                        transducer.setState(new Find_i(transducer, -1));
+                    } else {
+                        transducer.setState(new Find_i(transducer, ((AddTransformation) specification).getIndex()));
+                    }
+                    generator.copyCurrentEvent(parser);
+
+                    transducer.setPaused(false);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+}

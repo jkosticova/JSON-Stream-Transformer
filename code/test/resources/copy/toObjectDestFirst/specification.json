@@ -1,0 +1,9 @@
+[
+  {
+    "copy": {
+      "path": "$[1].contact",
+      "destPath": "$[0].address",
+      "key": "newKey"
+    }
+  }
+]

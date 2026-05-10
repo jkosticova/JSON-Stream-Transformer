@@ -1,0 +1,9 @@
+[
+  {
+    "move": {
+      "path": "$[0].contact",
+      "destPath": "$[1].address",
+      "key": "newKey"
+    }
+  }
+]

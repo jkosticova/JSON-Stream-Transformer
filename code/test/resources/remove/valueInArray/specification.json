@@ -1,0 +1,7 @@
+[
+  {
+    "remove": {
+      "path": "$[0].contact.phone[0]"
+    }
+  }
+]
