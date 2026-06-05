@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 
 import static Prototype.Main.initializeMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.nio.file.Path;
 
 class TransformationTest {
 
@@ -45,10 +46,11 @@ class TransformationTest {
     void transformationMatchesExpected(Path scenarioDir) throws Exception {
         String inputFileName = String.valueOf(scenarioDir.resolve("input.json"));
         String outputFileName = scenarioDir + "\\output.json";
-        String specificationFileName = String.valueOf(scenarioDir.resolve("specification.json"));
+
+        Path specificationPath = scenarioDir.resolve("specification.json").toAbsolutePath().normalize();
         File expectedFile = scenarioDir.resolve("expected.json").toFile();
 
-        Mapper mapper = initializeMapper(specificationFileName);
+        Mapper mapper = initializeMapper(specificationPath);
 
         InputStream inputStream = new FileInputStream(inputFileName);
         OutputStream outputStream = new FileOutputStream(outputFileName);

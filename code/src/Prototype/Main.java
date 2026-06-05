@@ -7,76 +7,62 @@ import Prototype.StateArchitecture.Transducer.IdentityTransducer;
 import Prototype.StateArchitecture.Transducer.Transducer;
 
 import java.io.*;
-import java.util.Scanner;
-
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 public class Main {
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
+
         Mapper mapper;
-        String specificationPath = "JsonExamples\\SpecificationFiles\\specification.json";
 
-        Scanner scanner = new Scanner(System.in);
-
-        if (args.length == 1) {
-            specificationPath = args[0];
-        } else {
-            System.out.println("Input specification file.");
-            String specFileFromInput = scanner.nextLine();
-
-            if (!specFileFromInput.isEmpty()) {
-                specificationPath = specFileFromInput;
-            }
+        if (args.length < 3) {
+            throw new RuntimeException("Missing specification file or input or output file");
         }
+
+        Path specificationPath = Paths.get(args[0]).toAbsolutePath().normalize();
 
         mapper = initializeMapper(specificationPath);
-        
-        if (mapper == null) {
-            throw new RuntimeException("Null Mapper");
-        }
 
-        System.out.println("Input file to be processed.");
-        while (true) {
-            String input = scanner.nextLine();
-            if (input.equals("exit")) {
-                break;
+        Path inputPath = Paths.get(args[1]).toAbsolutePath().normalize();
+        Path outputPath = Paths.get(args[2]).toAbsolutePath().normalize();
+
+        System.out.println("Processing...");
+        InputStream inputStream = Files.newInputStream(inputPath);
+        OutputStream outputStream = Files.newOutputStream(outputPath);
+
+        if (mapper.getTransformationFormat().getType().equals("copy")
+                || mapper.getTransformationFormat().getType().equals("move")) {
+            BufferTransducer bufferTransducer = new BufferTransducer(mapper, inputStream, outputStream);
+            if (bufferTransducer.process()) {
+                System.out.println("SUCCESS");
             } else {
-                System.out.println("Processing...");
-                InputStream inputStream = new FileInputStream(input);
-                String inputName = input.substring(input.lastIndexOf("\\") + 1, input.lastIndexOf("."));
-                OutputStream outputStream = new FileOutputStream("JsonExamples\\output" + inputName + ".json");
-
-                if (mapper.getTransformationFormat().getType().equals("copy") || mapper.getTransformationFormat().getType().equals("move")) {
-                    BufferTransducer bufferTransducer = new BufferTransducer(mapper, inputStream, outputStream);
-                    if (bufferTransducer.process()) {
-                        System.out.println("SUCCESS");
-                    } else {
-                        System.out.println("FAILURE");
-                    }
-                    System.out.println("Done processing BUFFER Transformation. Input next file to be processed or type \"exit\" to end the program.");
-                    continue;
-                }
-
-                Transducer transducer;
-                if (mapper.getTransformationFormat().getType().equals("identity")) {
-                    transducer = new IdentityTransducer(mapper, inputStream, outputStream);
-                } else {
-                    transducer = new StackTransducer(mapper, inputStream, outputStream);
-                }
-
-                if (transducer.process()) {
-                    System.out.println("SUCCESS");
-                } else {
-                    System.out.println("FAILURE");
-                }
-
-                System.out.println("Done processing. Input next file to be processed or type \"exit\" to end the program.");
+                System.out.println("FAILURE");
             }
+            System.out.println(
+                    "Done processing BUFFER Transformation.");            
+        }
+        else {
+            Transducer transducer;                    
+            if (mapper.getTransformationFormat().getType().equals("identity")) {
+                transducer = new IdentityTransducer(mapper, inputStream, outputStream);
+            } else {
+                transducer = new StackTransducer(mapper, inputStream, outputStream);
+            }
+
+            if (transducer.process()) {
+                System.out.println("SUCCESS");
+            } else {
+                System.out.println("FAILURE");
+            }
+            System.out.println("Done processing.");
         }
 
     }
 
-    public static Mapper initializeMapper(String specificationFileName) {
-        File specificationJsonFile = new File(specificationFileName);
+    public static Mapper initializeMapper(Path specificationPath) {
+        File specificationJsonFile = specificationPath.toFile();
         return new Mapper(specificationJsonFile);
     }
 }
