@@ -28,7 +28,7 @@ public class Main {
         Path inputPath = Paths.get(args[1]).toAbsolutePath().normalize();
         Path outputPath = Paths.get(args[2]).toAbsolutePath().normalize();
 
-        System.out.println("Processing...");
+        //System.out.println("Processing...");
         InputStream inputStream = Files.newInputStream(inputPath);
         OutputStream outputStream = Files.newOutputStream(outputPath);
 
@@ -36,12 +36,18 @@ public class Main {
                 || mapper.getTransformationFormat().getType().equals("move")) {
             BufferTransducer bufferTransducer = new BufferTransducer(mapper, inputStream, outputStream);
             if (bufferTransducer.process()) {
-                System.out.println("SUCCESS");
+                //System.out.println("SUCCESS");
+                // Clean up the file paths to extract clean names (e.g., "specIdentity" and "evaluationInputBig")
+                String specName = specificationPath.getFileName().toString();
+                String inputName = inputPath.getFileName().toString();
+
+                // Print a line starting with a specific prefix so PowerShell can grab it
+                // Format: EXPORT,Specification,InputFile,PeakBytes
+                System.out.println("EXPORT," + specName + "," + inputName + "," + bufferTransducer.getPeakBufferBytes());
             } else {
-                System.out.println("FAILURE");
+                //System.out.println("FAILURE");
             }
-            System.out.println(
-                    "Done processing BUFFER Transformation.");            
+            //System.out.println("Done processing BUFFER Transformation.");
         }
         else {
             Transducer transducer;                    
@@ -52,11 +58,11 @@ public class Main {
             }
 
             if (transducer.process()) {
-                System.out.println("SUCCESS");
+              //  System.out.println("SUCCESS");
             } else {
-                System.out.println("FAILURE");
+              //  System.out.println("FAILURE");
             }
-            System.out.println("Done processing.");
+            //System.out.println("Done processing NON-BUFFER transformation.");
         }
 
     }

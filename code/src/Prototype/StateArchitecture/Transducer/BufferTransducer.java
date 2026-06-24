@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import org.openjdk.jol.info.GraphLayout;
 
 public class BufferTransducer {
     private final State currentState;
@@ -25,6 +26,8 @@ public class BufferTransducer {
     JsonParser parser;
     TokenBuffer buffer;
     TransformationFormat specification;
+    // Track the highest memory footprint the buffer reaches
+    private long peakBufferBytes = 0;
 
     public BufferTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {
         try {
@@ -59,6 +62,7 @@ public class BufferTransducer {
     public void addToMemory() {
         try {
             buffer.copyCurrentEvent(parser);
+            recordBufferMemory();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -103,5 +107,28 @@ public class BufferTransducer {
             return false;
         }
         return true;
+    }
+
+    public void recordBufferMemory() {
+        if (this.buffer != null) {
+            try {
+                // JOL walks the object graph safely on modern Java versions
+                long currentBufferBytes = GraphLayout.parseInstance(this.buffer).totalSize();
+
+                if (currentBufferBytes > this.peakBufferBytes) {
+                    this.peakBufferBytes = currentBufferBytes;
+                }
+            } catch (Exception e) {
+                System.err.println("Skipping memory sample: " + e.getMessage());
+            }
+        }
+    }
+
+    public long getPeakBufferBytes() {
+        return this.peakBufferBytes;
+    }
+
+    public double getPeakBufferMegabytes() {
+        return this.peakBufferBytes / (1024.0 * 1024.0);
     }
 }

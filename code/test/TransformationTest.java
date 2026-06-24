@@ -16,9 +16,10 @@ import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+
 import static Prototype.Main.initializeMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import java.nio.file.Path;
+
 
 class TransformationTest {
 
