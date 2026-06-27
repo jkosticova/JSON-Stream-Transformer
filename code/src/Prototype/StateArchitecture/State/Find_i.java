@@ -214,7 +214,7 @@ public class Find_i implements State {
                         transducer.setState(new Match_i(transducer));
                         transducer.setPaused(true);
                         return;
-                    } else if (specification instanceof MoveTransformation && ((MoveTransformation) specification).getIndex() != null && ((MoveTransformation) specification).getIndex().equals(index)
+                    } else if (specification instanceof MoveTransformation && ((MoveTransformation) specification).getIndex() != null && ((MoveTransformation) specification).getIndex().equals(index3)
                             && pa.isFinal(paStack.peek())) {
                         paStack.push(array3);
                         paStack.push(state3);
