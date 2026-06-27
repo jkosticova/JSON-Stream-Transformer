@@ -1,6 +1,7 @@
 package Prototype.StateArchitecture.Transducer;
 
 import Prototype.Mapper.SpecificationMapper;
+import Prototype.PathAutomaton.PathAutomaton;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.State.Gen;
 import Prototype.StateArchitecture.State.State;
@@ -34,6 +35,11 @@ public class IdentityTransducer implements Transducer {
 
     @Override
     public void setPaused(boolean paused) {
+    }
+
+    @Override
+    public PathAutomaton getPa() {
+        return null;
     }
 
     @Override

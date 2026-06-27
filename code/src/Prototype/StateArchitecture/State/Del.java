@@ -28,7 +28,7 @@ public class Del implements State {
         this.paStack = transducer.getPaStack();
         this.indexStack = transducer.getIndexStack();
         this.specification = transducer.getSpecification();
-        this.pa = new SimplePathAutomaton(specification.getPath(), null);
+        this.pa = transducer.getPa();
     }
 
     public void process(JsonToken event, JsonParser parser) {

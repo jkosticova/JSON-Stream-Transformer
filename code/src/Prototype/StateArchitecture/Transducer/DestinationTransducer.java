@@ -1,6 +1,8 @@
 package Prototype.StateArchitecture.Transducer;
 
 import Prototype.Mapper.SpecificationMapper;
+import Prototype.PathAutomaton.PathAutomaton;
+import Prototype.PathAutomaton.SimplePathAutomaton;
 import Prototype.SpecificationParser.CopyTransformation;
 import Prototype.SpecificationParser.MoveTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
@@ -21,6 +23,7 @@ public class DestinationTransducer implements Transducer {
     private boolean paused;
     JsonGenerator generator;
     JsonParser parser;
+    PathAutomaton pa;
     Stack<Integer> paStack;
     Stack<Integer> indexStack;
     TransformationFormat specification;
@@ -45,8 +48,9 @@ public class DestinationTransducer implements Transducer {
         }
 
         this.parentTransducer = parentTransducer;
-
-
+        
+        pa = new SimplePathAutomaton(specification.getPath());
+        
         paStack = new Stack<>();
         paStack.push(INITIAL_PA_STATE);
         indexStack = new Stack<>();
@@ -79,6 +83,11 @@ public class DestinationTransducer implements Transducer {
         return this.generator;
     }
 
+    @Override
+    public PathAutomaton getPa() {
+        return this.pa;
+    }
+    
     @Override
     public Stack<Integer> getPaStack() {
         return this.paStack;

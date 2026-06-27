@@ -46,7 +46,7 @@ public class Find_i implements State {
         else if (specification instanceof MoveTransformation) {
             index = ((MoveTransformation) specification).getIndex();
         }
-        pa = new SimplePathAutomaton(specification.getPath(), index);
+        pa = transducer.getPa();
             
         
     }

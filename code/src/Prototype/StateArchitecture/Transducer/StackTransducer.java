@@ -29,7 +29,7 @@ public class StackTransducer implements Transducer {
         specification = mapper.getTransformationFormat();
         paStack = new Stack<>();        
         indexStack = new Stack<>();        
-        pa = new SimplePathAutomaton(specification.getPath(),null); 
+        pa = new SimplePathAutomaton(specification.getPath()); 
         
         JsonFactory factory = new JsonFactory();
         try {
@@ -55,6 +55,11 @@ public class StackTransducer implements Transducer {
     @Override
     public Stack<Integer> getPaStack() {
         return this.paStack;
+    }
+
+    @Override
+    public PathAutomaton getPa() {
+        return this.pa;
     }
 
     @Override

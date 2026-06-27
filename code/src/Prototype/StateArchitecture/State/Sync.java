@@ -36,15 +36,8 @@ public class Sync implements State {
         this.generator = transducer.getGenerator();
         this.specification = transducer.getSpecification();
         this.objectMapper = new ObjectMapper();
-        this.sourcePa = new SimplePathAutomaton(specification.getPath(),null);
-        if (specification instanceof CopyTransformation) {
-            this.destPa = new SimplePathAutomaton(
-                ((CopyTransformation) specification).getDestPath(),null
-            );
-        }
-        else this.destPa = new SimplePathAutomaton(
-                ((MoveTransformation) specification).getDestPath(), null
-            );
+        this.sourcePa = sourceTransducer.getPa();
+        this.destPa = sourceTransducer.getPa();
     }
 
     @Override
@@ -140,6 +133,7 @@ public class Sync implements State {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+            // source is evaluated, set is already matched
             } else if ((sourceState instanceof Eval) && (destinationState instanceof Match)) {
                 try {
                     if (((CopyTransformation) specification).getKey() != null) {
@@ -157,7 +151,17 @@ public class Sync implements State {
             } else if ((sourceState instanceof Eval) && (destinationState instanceof Match_i)) {
                 try {
                     if (((CopyTransformation) specification).getKey() != null) {
-                        generator.writeFieldName(((CopyTransformation) specification).getKey());
+                        String key = ((CopyTransformation) specification).getKey();
+                        generator.writeFieldName(key);
+                        generator.flush(); // DEBUG only
+
+                       /* int top = sourceTransducer.getPaStack().peek();
+                        if (top == OBJ_MARKER) {
+                            sourceTransducer.getPaStack().pop(); // pop OBJ_MARKER
+                            int paState = sourceTransducer.getPaStack().peek();
+                            sourceTransducer.getPaStack().push(OBJ_MARKER); // push OBJ_MARKER
+                            sourceTransducer.getPaStack().push(sourcePa.transition(paState, key));
+                        } */
                     }
 
                     destinationTransducer.setState(new MeminDel(destinationTransducer));

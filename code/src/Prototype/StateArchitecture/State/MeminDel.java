@@ -22,7 +22,7 @@ public class MeminDel implements State {
     private void init() {
         this.paStack = this.transducer.getPaStack();
         this.indexStack = this.transducer.getIndexStack();
-        this.pa = new SimplePathAutomaton(this.transducer.getSpecification().getPath(), null);                 
+        this.pa = transducer.getPa();
     }
 
     public void process(JsonToken event, JsonParser parser) {

@@ -1,6 +1,6 @@
 package Prototype.StateArchitecture.State;
 
-import Prototype.PathAutomaton.SimplePathAutomaton;
+import Prototype.PathAutomaton.PathAutomaton;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -18,7 +18,7 @@ public class Eval implements State {
     private Stack<Integer> paStack;
     private Stack<Integer> indexStack;
     private TransformationFormat specification;
-    private SimplePathAutomaton pa;
+    private PathAutomaton pa;
 
     public Eval(Transducer transducer) {
         this.transducer = transducer;
@@ -30,7 +30,7 @@ public class Eval implements State {
         this.paStack = this.transducer.getPaStack();
         this.indexStack = this.transducer.getIndexStack();
         this.specification = this.transducer.getSpecification();
-        this.pa = new SimplePathAutomaton(specification.getPath(),null);
+        this.pa = this.transducer.getPa();
     }
 
     public void process(JsonToken event, JsonParser parser) {

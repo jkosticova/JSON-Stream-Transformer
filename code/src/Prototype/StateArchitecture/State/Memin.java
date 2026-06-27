@@ -27,7 +27,7 @@ public class Memin implements State {
         this.generator = this.transducer.getGenerator();
         this.paStack = this.transducer.getPaStack();
         this.indexStack = this.transducer.getIndexStack();
-        this.pa = new SimplePathAutomaton(this.transducer.getSpecification().getPath(), null);                 
+        this.pa = transducer.getPa();
     }
 
     public void process(JsonToken event, JsonParser parser) {

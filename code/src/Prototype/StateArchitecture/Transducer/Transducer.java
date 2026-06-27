@@ -15,6 +15,8 @@ public interface Transducer {
 
     JsonGenerator getGenerator();    
     
+    PathAutomaton getPa();
+    
     Stack<Integer> getPaStack();
 
     Stack<Integer> getIndexStack();

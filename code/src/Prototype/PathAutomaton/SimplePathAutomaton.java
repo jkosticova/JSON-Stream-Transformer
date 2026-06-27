@@ -11,13 +11,10 @@ public class SimplePathAutomaton implements PathAutomaton {
     private final int finalState;
     private final int errorState;
  
-    public SimplePathAutomaton(String path, Integer index) {
+    public SimplePathAutomaton(String path) {
         this.segments = parse(path);              
         this.finalState = segments.size();
-       /*  if (index != null) {
-            this.segments.add(Integer.toString(index));
-        };*/
-        this.errorState = segments.size() + 1; // !! TODO
+        this.errorState = segments.size() + 1;
     }        
     
     private ArrayList<String> parse(String path) {
@@ -38,7 +35,6 @@ public class SimplePathAutomaton implements PathAutomaton {
                         .map(String::trim)
                         .map(s -> s.replace("[", "").replace("]", ""))
                         .toList()
-
 );             
     }
        
