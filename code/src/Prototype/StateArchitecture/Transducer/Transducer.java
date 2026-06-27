@@ -1,5 +1,6 @@
 package Prototype.StateArchitecture.Transducer;
 
+import Prototype.PathAutomaton.PathAutomaton;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.State.State;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -7,14 +8,17 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import java.util.Stack;
 
 public interface Transducer {
+    int INITIAL_PA_STATE = 0;
+    int OBJECT_ARR_INDEX = -1;
+    
     void setPaused(boolean paused);
 
-    JsonGenerator getGenerator();
-
-    Stack<String> getPathStack();
+    JsonGenerator getGenerator();    
+    
+    Stack<Integer> getPaStack();
 
     Stack<Integer> getIndexStack();
-
+   
     TransformationFormat getSpecification();
 
     boolean process();

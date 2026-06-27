@@ -191,7 +191,7 @@ public class Main {
                 }
             }
         }
-
+        
         Files.writeString(result, "Total allocated: " + totalBytes + "\n", StandardOpenOption.APPEND);
         Files.writeString(result, "Allocated per run(" + evaluationRounds + "): " + totalBytes / evaluationRounds + "\n", StandardOpenOption.APPEND);
     }
@@ -233,6 +233,7 @@ public class Main {
             throw new RuntimeException("Null Mapper");
         }
 
+        
         return mapper;
     }
 }

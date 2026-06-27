@@ -1,5 +1,6 @@
 package Prototype.StateArchitecture.State;
 
+import Prototype.PathAutomaton.SimplePathAutomaton;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -9,14 +10,15 @@ import com.fasterxml.jackson.core.JsonToken;
 import java.io.IOException;
 import java.util.Stack;
 
-import static Prototype.Utils.Helper.GetSimplifiedJSONPathFromStack;
+
 
 public class Eval implements State {
     Transducer transducer;
     private JsonGenerator generator;
-    private Stack<String> pathStack;
+    private Stack<Integer> paStack;
     private Stack<Integer> indexStack;
     private TransformationFormat specification;
+    private SimplePathAutomaton pa;
 
     public Eval(Transducer transducer) {
         this.transducer = transducer;
@@ -25,67 +27,78 @@ public class Eval implements State {
 
     private void init() {
         this.generator = this.transducer.getGenerator();
-        this.pathStack = this.transducer.getPathStack();
+        this.paStack = this.transducer.getPaStack();
         this.indexStack = this.transducer.getIndexStack();
         this.specification = this.transducer.getSpecification();
+        this.pa = new SimplePathAutomaton(specification.getPath(),null);
     }
 
     public void process(JsonToken event, JsonParser parser) {
+        int paState;                
         try {
             init();
 
             switch (event) {
-                case START_ARRAY:
-                    if (pathStack.peek().equals("arr")) {
+                case START_ARRAY:                    
+                    if (paStack.peek().equals(ARR_MARKER)) {
                         Integer i = indexStack.pop();
-                        pathStack.push(i.toString());
+                        paStack.pop(); // pop ARR_MARKER
+                        paState = paStack.peek();
+                        paStack.push(ARR_MARKER); // push ARR_MARKER back
+                        paStack.push(pa.transition(paState, i.toString()));                        
                         indexStack.push(i + 1);
                     }
 
-                    if (specification.getPath().equals(GetSimplifiedJSONPathFromStack(pathStack))) {
+                    if (pa.isFinal(paStack.peek())) {
                         transducer.setState(new Match(transducer));
                         transducer.setPaused(true);
                         indexStack.push(0);
-                        pathStack.push("arr");
+                        paStack.push(ARR_MARKER);
                         return;
                     }
 
                     indexStack.push(0);
-                    pathStack.push("arr");
+                    paStack.push(ARR_MARKER);
 
                     break;
                 case END_ARRAY:
                     indexStack.pop();
-                    pathStack.pop();
-                    pathStack.pop();
+                    paStack.pop();
+                    paStack.pop();
 
                     break;
                 case START_OBJECT:
-                    if (pathStack.peek().equals("arr")) {
+                    if (paStack.peek().equals(ARR_MARKER)) {
                         Integer i = indexStack.pop();
-                        pathStack.push(i.toString());
+                        paStack.pop(); // pop ARR_MARKER
+                        paState = paStack.peek();
+                        paStack.push(ARR_MARKER); // push ARR_MARKER back
+                        paStack.push(pa.transition(paState, i.toString()));                        
                         indexStack.push(i + 1);
                     }
 
-                    if (specification.getPath().equals(GetSimplifiedJSONPathFromStack(pathStack))) {
+                    if (pa.isFinal(paStack.peek())) {
                         transducer.setState(new Match(transducer));
                         transducer.setPaused(true);
-                        pathStack.push("obj");
+                        paStack.push(OBJ_MARKER);
                         return;
                     }
 
-                    pathStack.push("obj");
+                    paStack.push(OBJ_MARKER);
 
                     break;
                 case END_OBJECT:
-                    pathStack.pop();
-                    pathStack.pop();
+                    paStack.pop();
+                    paStack.pop();
 
                     break;
                 case FIELD_NAME:
-                    pathStack.push(parser.getParsingContext().getCurrentName());
+                    paStack.pop(); // pop OBJ_MARKER
+                    paState = paStack.peek();
+                    paStack.push(OBJ_MARKER); // push OBJ_MARKER back
+                    paStack.push(pa.transition(paState, parser.getParsingContext().getCurrentName()));
 
-                    if (specification.getPath().equals(GetSimplifiedJSONPathFromStack(pathStack))) {
+                    if (pa.isFinal(paStack.peek())) {
                         transducer.setState(new Match(transducer));
                         transducer.setPaused(true);
                         return;
@@ -98,19 +111,22 @@ public class Eval implements State {
                 case VALUE_STRING:
                 case VALUE_NUMBER_INT:
                 case VALUE_NUMBER_FLOAT:
-                    if (pathStack.peek().equals("arr")) {
+                    if (paStack.peek().equals(ARR_MARKER)) {
                         Integer i = indexStack.pop();
-                        pathStack.push(i.toString());
+                        paStack.pop(); // pop ARR_MARKER
+                        paState = paStack.peek();
+                        paStack.push(ARR_MARKER); // push ARR_MARKER back
+                        paStack.push(pa.transition(paState, i.toString()));
                         indexStack.push(i + 1);
                     }
 
-                    if (specification.getPath().equals(GetSimplifiedJSONPathFromStack(pathStack))) {
+                    if (pa.isFinal(paStack.peek())) {
                         transducer.setState(new Match(transducer));
                         transducer.setPaused(true);
                         return;
                     }
 
-                    pathStack.pop();
+                    paStack.pop();
 
                     break;
             }

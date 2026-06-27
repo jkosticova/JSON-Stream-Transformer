@@ -32,11 +32,16 @@ public class Mapper implements SpecificationMapper {
 
     private void init() {
         try {
+            // ObjectMapper je trieda v Jacksone
             ObjectMapper mapper = new ObjectMapper();
 
+            // objekt JSONSchemaValidator
             JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+            // objekt JSONSchemaValidator
             JsonSchema schema = factory.getSchema(this.schema);
+            // objekt Jackson
             JsonNode jsonNode = mapper.readTree(this.specification);
+            // metoda JSONSchemaValidator
             Set<ValidationMessage> validationMessages = schema.validate(jsonNode);
 
             if (!validationMessages.isEmpty()) {
@@ -44,9 +49,11 @@ public class Mapper implements SpecificationMapper {
                 throw new RuntimeException("JSON failed schema validation.");
             }
 
+            // objekt Jacksonu
             JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, TransformationFormat.class);
             List<TransformationFormat> listObj = mapper.treeToValue(jsonNode, type);
 
+            // iba posledna dvojica key/value je ulozena, ale mal by to byt druh operacie
             for (TransformationFormat transformation : listObj) {
                 this.transformationFormat = transformation;
             }

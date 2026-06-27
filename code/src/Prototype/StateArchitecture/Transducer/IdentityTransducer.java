@@ -42,7 +42,7 @@ public class IdentityTransducer implements Transducer {
     }
 
     @Override
-    public Stack<String> getPathStack() {
+    public Stack<Integer> getPaStack() {
         return null;
     }
 

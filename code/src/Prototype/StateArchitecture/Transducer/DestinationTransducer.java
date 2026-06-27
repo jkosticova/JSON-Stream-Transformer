@@ -21,7 +21,7 @@ public class DestinationTransducer implements Transducer {
     private boolean paused;
     JsonGenerator generator;
     JsonParser parser;
-    Stack<String> pathStack;
+    Stack<Integer> paStack;
     Stack<Integer> indexStack;
     TransformationFormat specification;
 
@@ -47,8 +47,8 @@ public class DestinationTransducer implements Transducer {
         this.parentTransducer = parentTransducer;
 
 
-        pathStack = new Stack<>();
-        pathStack.push("$");
+        paStack = new Stack<>();
+        paStack.push(INITIAL_PA_STATE);
         indexStack = new Stack<>();
         JsonFactory factory = new JsonFactory();
         try {
@@ -80,8 +80,8 @@ public class DestinationTransducer implements Transducer {
     }
 
     @Override
-    public Stack<String> getPathStack() {
-        return this.pathStack;
+    public Stack<Integer> getPaStack() {
+        return this.paStack;
     }
 
     @Override

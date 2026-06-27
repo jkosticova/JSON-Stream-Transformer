@@ -1,5 +1,7 @@
 package Prototype.StateArchitecture.State;
 
+import Prototype.PathAutomaton.PathAutomaton;
+import Prototype.PathAutomaton.SimplePathAutomaton;
 import Prototype.SpecificationParser.AddTransformation;
 import Prototype.SpecificationParser.RenameTransformation;
 import Prototype.SpecificationParser.ReplaceTransformation;
@@ -22,7 +24,7 @@ public class Match implements State {
     public Match(Transducer transducer) {
         this.transducer = transducer;
         this.generator = transducer.getGenerator();
-        this.specification = transducer.getSpecification();
+        this.specification = transducer.getSpecification();    
     }
 
     @Override
@@ -45,10 +47,14 @@ public class Match implements State {
                 try {
                     if (((ReplaceTransformation) specification).getKey() != null) {
                         generator.writeFieldName(((ReplaceTransformation) specification).getKey());
-                    } else if (!isNumeric(transducer.getPathStack().peek()) && !transducer.getPathStack().peek().equals("arr") && !transducer.getPathStack().peek().equals("obj")) {
+                    // current key is copied only in case of object field name, it doesn't make sense for other cases
+                    } else if (transducer.getPaStack().peek()>=0 && event == JsonToken.FIELD_NAME) {
                         generator.copyCurrentEvent(parser);
+                        writeJsonValue(generator, ((ReplaceTransformation) specification).getValue());
                     }
-                    writeJsonValue(generator, ((ReplaceTransformation) specification).getValue());
+                    else {
+                        writeJsonValue(generator, ((ReplaceTransformation) specification).getValue());
+                    }
                     transducer.setState(new Del(transducer));
                     transducer.setPaused(false);
                 } catch (IOException e) {

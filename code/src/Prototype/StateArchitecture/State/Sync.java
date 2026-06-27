@@ -1,5 +1,7 @@
 package Prototype.StateArchitecture.State;
 
+import Prototype.PathAutomaton.PathAutomaton;
+import Prototype.PathAutomaton.SimplePathAutomaton;
 import Prototype.SpecificationParser.CopyTransformation;
 import Prototype.SpecificationParser.MoveTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
@@ -24,6 +26,8 @@ public class Sync implements State {
     private final JsonGenerator generator;
     private final TransformationFormat specification;
     private final ObjectMapper objectMapper;
+    private final PathAutomaton sourcePa;
+    private final PathAutomaton destPa;
 
     public Sync(BufferTransducer transducer) {
         this.transducer = transducer;
@@ -32,6 +36,15 @@ public class Sync implements State {
         this.generator = transducer.getGenerator();
         this.specification = transducer.getSpecification();
         this.objectMapper = new ObjectMapper();
+        this.sourcePa = new SimplePathAutomaton(specification.getPath(),null);
+        if (specification instanceof CopyTransformation) {
+            this.destPa = new SimplePathAutomaton(
+                ((CopyTransformation) specification).getDestPath(),null
+            );
+        }
+        else this.destPa = new SimplePathAutomaton(
+                ((MoveTransformation) specification).getDestPath(), null
+            );
     }
 
     @Override
@@ -48,6 +61,7 @@ public class Sync implements State {
         State destinationState = destinationTransducer.getCurrentState();
 
         if (specification instanceof CopyTransformation) {
+            // source match, dest eval -> source memin
             if ((sourceState instanceof Match) && (destinationState instanceof Eval)) {
                 try {
                     generator.copyCurrentEvent(parser);
@@ -59,27 +73,29 @@ public class Sync implements State {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+            // source memin, dest eval       
             } else if ((sourceState instanceof Memin) && (destinationState instanceof Eval)) {
                 try {
                     destinationState.process(event, parser);
 
-                    if (!event.isStructStart() && specification.getPath().equals(GetSimplifiedJSONPathFromStack(sourceTransducer.getPathStack()))) {
-                        transducer.addToMemory();
+                    // koniec memin
+                    if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {                        
+                        transducer.addToMemory(); 
                         sourceTransducer.setState(new Gen(sourceTransducer));
                         generator.copyCurrentEvent(parser);
 
                         return;
                     }
 
-                    String lastValue = sourceTransducer.getPathStack().pop();
-                    if (event.isStructEnd() && specification.getPath().equals(GetSimplifiedJSONPathFromStack(sourceTransducer.getPathStack()))) {
+                    Integer lastValue = sourceTransducer.getPaStack().pop();
+                    if (event.isStructEnd() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         transducer.addToMemory();
                         sourceTransducer.setState(new Gen(sourceTransducer));
                         generator.copyCurrentEvent(parser);
 
                         return;
                     }
-                    sourceTransducer.getPathStack().push(lastValue);
+                    sourceTransducer.getPaStack().push(lastValue);
 
                     sourceState.process(event, parser);
 
@@ -96,11 +112,12 @@ public class Sync implements State {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+            // source uz je v pamati a generuje, dest match
             } else if ((sourceState instanceof Gen) && (destinationState instanceof Match)) {
                 try {
-                    if (((CopyTransformation) specification).getKey() != null) {
+                    if (((CopyTransformation) specification).getKey() != null)
                         destinationTransducer.setState(new Find_i(destinationTransducer, -1));
-                    } else {
+                    else {
                         destinationTransducer.setState(new Find_i(destinationTransducer, ((CopyTransformation) specification).getIndex()));
                     }
                     generator.copyCurrentEvent(parser);
@@ -153,7 +170,7 @@ public class Sync implements State {
                 }
             } else if ((sourceState instanceof Eval) && (destinationState instanceof MeminDel)) {
                 try {
-                    if (((CopyTransformation) specification).getPath().equals(GetSimplifiedJSONPathFromStack(sourceTransducer.getPathStack()))) {
+                    if (sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         sourceTransducer.setState(new Match(sourceTransducer));
                         destinationTransducer.setState(new Gen(destinationTransducer));
 
@@ -190,7 +207,7 @@ public class Sync implements State {
                 try {
                     destinationState.process(event, parser);
 
-                    if (!event.isStructStart() && specification.getPath().equals(GetSimplifiedJSONPathFromStack(sourceTransducer.getPathStack()))) {
+                    if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         transducer.addToMemory();
                         sourceTransducer.setState(new Memout(sourceTransducer));
                         generator.copyCurrentEvent(parser);
@@ -203,8 +220,8 @@ public class Sync implements State {
                         return;
                     }
 
-                    String lastValue = sourceTransducer.getPathStack().pop();
-                    if (event.isStructEnd() && specification.getPath().equals(GetSimplifiedJSONPathFromStack(sourceTransducer.getPathStack()))) {
+                    Integer lastValue = sourceTransducer.getPaStack().pop();
+                    if (event.isStructEnd() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         transducer.addToMemory();
                         sourceTransducer.setState(new Memout(sourceTransducer));
                         generator.copyCurrentEvent(parser);
@@ -216,7 +233,7 @@ public class Sync implements State {
 
                         return;
                     }
-                    sourceTransducer.getPathStack().push(lastValue);
+                    sourceTransducer.getPaStack().push(lastValue);
 
                     sourceState.process(event, parser);
 
@@ -262,21 +279,21 @@ public class Sync implements State {
                 try {
                     destinationState.process(event, parser);
 
-                    if (!event.isStructStart() && specification.getPath().equals(GetSimplifiedJSONPathFromStack(sourceTransducer.getPathStack()))) {
+                    if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         transducer.addToMemory();
                         sourceTransducer.setState(new Gen(sourceTransducer));
 
                         return;
                     }
 
-                    String lastValue = sourceTransducer.getPathStack().pop();
-                    if (event.isStructEnd() && specification.getPath().equals(GetSimplifiedJSONPathFromStack(sourceTransducer.getPathStack()))) {
+                    Integer lastValue = sourceTransducer.getPaStack().pop();
+                    if (event.isStructEnd() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         transducer.addToMemory();
                         sourceTransducer.setState(new Gen(sourceTransducer));
 
                         return;
                     }
-                    sourceTransducer.getPathStack().push(lastValue);
+                    sourceTransducer.getPaStack().push(lastValue);
 
                     sourceState.process(event, parser);
 
@@ -337,7 +354,7 @@ public class Sync implements State {
                 try {
                     sourceState.process(event, parser);
 
-                    if (((MoveTransformation) specification).getPath().equals(GetSimplifiedJSONPathFromStack(sourceTransducer.getPathStack()))) {
+                    if (sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         sourceTransducer.setState(new Match(sourceTransducer));
                         destinationTransducer.setState(new Gen(destinationTransducer));
 
@@ -390,7 +407,7 @@ public class Sync implements State {
                 }
             } else if ((sourceState instanceof Eval) && (destinationState instanceof Gen)) {
                 try {
-                    if (!event.isStructStart() && specification.getPath().equals(GetSimplifiedJSONPathFromStack(sourceTransducer.getPathStack()))) {
+                    if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         sourceTransducer.setState(new Memout(sourceTransducer));
                         sourceTransducer.setPaused(false);
 
@@ -401,8 +418,8 @@ public class Sync implements State {
                         return;
                     }
 
-                    String lastValue = sourceTransducer.getPathStack().pop();
-                    if (event.isStructEnd() && specification.getPath().equals(GetSimplifiedJSONPathFromStack(sourceTransducer.getPathStack()))) {
+                    Integer lastValue = sourceTransducer.getPaStack().pop();
+                    if (event.isStructEnd() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         sourceTransducer.setState(new Memout(sourceTransducer));
                         sourceTransducer.setPaused(false);
 
@@ -412,14 +429,14 @@ public class Sync implements State {
                         generator.flush();
                         return;
                     }
-                    sourceTransducer.getPathStack().push(lastValue);
+                    sourceTransducer.getPaStack().push(lastValue);
 
-                    String lastValueTmp = sourceTransducer.getPathStack().peek();
-                    sourceTransducer.getPathStack().push(lastValueTmp);
+                    Integer lastValueTmp = sourceTransducer.getPaStack().peek();
+                    sourceTransducer.getPaStack().push(lastValueTmp);
                     sourceState.process(event, parser);
-                    String returnLastValue = sourceTransducer.getPathStack().pop();
-                    sourceTransducer.getPathStack().pop();
-                    sourceTransducer.getPathStack().push(returnLastValue);
+                    Integer returnLastValue = sourceTransducer.getPaStack().pop();
+                    sourceTransducer.getPaStack().pop();
+                    sourceTransducer.getPaStack().push(returnLastValue);
                     destinationState.process(event, parser);
 
                     Transducer preferredTransducerState = getPreferredState(sourceTransducer.getCurrentState(), destinationTransducer.getCurrentState());
@@ -439,7 +456,7 @@ public class Sync implements State {
                 try {
                     destinationState.process(event, parser);
 
-                    if (!event.isStructStart() && specification.getPath().equals(GetSimplifiedJSONPathFromStack(sourceTransducer.getPathStack()))) {
+                    if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         transducer.addToMemory();
                         sourceTransducer.setState(new Memout(sourceTransducer));
                         generator.copyCurrentEvent(parser);
@@ -452,8 +469,8 @@ public class Sync implements State {
                         return;
                     }
 
-                    String lastValue = sourceTransducer.getPathStack().pop();
-                    if (event.isStructEnd() && specification.getPath().equals(GetSimplifiedJSONPathFromStack(sourceTransducer.getPathStack()))) {
+                    Integer lastValue = sourceTransducer.getPaStack().pop();
+                    if (event.isStructEnd() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         transducer.addToMemory();
                         sourceTransducer.setState(new Memout(sourceTransducer));
                         generator.copyCurrentEvent(parser);
@@ -465,7 +482,7 @@ public class Sync implements State {
 
                         return;
                     }
-                    sourceTransducer.getPathStack().push(lastValue);
+                    sourceTransducer.getPaStack().push(lastValue);
 
                     sourceState.process(event, parser);
 

@@ -1,5 +1,7 @@
 package Prototype.StateArchitecture.State;
 
+import Prototype.PathAutomaton.PathAutomaton;
+import Prototype.PathAutomaton.SimplePathAutomaton;
 import Prototype.SpecificationParser.AddTransformation;
 import Prototype.SpecificationParser.CopyTransformation;
 import Prototype.SpecificationParser.MoveTransformation;
@@ -18,9 +20,10 @@ public class Find_i implements State {
     Transducer transducer;
     private final Integer index;
     private JsonGenerator generator;
-    private Stack<String> pathStack;
+    private Stack<Integer> paStack;
     private Stack<Integer> indexStack;
     private TransformationFormat specification;
+    private PathAutomaton pa;
 
     public Find_i(Transducer transducer, Integer index) {
         this.transducer = transducer;
@@ -29,135 +32,161 @@ public class Find_i implements State {
     }
 
     private void init() {
+        Integer index = null;
         this.generator = this.transducer.getGenerator();
-        this.pathStack = this.transducer.getPathStack();
+        this.paStack = this.transducer.getPaStack();
         this.indexStack = this.transducer.getIndexStack();
         this.specification = this.transducer.getSpecification();
+        if (specification instanceof AddTransformation) {
+            index = ((AddTransformation) specification).getIndex();
+        }
+        else if (specification instanceof CopyTransformation) {
+            index = ((CopyTransformation) specification).getIndex();
+        }
+        else if (specification instanceof MoveTransformation) {
+            index = ((MoveTransformation) specification).getIndex();
+        }
+        pa = new SimplePathAutomaton(specification.getPath(), index);
+            
+        
     }
 
     public void process(JsonToken event, JsonParser parser) {
         init();
-
+        Integer paState;
         try {
             switch (event) {
                 case START_ARRAY:
-                    if (pathStack.peek().equals("arr")) {
+                    if (paStack.peek().equals(ARR_MARKER)) {
                         Integer i = indexStack.pop();
-                        pathStack.push(i.toString());
+                        paStack.pop(); // pop ARR_MARKER
+                        paState = paStack.peek();
+                        paStack.push(ARR_MARKER); // push ARR_MARKER back
+                        paStack.push(pa.transition(paState, i.toString()));
                         indexStack.push(i + 1);
                     }
 
                     if (specification instanceof AddTransformation && ((AddTransformation) specification).getIndex() != null) {
-                        String index1 = pathStack.pop();
-                        String array1 = pathStack.pop();
-
-                        if (((AddTransformation) specification).getIndex().toString().equals(index1)
-                                && specification.getPath().equals(GetSimplifiedJSONPathFromStack(pathStack))) {
-                            pathStack.push(array1);
-                            pathStack.push(index1);
+                        Integer state1 = paStack.pop();                        
+                        Integer array1 = paStack.pop(); // ARR_MARKER?
+                        Integer index1 = indexStack.peek()-1;
+                        
+                        if (((AddTransformation) specification).getIndex().equals(index1)
+                                && pa.isFinal(paStack.peek())) {
+                            paStack.push(array1); // ARR_MARKER?
+                            paStack.push(state1);
                             transducer.setState(new Match_i(transducer));
                             transducer.setPaused(true);
                             return;
                         }
 
-                        pathStack.push(array1);
-                        pathStack.push(index1);
+                        paStack.push(array1);
+                        paStack.push(state1);
                     }
 
-                    if (specification instanceof CopyTransformation) {
-                        String index1 = pathStack.pop();
-                        String array1 = pathStack.pop();
+                    if (specification instanceof CopyTransformation) {                        
+                        Integer state1 = paStack.pop();                                                
+                        Integer array1 = paStack.pop(); // ARR_MARKER?
+                        Integer index1 = indexStack.peek()-1;
 
-                        if (((CopyTransformation) specification).getIndex() != null && ((CopyTransformation) specification).getIndex().toString().equals(index1)
-                                && specification.getPath().equals(GetSimplifiedJSONPathFromStack(pathStack))) {
-                            pathStack.push(array1);
-                            pathStack.push(index1);
+                        if (((CopyTransformation) specification).getIndex() != null && ((CopyTransformation) specification).getIndex().equals(index1)
+                                && pa.isFinal(paStack.peek())) {
+                            paStack.push(array1);
+                            paStack.push(state1);
                             transducer.setState(new Match_i(transducer));
                             transducer.setPaused(true);
                             return;
                         }
-                        pathStack.push(array1);
-                        pathStack.push(index1);
+                        paStack.push(array1);
+                        paStack.push(state1);
                     } else if (specification instanceof MoveTransformation) {
-                        String index1 = pathStack.pop();
-                        String array1 = pathStack.pop();
-                        if (((MoveTransformation) specification).getIndex() != null && ((MoveTransformation) specification).getIndex().toString().equals(index1)
-                                && specification.getPath().equals(GetSimplifiedJSONPathFromStack(pathStack))) {
-                            pathStack.push(array1);
-                            pathStack.push(index1);
-                            pathStack.push("arr");
+                        Integer state1 = paStack.pop();                                                
+                        Integer array1 = paStack.pop(); // ARR_MARKER?
+                        Integer index1 = indexStack.peek()-1;
+
+                        if (((MoveTransformation) specification).getIndex() != null && ((MoveTransformation) specification).getIndex().equals(index1)
+                                && pa.isFinal(paStack.peek())) {
+                            paStack.push(array1);
+                            paStack.push(state1);
+                            paStack.push(ARR_MARKER);
                             indexStack.push(0);
                             transducer.setState(new Match_i(transducer));
                             transducer.setPaused(true);
                             return;
                         }
-                        pathStack.push(array1);
-                        pathStack.push(index1);
+                        paStack.push(array1);
+                        paStack.push(state1);
                     }
 
                     indexStack.push(0);
-                    pathStack.push("arr");
+                    paStack.push(ARR_MARKER);
 
                     break;
                 case END_ARRAY:
                     indexStack.pop();
-                    pathStack.pop();
+                    paStack.pop();
 
-                    if (specification.getPath().equals(GetSimplifiedJSONPathFromStack(pathStack))) {
+                    if (pa.isFinal(paStack.peek())) {
                         transducer.setState(new Match_i(transducer));
                         transducer.setPaused(true);
                         return;
                     }
 
-                    pathStack.pop();
+                    paStack.pop();
 
                     break;
                 case START_OBJECT:
-                    if (pathStack.peek().equals("arr")) {
+                    if (paStack.peek().equals(ARR_MARKER)) {
                         Integer i = indexStack.pop();
-                        pathStack.push(i.toString());
+                        paStack.pop(); // pop ARR_MARKER
+                        paState = paStack.peek();
+                        paStack.push(ARR_MARKER); // push ARR_MARKER back
+                        paStack.push(pa.transition(paState, i.toString()));
                         indexStack.push(i + 1);
                     }
-                    String index2 = pathStack.pop();
-                    String array2 = pathStack.pop();
-
-                    if (specification instanceof CopyTransformation && ((CopyTransformation) specification).getIndex() != null && ((CopyTransformation) specification).getIndex().toString().equals(index2)
-                            && specification.getPath().equals(GetSimplifiedJSONPathFromStack(pathStack))) {
-                        pathStack.push(array2);
-                        pathStack.push(index2);
+                    Integer state2 = paStack.pop();                                                
+                    Integer array2 = paStack.pop(); // ARR_MARKER?
+                    Integer index2 = indexStack.peek()-1;
+                                        
+                    if (specification instanceof CopyTransformation && ((CopyTransformation) specification).getIndex() != null && ((CopyTransformation) specification).getIndex().equals(index2)
+                            && pa.isFinal(paStack.peek())) {
+                        paStack.push(array2);
+                        paStack.push(state2);
                         transducer.setState(new Match_i(transducer));
                         transducer.setPaused(true);
                         return;
-                    } else if (specification instanceof MoveTransformation && ((MoveTransformation) specification).getIndex() != null && ((MoveTransformation) specification).getIndex().toString().equals(index2)
-                            && specification.getPath().equals(GetSimplifiedJSONPathFromStack(pathStack))) {
-                        pathStack.push(array2);
-                        pathStack.push(index2);
+                    } else if (specification instanceof MoveTransformation && ((MoveTransformation) specification).getIndex() != null && ((MoveTransformation) specification).getIndex().equals(index2)
+                            && pa.isFinal(paStack.peek())) {
+                        paStack.push(array2);
+                        paStack.push(state2);
                         transducer.setState(new Match_i(transducer));
                         transducer.setPaused(true);
                         return;
                     }
 
-                    pathStack.push(array2);
-                    pathStack.push(index2);
+                    paStack.push(array2);
+                    paStack.push(state2);
 
-                    pathStack.push("obj");
+                    paStack.push(OBJ_MARKER);
 
                     break;
                 case END_OBJECT:
-                    pathStack.pop();
+                    paStack.pop();
 
-                    if (specification.getPath().equals(GetSimplifiedJSONPathFromStack(pathStack))) {
+                    if (pa.isFinal(paStack.peek())) {
                         transducer.setState(new Match_i(transducer));
                         transducer.setPaused(true);
                         return;
                     }
 
-                    pathStack.pop();
+                    paStack.pop();
 
                     break;
                 case FIELD_NAME:
-                    pathStack.push(parser.getParsingContext().getCurrentName());
-
+                    paStack.pop(); // pop OBJ_MARKER
+                    paState = paStack.peek();
+                    paStack.push(OBJ_MARKER); // push OBJ_MARKER back
+                    paStack.push(pa.transition(paState, parser.getParsingContext().getCurrentName()));                   
                     break;
                 case VALUE_FALSE:
                 case VALUE_NULL:
@@ -165,36 +194,40 @@ public class Find_i implements State {
                 case VALUE_STRING:
                 case VALUE_NUMBER_INT:
                 case VALUE_NUMBER_FLOAT:
-                    if (pathStack.peek().equals("arr")) {
+                    if (paStack.peek().equals(ARR_MARKER)) {
                         Integer i = indexStack.pop();
-                        pathStack.push(i.toString());
+                        paStack.pop(); // pop ARR_MARKER
+                        paState = paStack.peek();
+                        paStack.push(ARR_MARKER); // push ARR_MARKER back
+                        paStack.push(pa.transition(paState, i.toString()));
                         indexStack.push(i + 1);
                     }
 
-                    String index = pathStack.pop();
-                    String array = pathStack.pop();
+                    Integer state3 = paStack.pop();                                                
+                    Integer array3 = paStack.pop(); // ARR_MARKER?
+                    Integer index3 = indexStack.peek()-1;
 
-                    if (specification instanceof CopyTransformation && ((CopyTransformation) specification).getIndex() != null && ((CopyTransformation) specification).getIndex().toString().equals(index)
-                            && specification.getPath().equals(GetSimplifiedJSONPathFromStack(pathStack))) {
-                        pathStack.push(array);
-                        pathStack.push(index);
+                    if (specification instanceof CopyTransformation && ((CopyTransformation) specification).getIndex() != null && ((CopyTransformation) specification).getIndex().equals(index3)
+                            && pa.isFinal(paStack.peek())) {
+                        paStack.push(array3);
+                        paStack.push(state3);
                         transducer.setState(new Match_i(transducer));
                         transducer.setPaused(true);
                         return;
-                    } else if (specification instanceof MoveTransformation && ((MoveTransformation) specification).getIndex() != null && ((MoveTransformation) specification).getIndex().toString().equals(index)
-                            && specification.getPath().equals(GetSimplifiedJSONPathFromStack(pathStack))) {
-                        pathStack.push(array);
-                        pathStack.push(index);
+                    } else if (specification instanceof MoveTransformation && ((MoveTransformation) specification).getIndex() != null && ((MoveTransformation) specification).getIndex().equals(index)
+                            && pa.isFinal(paStack.peek())) {
+                        paStack.push(array3);
+                        paStack.push(state3);
                         transducer.setState(new Match_i(transducer));
                         transducer.setPaused(true);
                         return;
                     }
 
-                    pathStack.push(array);
-                    pathStack.push(index);
+                    paStack.push(array3);
+                    paStack.push(state3);
 
 
-                    pathStack.pop();
+                    paStack.pop();
 
                     break;
             }

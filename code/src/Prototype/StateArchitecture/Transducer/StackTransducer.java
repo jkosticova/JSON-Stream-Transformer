@@ -1,6 +1,7 @@
 package Prototype.StateArchitecture.Transducer;
 
 import Prototype.Mapper.SpecificationMapper;
+import Prototype.PathAutomaton.*;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.State.Eval;
 import Prototype.StateArchitecture.State.State;
@@ -19,14 +20,17 @@ public class StackTransducer implements Transducer {
     private boolean paused;
     JsonGenerator generator;
     JsonParser parser;
-    Stack<String> pathStack;
-    Stack<Integer> indexStack;
+    Stack<Integer> paStack;    
+    Stack<Integer> indexStack;    
+    PathAutomaton pa;
     TransformationFormat specification;
 
     public StackTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {
         specification = mapper.getTransformationFormat();
-        pathStack = new Stack<>();
-        indexStack = new Stack<>();
+        paStack = new Stack<>();        
+        indexStack = new Stack<>();        
+        pa = new SimplePathAutomaton(specification.getPath(),null); 
+        
         JsonFactory factory = new JsonFactory();
         try {
             parser = factory.createParser(inputStream);
@@ -49,14 +53,14 @@ public class StackTransducer implements Transducer {
     }
 
     @Override
-    public Stack<String> getPathStack() {
-        return this.pathStack;
+    public Stack<Integer> getPaStack() {
+        return this.paStack;
     }
 
     @Override
     public Stack<Integer> getIndexStack() {
-        return this.indexStack;
-    }
+        return this.indexStack;    }
+
 
     @Override
     public TransformationFormat getSpecification() {
@@ -67,18 +71,21 @@ public class StackTransducer implements Transducer {
         try {
             JsonToken event = null;
 
-            while (!indexStack.empty()) indexStack.pop();
-            while (!pathStack.empty()) pathStack.pop();
-            pathStack.push("$");
+            // inicializacia stackov - aby boli prazdne
+            paStack.clear();
+            indexStack.clear();
+            
+            paStack.push(INITIAL_PA_STATE);
 
+            // kym sa cita nieco zo vstupu
             while (!parser.isClosed()) {
                 if (!paused) {
                     event = parser.nextToken();
                 }
-                if (event == null || pathStack.isEmpty()) break;
+                // EOF && prazdny stack
+                if (event == null || paStack.isEmpty()) break;
                 currentState.process(event, parser);
             }
-
             parser.close();
             generator.close();
         } catch (Exception e) {
