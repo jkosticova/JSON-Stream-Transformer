@@ -50,11 +50,9 @@ public class Match implements State {
                     // current key is copied only in case of object field name, it doesn't make sense for other cases
                     } else if (transducer.getPaStack().peek()>=0 && event == JsonToken.FIELD_NAME) {
                         generator.copyCurrentEvent(parser);
-                        writeJsonValue(generator, ((ReplaceTransformation) specification).getValue());
                     }
-                    else {
-                        writeJsonValue(generator, ((ReplaceTransformation) specification).getValue());
-                    }
+
+                    writeJsonValue(generator, ((ReplaceTransformation) specification).getValue());
                     transducer.setState(new Del(transducer));
                     transducer.setPaused(false);
                 } catch (IOException e) {
