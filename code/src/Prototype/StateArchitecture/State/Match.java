@@ -32,14 +32,14 @@ public class Match implements State {
             case "rename":
                 try {
                     generator.writeFieldName(((RenameTransformation) specification).getKey());
-                    transducer.setState(new Gen(transducer));
+                    transducer.setState(transducer.getGenState());
                     transducer.setPaused(false);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
                 break;
             case "remove":
-                transducer.setState(new Del(transducer));
+                transducer.setState(transducer.getDelState());
                 transducer.setPaused(false);
                 break;
             case "replace":
@@ -52,7 +52,7 @@ public class Match implements State {
                     }
 
                     writeJsonValue(generator, ((ReplaceTransformation) specification).getValue());
-                    transducer.setState(new Del(transducer));
+                    transducer.setState(transducer.getDelState());
                     transducer.setPaused(false);
                 } catch (IOException e) {
                     throw new RuntimeException(e);

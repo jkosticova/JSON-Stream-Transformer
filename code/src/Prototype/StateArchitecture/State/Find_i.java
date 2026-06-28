@@ -63,7 +63,7 @@ public class Find_i implements State {
                                 && pa.isFinal(paStack.peek())) {
                             paStack.push(array1); // ARR_MARKER?
                             paStack.push(state1);
-                            transducer.setState(new Match_i(transducer));
+                            transducer.setState(transducer.getMatch_iState());
                             transducer.setPaused(true);
                             return;
                         }
@@ -81,7 +81,7 @@ public class Find_i implements State {
                                 && pa.isFinal(paStack.peek())) {
                             paStack.push(array1);
                             paStack.push(state1);
-                            transducer.setState(new Match_i(transducer));
+                            transducer.setState(transducer.getMatch_iState());
                             transducer.setPaused(true);
                             return;
                         }
@@ -98,7 +98,7 @@ public class Find_i implements State {
                             paStack.push(state1);
                             paStack.push(ARR_MARKER);
                             indexStack.push(0);
-                            transducer.setState(new Match_i(transducer));
+                            transducer.setState(transducer.getMatch_iState());
                             transducer.setPaused(true);
                             return;
                         }
@@ -115,7 +115,7 @@ public class Find_i implements State {
                     paStack.pop();
 
                     if (pa.isFinal(paStack.peek())) {
-                        transducer.setState(new Match_i(transducer));
+                        transducer.setState(transducer.getMatch_iState());
                         transducer.setPaused(true);
                         return;
                     }
@@ -140,14 +140,14 @@ public class Find_i implements State {
                             && pa.isFinal(paStack.peek())) {
                         paStack.push(array2);
                         paStack.push(state2);
-                        transducer.setState(new Match_i(transducer));
+                        transducer.setState(transducer.getMatch_iState());
                         transducer.setPaused(true);
                         return;
                     } else if (specification instanceof MoveTransformation && ((MoveTransformation) specification).getIndex() != null && ((MoveTransformation) specification).getIndex().equals(index2)
                             && pa.isFinal(paStack.peek())) {
                         paStack.push(array2);
                         paStack.push(state2);
-                        transducer.setState(new Match_i(transducer));
+                        transducer.setState(transducer.getMatch_iState());
                         transducer.setPaused(true);
                         return;
                     }
@@ -162,7 +162,7 @@ public class Find_i implements State {
                     paStack.pop();
 
                     if (pa.isFinal(paStack.peek())) {
-                        transducer.setState(new Match_i(transducer));
+                        transducer.setState(transducer.getMatch_iState());
                         transducer.setPaused(true);
                         return;
                     }
@@ -199,14 +199,14 @@ public class Find_i implements State {
                             && pa.isFinal(paStack.peek())) {
                         paStack.push(array3);
                         paStack.push(state3);
-                        transducer.setState(new Match_i(transducer));
+                        transducer.setState(transducer.getMatch_iState());
                         transducer.setPaused(true);
                         return;
                     } else if (specification instanceof MoveTransformation && ((MoveTransformation) specification).getIndex() != null && ((MoveTransformation) specification).getIndex().equals(index3)
                             && pa.isFinal(paStack.peek())) {
                         paStack.push(array3);
                         paStack.push(state3);
-                        transducer.setState(new Match_i(transducer));
+                        transducer.setState(transducer.getMatch_iState());
                         transducer.setPaused(true);
                         return;
                     }

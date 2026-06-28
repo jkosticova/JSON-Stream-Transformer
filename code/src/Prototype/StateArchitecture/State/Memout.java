@@ -18,7 +18,7 @@ public class Memout implements State {
             transducer.getFromMemory();
             transducer.getGenerator().copyCurrentEvent(parser);
 
-            transducer.setState(new Gen(transducer));
+            transducer.setState(transducer.getGenState());
             transducer.setPaused(false);
         } catch (IOException e) {
             throw new RuntimeException(e);

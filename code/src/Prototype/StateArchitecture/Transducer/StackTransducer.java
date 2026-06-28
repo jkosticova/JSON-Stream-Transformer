@@ -16,7 +16,8 @@ import java.util.Stack;
 
 public class StackTransducer implements Transducer {
     private State currentState;
-    private boolean paused;    
+    private boolean paused;
+    
     //states
     private final Eval evalState;
     private final Match matchState;
@@ -35,15 +36,7 @@ public class StackTransducer implements Transducer {
 
     public StackTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {
         specification = mapper.getTransformationFormat();
-        
-        // states
-        evalState = new Eval(this);
-        matchState = new Match(this);
-        delState = new Del(this);
-        find_iState = new Find_i(this);
-        match_iState = new Match_i(this);        
-        genState = new Gen(this);
-        
+                        
         // stacks
         paStack = new Stack<>();        
         indexStack = new Stack<>();        
@@ -56,7 +49,15 @@ public class StackTransducer implements Transducer {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        currentState = new Eval(this);
+        // states
+        evalState = new Eval(this);
+        matchState = new Match(this);
+        delState = new Del(this);
+        find_iState = new Find_i(this);
+        match_iState = new Match_i(this);        
+        genState = new Gen(this);
+        
+        currentState = evalState;
         paused = false;
     }
 

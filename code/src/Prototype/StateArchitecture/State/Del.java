@@ -48,7 +48,7 @@ public class Del implements State {
                         throw new RuntimeException(e);
                     }
 
-                    transducer.setState(new Gen(transducer));
+                    transducer.setState(transducer.getGenState());
                     transducer.setPaused(false);
                     return;
                 }*/
@@ -61,7 +61,7 @@ public class Del implements State {
                 if (pa.isFinal(paStack.peek())) {
                     try {
                         generator.copyCurrentEvent(parser);
-                        transducer.setState(new Gen(transducer));
+                        transducer.setState(transducer.getGenState());
                         transducer.setPaused(false);
                         return;
                     } catch (IOException e) {
@@ -74,7 +74,7 @@ public class Del implements State {
                 paStack.pop();
 
                 if (pa.isFinal(paStack.peek())) {
-                    transducer.setState(new Gen(transducer));
+                    transducer.setState(transducer.getGenState());
                     transducer.setPaused(false);
                     return;
                 }
@@ -99,7 +99,7 @@ public class Del implements State {
                 paStack.pop();
 
                 if (pa.isFinal(paStack.peek())) {
-                    transducer.setState(new Gen(transducer));
+                    transducer.setState(transducer.getGenState());
                     transducer.setPaused(false);
                     return;
                 }
@@ -146,7 +146,7 @@ public class Del implements State {
                              throw new RuntimeException(e);
                          }
                      }
-                    transducer.setState(new Gen(transducer));
+                    transducer.setState(transducer.getGenState());
                     transducer.setPaused(false);
                     return;
                 }

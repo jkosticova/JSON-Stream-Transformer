@@ -55,18 +55,7 @@ public class DestinationTransducer implements Transducer {
             newSpecification.setKey(oldSpecification.getKey());
             specification = newSpecification;
         }
-
-        // states
-        evalState = new Eval(this);
-        matchState = new Match(this);
-        delState = new Del(this);
-        find_iState = new Find_i(this);
-        match_iState = new Match_i(this);        
-        genState = new Gen(this);    
-        meminState = new Memin(this);    
-        meminDelState = new MeminDel(this);    
-        memoutState = new Memout(this);    
-        
+                
         this.parentTransducer = parentTransducer;
         
         pa = new SimplePathAutomaton(specification.getPath());
@@ -81,8 +70,20 @@ public class DestinationTransducer implements Transducer {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        currentState = new Eval(this);
         paused = false;
+        // states
+        evalState = new Eval(this);
+        matchState = new Match(this);
+        delState = new Del(this);
+        find_iState = new Find_i(this);
+        match_iState = new Match_i(this);        
+        genState = new Gen(this);    
+        meminState = new Memin(this);    
+        meminDelState = new MeminDel(this);    
+        memoutState = new Memout(this);    
+        
+        currentState = evalState;
+        
     }
 
     @Override

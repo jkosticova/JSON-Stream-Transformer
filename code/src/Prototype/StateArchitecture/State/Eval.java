@@ -50,7 +50,7 @@ public class Eval implements State {
                     }
 
                     if (pa.isFinal(paStack.peek())) {
-                        transducer.setState(new Match(transducer));
+                        transducer.setState(transducer.getMatchState());
                         transducer.setPaused(true);
                         indexStack.push(0);
                         paStack.push(ARR_MARKER);
@@ -79,7 +79,7 @@ public class Eval implements State {
                     }
 
                     if (pa.isFinal(paStack.peek())) {
-                        transducer.setState(new Match(transducer));
+                        transducer.setState(transducer.getMatchState());
                         transducer.setPaused(true);
                         paStack.push(OBJ_MARKER);
                         return;
@@ -111,7 +111,7 @@ public class Eval implements State {
                     paStack.push(pa.transition(paState, parser.getParsingContext().getCurrentName()));
 
                     if (pa.isFinal(paStack.peek())) {
-                        transducer.setState(new Match(transducer));
+                        transducer.setState(transducer.getMatchState());
                         transducer.setPaused(true);
                         return;
                     }
@@ -133,7 +133,7 @@ public class Eval implements State {
                     }
 
                     if (pa.isFinal(paStack.peek())) {
-                        transducer.setState(new Match(transducer));
+                        transducer.setState(transducer.getMatchState());
                         transducer.setPaused(true);
                         return;
                     }
