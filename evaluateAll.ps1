@@ -38,8 +38,11 @@ foreach ($input in $inputFiles) {
     foreach ($spec in $specifications) {
 
         Write-Host "Running: $spec with $input"
+        
 
-        mvn clean compile exec:java -Dexec.mainClass=Measurements.Main `
+        java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch `
+            -cp "target\classes;out\production\code;target\dependency\*" `
+            Measurements.Main `
             "JsonExamples\Evaluation\$spec.json" `
             "JsonExamples\$input.json"
 

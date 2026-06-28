@@ -92,7 +92,7 @@
                 <version>3.6.1</version>
                 <executions>
                     <execution>
-                        <phase>prepare-package</phase>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>

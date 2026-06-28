@@ -39,7 +39,7 @@ public class Main {
             String specificationName = args[0].substring(args[0].lastIndexOf("\\") + 1, args[0].lastIndexOf("."));
             String inputName = input.substring(input.lastIndexOf("\\") + 1, input.lastIndexOf("."));
             output = "JsonExamples\\Evaluation\\" + mapper.getTransformationFormat().getType() + "\\output" + specificationName + "_" + inputName + ".json";
-            result = Path.of("JsonExamples\\Evaluation\\" + mapper.getTransformationFormat().getType() + "\\results" + specificationName + "_" + inputName + ".txt");
+            result = Path.of("JsonExamples\\Evaluation\\" + mapper.getTransformationFormat().getType() + "\\results\\" + specificationName + "_" + inputName + ".txt");
         }
         Files.writeString(result, "", StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
@@ -128,7 +128,7 @@ public class Main {
         }
 
         r.stop();
-        r.dump(Path.of("JsonExamples\\Evaluation\\" + mapper.getTransformationFormat().getType() + "\\evaluation\\run.jfr"));
+        r.dump(Path.of("JsonExamples\\Evaluation\\" + mapper.getTransformationFormat().getType() + "\\run.jfr"));
         r.close();
     }
 
@@ -172,7 +172,7 @@ public class Main {
         }
 
         r.stop();
-        r.dump(Path.of("JsonExamples\\Evaluation\\" + mapper.getTransformationFormat().getType() + "\\evaluation\\run.jfr"));
+        r.dump(Path.of("JsonExamples\\Evaluation\\" + mapper.getTransformationFormat().getType() + "\\run.jfr"));
         r.close();
     }
 
@@ -180,7 +180,7 @@ public class Main {
         long totalBytes = 0;
         long maxHeapUsed = 0;
 
-        try (RecordingFile rf = new RecordingFile(Path.of("JsonExamples\\Evaluation\\" + type + "\\evaluation\\run.jfr"))) {
+        try (RecordingFile rf = new RecordingFile(Path.of("JsonExamples\\Evaluation\\" + type + "\\run.jfr"))) {
             while (rf.hasMoreEvents()) {
                 RecordedEvent e = rf.readEvent();
 

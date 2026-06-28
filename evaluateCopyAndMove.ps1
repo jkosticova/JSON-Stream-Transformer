@@ -42,7 +42,7 @@ foreach ($test in $tests) {
     Write-Host "========================================"
 
     java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch `
-        -cp "out\production\code;target\dependency\*" `
+        -cp "out\production\code;target\dependency\*;target\classes" `
         Measurements.Main `
         "JsonExamples\Evaluation\$spec.json" `
         "JsonExamples\$input.json"
