@@ -35,12 +35,19 @@ foreach ($input in $inputFiles) {
     Write-Host "Input file: $input"
     Write-Host "========================================"
 
+    Write-Host "Running: baseline with $input"
+    
+    java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch -XX:TLABSize=2k -XX:-ResizeTLAB `
+            -cp "target\classes;out\production\code;target\dependency\*" `
+            Measurements.Main `
+            "JsonExamples\$input.json"
+    
     foreach ($spec in $specifications) {
 
         Write-Host "Running: $spec with $input"
         
 
-        java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch `
+        java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch -XX:TLABSize=2k -XX:-ResizeTLAB `
             -cp "target\classes;out\production\code;target\dependency\*" `
             Measurements.Main `
             "JsonExamples\Evaluation\$spec.json" `
