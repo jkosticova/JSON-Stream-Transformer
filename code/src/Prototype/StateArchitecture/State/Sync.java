@@ -107,9 +107,9 @@ public class Sync implements State {
             } else if ((sourceState instanceof Gen) && (destinationState instanceof Match)) {
                 try {
                     if (((CopyTransformation) specification).getKey() != null)
-                        destinationTransducer.setState(new Find_i(destinationTransducer, -1));
+                        destinationTransducer.setState(new Find_i(destinationTransducer));
                     else {
-                        destinationTransducer.setState(new Find_i(destinationTransducer, ((CopyTransformation) specification).getIndex()));
+                        destinationTransducer.setState(new Find_i(destinationTransducer));
                     }
                     generator.copyCurrentEvent(parser);
 
@@ -135,9 +135,9 @@ public class Sync implements State {
             } else if ((sourceState instanceof Eval) && (destinationState instanceof Match)) {
                 try {
                     if (((CopyTransformation) specification).getKey() != null) {
-                        destinationTransducer.setState(new Find_i(destinationTransducer, -1));
+                        destinationTransducer.setState(new Find_i(destinationTransducer));
                     } else {
-                        destinationTransducer.setState(new Find_i(destinationTransducer, ((CopyTransformation) specification).getIndex()));
+                        destinationTransducer.setState(new Find_i(destinationTransducer));
                     }
                     generator.copyCurrentEvent(parser);
 
@@ -302,9 +302,9 @@ public class Sync implements State {
             } else if ((sourceState instanceof Gen) && (destinationState instanceof Match)) {
                 try {
                     if (((MoveTransformation) specification).getKey() != null) {
-                        destinationTransducer.setState(new Find_i(destinationTransducer, -1));
+                        destinationTransducer.setState(new Find_i(destinationTransducer));
                     } else {
-                        destinationTransducer.setState(new Find_i(destinationTransducer, ((MoveTransformation) specification).getIndex()));
+                        destinationTransducer.setState(new Find_i(destinationTransducer));
                     }
                     generator.copyCurrentEvent(parser);
 
@@ -329,9 +329,9 @@ public class Sync implements State {
             } else if ((sourceState instanceof Eval) && (destinationState instanceof Match)) {
                 try {
                     if (((MoveTransformation) specification).getKey() != null) {
-                        destinationTransducer.setState(new Find_i(destinationTransducer, -1));
+                        destinationTransducer.setState(new Find_i(destinationTransducer));
                     } else {
-                        destinationTransducer.setState(new Find_i(destinationTransducer, ((MoveTransformation) specification).getIndex()));
+                        destinationTransducer.setState(new Find_i(destinationTransducer));
                     }
                     generator.copyCurrentEvent(parser);
 

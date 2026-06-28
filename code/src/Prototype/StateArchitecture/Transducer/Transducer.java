@@ -15,6 +15,16 @@ public interface Transducer {
 
     JsonGenerator getGenerator();    
     
+    State getEvalState();
+    State getMatchState();
+    State getFind_iState();
+    State getMatch_iState();
+    State getDelState();
+    State getGenState();
+    State getMeminState();
+    State getMeminDelState();
+    State getMemoutState();
+    
     PathAutomaton getPa();
     
     Stack<Integer> getPaStack();

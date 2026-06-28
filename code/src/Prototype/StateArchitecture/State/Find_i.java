@@ -15,35 +15,25 @@ import java.io.IOException;
 import java.util.Stack;
 
 public class Find_i implements State {
-    Transducer transducer;
-    private final Integer index;
+    Transducer transducer;    
     private JsonGenerator generator;
     private Stack<Integer> paStack;
     private Stack<Integer> indexStack;
     private TransformationFormat specification;
     private PathAutomaton pa;
 
-    public Find_i(Transducer transducer, Integer index) {
+    public Find_i(Transducer transducer) {
         this.transducer = transducer;
         init();
-        this.index = index;
+    
     }
 
     private void init() {
-        Integer index = null;
         this.generator = this.transducer.getGenerator();
         this.paStack = this.transducer.getPaStack();
         this.indexStack = this.transducer.getIndexStack();
         this.specification = this.transducer.getSpecification();
-        if (specification instanceof AddTransformation) {
-            index = ((AddTransformation) specification).getIndex();
-        }
-        else if (specification instanceof CopyTransformation) {
-            index = ((CopyTransformation) specification).getIndex();
-        }
-        else if (specification instanceof MoveTransformation) {
-            index = ((MoveTransformation) specification).getIndex();
-        }
+        
         pa = transducer.getPa();
             
         

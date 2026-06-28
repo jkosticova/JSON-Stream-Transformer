@@ -3,8 +3,7 @@ package Prototype.StateArchitecture.Transducer;
 import Prototype.Mapper.SpecificationMapper;
 import Prototype.PathAutomaton.*;
 import Prototype.SpecificationParser.TransformationFormat;
-import Prototype.StateArchitecture.State.Eval;
-import Prototype.StateArchitecture.State.State;
+import Prototype.StateArchitecture.State.*;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -17,16 +16,35 @@ import java.util.Stack;
 
 public class StackTransducer implements Transducer {
     private State currentState;
-    private boolean paused;
-    JsonGenerator generator;
-    JsonParser parser;
+    private boolean paused;    
+    //states
+    private final Eval evalState;
+    private final Match matchState;
+    private final Gen genState;
+    private final Del delState;
+    private final Find_i find_iState;
+    private final Match_i match_iState;
+    // stacks
     Stack<Integer> paStack;    
     Stack<Integer> indexStack;    
+    JsonGenerator generator;
+    JsonParser parser;
+    
     PathAutomaton pa;
     TransformationFormat specification;
 
     public StackTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {
         specification = mapper.getTransformationFormat();
+        
+        // states
+        evalState = new Eval(this);
+        matchState = new Match(this);
+        delState = new Del(this);
+        find_iState = new Find_i(this);
+        match_iState = new Match_i(this);        
+        genState = new Gen(this);
+        
+        // stacks
         paStack = new Stack<>();        
         indexStack = new Stack<>();        
         pa = new SimplePathAutomaton(specification.getPath()); 
@@ -50,6 +68,51 @@ public class StackTransducer implements Transducer {
     @Override
     public JsonGenerator getGenerator() {
         return this.generator;
+    }
+
+    @Override
+    public State getEvalState() {
+        return this.evalState;
+    }
+
+    @Override
+    public State getMatchState() {
+        return this.matchState;
+    }
+    
+    @Override
+    public State getGenState() {
+        return this.genState;
+    }
+
+    @Override
+    public State getDelState() {
+        return this.delState;
+    }
+
+    @Override
+    public State getFind_iState() {
+        return this.find_iState;
+    }
+
+    @Override
+    public State getMatch_iState() {
+        return this.match_iState;
+    }
+
+    @Override
+    public State getMeminState() {
+        return null;
+    }
+
+    @Override
+    public State getMeminDelState() {
+        return null;
+    }
+
+    @Override
+    public State getMemoutState() {
+        return null;
     }
 
     @Override

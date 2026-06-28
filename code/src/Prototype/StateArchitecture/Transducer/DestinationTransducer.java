@@ -6,8 +6,7 @@ import Prototype.PathAutomaton.SimplePathAutomaton;
 import Prototype.SpecificationParser.CopyTransformation;
 import Prototype.SpecificationParser.MoveTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
-import Prototype.StateArchitecture.State.Eval;
-import Prototype.StateArchitecture.State.State;
+import Prototype.StateArchitecture.State.*;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -21,9 +20,19 @@ public class DestinationTransducer implements Transducer {
     private State currentState;
     private final BufferTransducer parentTransducer;
     private boolean paused;
+    //states
+    private final Eval evalState;
+    private final Match matchState;
+    private final Gen genState;
+    private final Del delState;
+    private final Find_i find_iState;
+    private final Match_i match_iState;
+    private final Memin meminState;
+    private final MeminDel meminDelState;
+    private final Memout memoutState;
     JsonGenerator generator;
     JsonParser parser;
-    PathAutomaton pa;
+    PathAutomaton pa;    
     Stack<Integer> paStack;
     Stack<Integer> indexStack;
     TransformationFormat specification;
@@ -47,6 +56,17 @@ public class DestinationTransducer implements Transducer {
             specification = newSpecification;
         }
 
+        // states
+        evalState = new Eval(this);
+        matchState = new Match(this);
+        delState = new Del(this);
+        find_iState = new Find_i(this);
+        match_iState = new Match_i(this);        
+        genState = new Gen(this);    
+        meminState = new Memin(this);    
+        meminDelState = new MeminDel(this);    
+        memoutState = new Memout(this);    
+        
         this.parentTransducer = parentTransducer;
         
         pa = new SimplePathAutomaton(specification.getPath());
@@ -76,6 +96,51 @@ public class DestinationTransducer implements Transducer {
 
     public void setGenerator(JsonGenerator generator) {
         this.generator = generator;
+    }
+
+    @Override
+    public State getEvalState() {
+        return this.evalState;
+    }
+
+    @Override
+    public State getMatchState() {
+        return this.matchState;
+    }
+    
+    @Override
+    public State getGenState() {
+        return this.genState;
+    }
+
+    @Override
+    public State getDelState() {
+        return this.delState;
+    }
+
+    @Override
+    public State getFind_iState() {
+        return this.find_iState;
+    }
+
+    @Override
+    public State getMatch_iState() {
+        return this.match_iState;
+    }
+
+    @Override
+    public State getMeminState() {
+        return this.meminState;
+    }
+
+    @Override
+    public State getMeminDelState() {
+        return this.meminDelState;
+    }
+
+    @Override
+    public State getMemoutState() {
+        return this.memoutState;
     }
 
     @Override

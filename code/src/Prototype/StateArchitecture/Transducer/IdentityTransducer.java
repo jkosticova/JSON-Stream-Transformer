@@ -99,4 +99,49 @@ public class IdentityTransducer implements Transducer {
     public void setState(State state) {
         this.currentState = state;
     }
+
+    @Override
+    public State getEvalState() {
+        return null;
+    }
+
+    @Override
+    public State getMatchState() {
+        return null;
+    }
+    
+    @Override
+    public State getGenState() {
+        return null;
+    }
+
+    @Override
+    public State getDelState() {
+        return null;
+    }
+
+    @Override
+    public State getFind_iState() {
+        return null;
+    }
+
+    @Override
+    public State getMatch_iState() {
+        return null;
+    }
+
+    @Override
+    public State getMeminState() {
+        return null;
+    }
+
+    @Override
+    public State getMeminDelState() {
+        return null;
+    }
+
+    @Override
+    public State getMemoutState() {
+        return null;
+    }
 }

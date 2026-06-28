@@ -61,9 +61,9 @@ public class Match implements State {
             case "add":
                 try {
                     if (((AddTransformation) specification).getKey() != null) {
-                        transducer.setState(new Find_i(transducer, -1));
+                        transducer.setState(transducer.getFind_iState());
                     } else {
-                        transducer.setState(new Find_i(transducer, ((AddTransformation) specification).getIndex()));
+                        transducer.setState(transducer.getFind_iState());
                     }
                     generator.copyCurrentEvent(parser);
 
