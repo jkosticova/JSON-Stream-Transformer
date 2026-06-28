@@ -152,21 +152,12 @@ public class Sync implements State {
                 try {
                     if (((CopyTransformation) specification).getKey() != null) {
                         String key = ((CopyTransformation) specification).getKey();
-                        generator.writeFieldName(key);
-                        generator.flush(); // DEBUG only
-
-                       /* int top = sourceTransducer.getPaStack().peek();
-                        if (top == OBJ_MARKER) {
-                            sourceTransducer.getPaStack().pop(); // pop OBJ_MARKER
-                            int paState = sourceTransducer.getPaStack().peek();
-                            sourceTransducer.getPaStack().push(OBJ_MARKER); // push OBJ_MARKER
-                            sourceTransducer.getPaStack().push(sourcePa.transition(paState, key));
-                        } */
+                        generator.writeFieldName(key);                       
                     }
 
                     destinationTransducer.setState(new MeminDel(destinationTransducer));
-                    transducer.addToMemory();
-                    destinationTransducer.setPaused(false);
+                    //transducer.addToMemory();
+                    destinationTransducer.setPaused(true);
 
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
                 } catch (IOException e) {
@@ -179,6 +170,7 @@ public class Sync implements State {
                         destinationTransducer.setState(new Gen(destinationTransducer));
 
                         sourceTransducer.setPaused(true);
+                        destinationTransducer.setPaused(false);
                         transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
                         return;
                     }
@@ -186,6 +178,7 @@ public class Sync implements State {
                     sourceState.process(event, parser);
                     destinationState.process(event, parser);
 
+                    destinationTransducer.setPaused(false);
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
 
                     generator.flush();
@@ -197,6 +190,7 @@ public class Sync implements State {
                 destinationTransducer.setState(new Gen(destinationTransducer));
 
                 sourceTransducer.setPaused(false);
+                destinationTransducer.setPaused(false);
                 transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
             } else if ((sourceState instanceof Match) && (destinationState instanceof Gen)) {
                 sourceTransducer.setState(new Memin(sourceTransducer));
@@ -350,8 +344,8 @@ public class Sync implements State {
                 }
             } else if ((sourceState instanceof Eval) && (destinationState instanceof Match_i)) {
                 destinationTransducer.setState(new MeminDel(destinationTransducer));
-                transducer.addToMemory();
-                destinationTransducer.setPaused(false);
+                //transducer.addToMemory();
+                destinationTransducer.setPaused(true);
 
                 transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
             } else if ((sourceState instanceof Eval) && (destinationState instanceof MeminDel)) {
@@ -363,12 +357,13 @@ public class Sync implements State {
                         destinationTransducer.setState(new Gen(destinationTransducer));
 
                         sourceTransducer.setPaused(true);
+                        destinationTransducer.setPaused(false);
                         transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
                         return;
                     }
 
                     destinationState.process(event, parser);
-
+                    destinationTransducer.setPaused(false);
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
 
                     generator.flush();

@@ -62,7 +62,7 @@ public class BufferTransducer {
     public void addToMemory() {
         try {
             buffer.copyCurrentEvent(parser);
-            recordBufferMemory();
+            //recordBufferMemory();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

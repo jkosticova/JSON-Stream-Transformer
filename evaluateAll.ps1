@@ -24,7 +24,7 @@ $inputFiles = @(
     "evaluationInputSmall"
 )
 
-setx JAVA_HOME "C:\Users\Miska\.jdks\openjdk-24.0.1"
+setx JAVA_HOME "c:\Users\kosticova\.jdks\openjdk-21.0.2"
 
 $env:Path="$env:JAVA_HOME\bin;$env:Path"
 
@@ -39,9 +39,7 @@ foreach ($input in $inputFiles) {
 
         Write-Host "Running: $spec with $input"
 
-        java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch `
-            -cp "out\production\code;target\dependency\*" `
-            Measurements.Main `
+        mvn clean compile exec:java -Dexec.mainClass=Measurements.Main `
             "JsonExamples\Evaluation\$spec.json" `
             "JsonExamples\$input.json"
 

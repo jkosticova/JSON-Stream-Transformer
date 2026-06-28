@@ -63,6 +63,7 @@ public class Eval implements State {
                     break;
                 case END_ARRAY:
                     indexStack.pop();
+
                     paStack.pop();
                     paStack.pop();
 
@@ -88,14 +89,25 @@ public class Eval implements State {
 
                     break;
                 case END_OBJECT:
-                    paStack.pop();
-                    paStack.pop();
+                    if (!paStack.peek().equals(ARR_MARKER)) {
+                        paStack.pop();
+                    }
+                    if (!paStack.peek().equals(ARR_MARKER)) {
+                        paStack.pop();
+                    }
 
                     break;
                 case FIELD_NAME:
-                    paStack.pop(); // pop OBJ_MARKER
-                    paState = paStack.peek();
-                    paStack.push(OBJ_MARKER); // push OBJ_MARKER back
+                    // field name after start object or start array
+                    if (paStack.peek() < 0) {
+                        int marker = paStack.pop(); // pop OBJ_MARKER
+                        paState = paStack.peek();
+                        paStack.push(marker); // push OBJ_MARKER back
+                    }
+                    // field name within object
+                    else {
+                        paState = paStack.peek();
+                    }
                     paStack.push(pa.transition(paState, parser.getParsingContext().getCurrentName()));
 
                     if (pa.isFinal(paStack.peek())) {
@@ -126,8 +138,7 @@ public class Eval implements State {
                         return;
                     }
 
-                    paStack.pop();
-
+                    paStack.pop(); // pop new state in case of array or fieldname
                     break;
             }
 
