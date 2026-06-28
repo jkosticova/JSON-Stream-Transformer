@@ -26,8 +26,7 @@ public class Sync implements State {
     private final JsonGenerator generator;
     private final TransformationFormat specification;
     private final ObjectMapper objectMapper;
-    private final PathAutomaton sourcePa;
-    private final PathAutomaton destPa;
+    private final PathAutomaton sourcePa;    
 
     public Sync(BufferTransducer transducer) {
         this.transducer = transducer;
@@ -36,8 +35,7 @@ public class Sync implements State {
         this.generator = transducer.getGenerator();
         this.specification = transducer.getSpecification();
         this.objectMapper = new ObjectMapper();
-        this.sourcePa = sourceTransducer.getPa();
-        this.destPa = sourceTransducer.getPa();
+        this.sourcePa = sourceTransducer.getPa();        
     }
 
     @Override

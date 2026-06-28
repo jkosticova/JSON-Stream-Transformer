@@ -13,7 +13,6 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 
-import static Prototype.Utils.Helper.isNumeric;
 import static Prototype.Utils.Helper.writeJsonValue;
 
 public class Match implements State {

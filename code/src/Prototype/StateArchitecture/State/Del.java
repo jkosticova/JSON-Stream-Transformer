@@ -11,9 +11,6 @@ import com.fasterxml.jackson.core.JsonToken;
 import java.io.IOException;
 import java.util.Stack;
 
-import static Prototype.Utils.Helper.GetSimplifiedJSONPathFromStack;
-import static Prototype.Utils.Helper.isNumeric;
-
 public class Del implements State {
     Transducer transducer;
     private final Stack<Integer> paStack;

@@ -14,8 +14,6 @@ import com.fasterxml.jackson.core.JsonToken;
 import java.io.IOException;
 import java.util.Stack;
 
-import static Prototype.Utils.Helper.GetSimplifiedJSONPathFromStack;
-
 public class Find_i implements State {
     Transducer transducer;
     private final Integer index;
