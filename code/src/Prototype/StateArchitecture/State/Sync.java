@@ -258,16 +258,28 @@ public class Sync implements State {
             } else {
                 try {
                     
+                    sourceTransducer.setIsGenerating(false);
+                    destinationTransducer.setIsGenerating(false);
+                                        
                     sourceState.process(event, parser);
                     destinationState.process(event, parser);
+                    sourceState = sourceTransducer.getCurrentState();
+                    destinationState = destinationTransducer.getCurrentState();
 
-                    Transducer preferredTransducerState = getPreferredState(sourceTransducer.getCurrentState(), destinationTransducer.getCurrentState());
-
-                    assert preferredTransducerState != null;
-                    TokenBuffer tokenBuffer = (TokenBuffer) preferredTransducerState.getGenerator();
-
-                    tokenBuffer.serialize(generator);
-
+                    // dest - noGen musi byt false
+                    if (sourceState instanceof Gen && !destinationTransducer.noGen()) {
+                        generator.copyCurrentEvent(parser);
+                    // src
+                    } else if (destinationState instanceof Gen && !sourceTransducer.noGen()) {
+                        generator.copyCurrentEvent(parser);
+                    // dest
+                    } else if (sourceState instanceof Eval && !destinationTransducer.noGen()) {                    
+                        generator.copyCurrentEvent(parser);
+                    // src
+                    } else if (destinationState instanceof Eval && !sourceTransducer.noGen()) {
+                        generator.copyCurrentEvent(parser);
+                    }
+                    
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
 
                     generator.flush();
