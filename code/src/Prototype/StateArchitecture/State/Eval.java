@@ -142,8 +142,9 @@ public class Eval implements State {
                     break;
             }
 
-
-            generator.copyCurrentEvent(parser);
+            if (this.transducer.isGenerating()) {
+                generator.copyCurrentEvent(parser);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -30,7 +30,7 @@ public class SourceTransducer implements Transducer {
     private final Match_i match_iState;
     private final Memin meminState;
     private final MeminDel meminDelState;
-    private final Memout memoutState;
+    private final Memout memoutState;    
     JsonGenerator generator;
     JsonParser parser;
     PathAutomaton pa;
@@ -77,7 +77,7 @@ public class SourceTransducer implements Transducer {
         genState = new Gen(this);    
         meminState = new Memin(this);    
         meminDelState = new MeminDel(this);    
-        memoutState = new Memout(this);    
+        memoutState = new Memout(this);            
 
         currentState = evalState;
         isGenerating = true;

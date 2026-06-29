@@ -43,6 +43,9 @@ public class Sync implements State {
         sourceTransducer.setGenerator(sourceOutputStream);
         destinationTransducer.setGenerator(destinationOutputStream);
 
+        sourceTransducer.setIsGenerating(true);                    
+        destinationTransducer.setIsGenerating(true);
+
 
         State sourceState = sourceTransducer.getCurrentState();
         State destinationState = destinationTransducer.getCurrentState();
@@ -62,9 +65,15 @@ public class Sync implements State {
                 }
             // source memin, dest eval       
             } else if ((sourceState instanceof Memin) && (destinationState instanceof Eval)) {
-                try {
+                try {                    
+                    // Memin + Eval/Gen -> generuje source Transducer
+                    sourceTransducer.setGenerator(generator);
+                    destinationTransducer.setGenerator(generator);
+                    sourceTransducer.setIsGenerating(true);                    
+                    destinationTransducer.setIsGenerating(false);
+                    
                     destinationState.process(event, parser);
-
+                    
                     // koniec memin
                     if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {                        
                         transducer.addToMemory(); 
@@ -85,13 +94,14 @@ public class Sync implements State {
                     sourceTransducer.getPaStack().push(lastValue);
 
                     sourceState.process(event, parser);
+                    
 
-                    Transducer preferredTransducerState = getPreferredState(sourceTransducer.getCurrentState(), destinationTransducer.getCurrentState());
+                    //Transducer preferredTransducerState = getPreferredState(sourceTransducer.getCurrentState(), destinationTransducer.getCurrentState());
 
-                    assert preferredTransducerState != null;
-                    TokenBuffer tokenBuffer = (TokenBuffer) preferredTransducerState.getGenerator();
+                    //assert preferredTransducerState != null;
+                    //TokenBuffer tokenBuffer = (TokenBuffer) destinationTransducer.getGenerator();
 
-                    tokenBuffer.serialize(generator);
+                    //tokenBuffer.serialize(generator);
 
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
 
@@ -197,6 +207,12 @@ public class Sync implements State {
                 transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
             } else if ((sourceState instanceof Memin) && (destinationState instanceof Gen)) {
                 try {
+                    // Memin/Memout + Gen -> generuje source Transducer
+                    sourceTransducer.setGenerator(generator);
+                    destinationTransducer.setGenerator(generator);
+                    sourceTransducer.setIsGenerating(true);                    
+                    destinationTransducer.setIsGenerating(false);
+                    
                     destinationState.process(event, parser);
 
                     if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
@@ -228,13 +244,7 @@ public class Sync implements State {
                     sourceTransducer.getPaStack().push(lastValue);
 
                     sourceState.process(event, parser);
-
-                    Transducer preferredTransducerState = getPreferredState(sourceTransducer.getCurrentState(), destinationTransducer.getCurrentState());
-
-                    assert preferredTransducerState != null;
-                    TokenBuffer tokenBuffer = (TokenBuffer) preferredTransducerState.getGenerator();
-
-                    tokenBuffer.serialize(generator);
+                    
 
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
 
@@ -400,6 +410,12 @@ public class Sync implements State {
                 }
             } else if ((sourceState instanceof Eval) && (destinationState instanceof Gen)) {
                 try {
+                    // Eval/Memout + Gen -> generuje source Transducer
+                    sourceTransducer.setGenerator(generator);
+                    destinationTransducer.setGenerator(generator);
+                    sourceTransducer.setIsGenerating(true);                    
+                    destinationTransducer.setIsGenerating(false);
+                    
                     if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         sourceTransducer.setState(new Memout(sourceTransducer));
                         sourceTransducer.setPaused(false);
@@ -430,14 +446,7 @@ public class Sync implements State {
                     Integer returnLastValue = sourceTransducer.getPaStack().pop();
                     sourceTransducer.getPaStack().pop();
                     sourceTransducer.getPaStack().push(returnLastValue);
-                    destinationState.process(event, parser);
-
-                    Transducer preferredTransducerState = getPreferredState(sourceTransducer.getCurrentState(), destinationTransducer.getCurrentState());
-
-                    assert preferredTransducerState != null;
-                    TokenBuffer tokenBuffer = (TokenBuffer) preferredTransducerState.getGenerator();
-
-                    tokenBuffer.serialize(generator);
+                    destinationState.process(event, parser);                    
 
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
 
@@ -447,6 +456,11 @@ public class Sync implements State {
                 }
             } else if ((sourceState instanceof Memin) && (destinationState instanceof Gen)) {
                 try {
+                    // Memin/Memout + Gen -> generuje source Transducer
+                    sourceTransducer.setGenerator(generator);
+                    destinationTransducer.setGenerator(generator);
+                    sourceTransducer.setIsGenerating(true);                    
+                    destinationTransducer.setIsGenerating(false);
                     destinationState.process(event, parser);
 
                     if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
@@ -477,14 +491,7 @@ public class Sync implements State {
                     }
                     sourceTransducer.getPaStack().push(lastValue);
 
-                    sourceState.process(event, parser);
-
-                    Transducer preferredTransducerState = getPreferredState(sourceTransducer.getCurrentState(), destinationTransducer.getCurrentState());
-
-                    assert preferredTransducerState != null;
-                    TokenBuffer tokenBuffer = (TokenBuffer) preferredTransducerState.getGenerator();
-
-                    tokenBuffer.serialize(generator);
+                    sourceState.process(event, parser);                   
 
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
 

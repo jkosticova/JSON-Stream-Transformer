@@ -221,7 +221,9 @@ public class Find_i implements State {
             }
 
 
-            generator.copyCurrentEvent(parser);
+            if (this.transducer.isGenerating()) {
+                generator.copyCurrentEvent(parser);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

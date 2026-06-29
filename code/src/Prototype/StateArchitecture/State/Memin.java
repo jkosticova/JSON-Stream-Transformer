@@ -103,7 +103,9 @@ public class Memin implements State {
 
         transducer.addToMemory();
         try {
-            generator.copyCurrentEvent(parser);
+            if (this.transducer.isGenerating()) {
+                generator.copyCurrentEvent(parser);
+            }            
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

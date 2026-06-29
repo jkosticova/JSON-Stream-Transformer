@@ -30,10 +30,14 @@ public class Match_i implements State {
                     if (((AddTransformation) specification).getKey() != null) {
                         generator.writeFieldName(((AddTransformation) specification).getKey());
                         writeJsonValue(generator, ((AddTransformation) specification).getValue());
-                        generator.copyCurrentEvent(parser);
+                        if (this.transducer.isGenerating()) {
+                           generator.copyCurrentEvent(parser);
+                        }                        
                     } else {
                         writeJsonValue(generator, ((AddTransformation) specification).getValue());
-                        generator.copyCurrentEvent(parser);
+                        if (this.transducer.isGenerating()) {
+                            generator.copyCurrentEvent(parser);
+                        }                        
                     }
                     transducer.setState(transducer.getGenState());
                     transducer.setPaused(false);

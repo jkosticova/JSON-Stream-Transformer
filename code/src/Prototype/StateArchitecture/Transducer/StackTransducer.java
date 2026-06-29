@@ -77,6 +77,11 @@ public class StackTransducer implements Transducer {
     }
 
     @Override
+    public void setIsGenerating(boolean isGenerating) {
+           return;
+    }
+
+    @Override
     public State getEvalState() {
         return this.evalState;
     }
