@@ -141,7 +141,9 @@ public class Del implements State {
                        // copy rest of the values for arrays only
                        if (marker !=null && marker.equals(ARR_MARKER)) {
                          try {
-                             generator.copyCurrentEvent(parser);
+                            if (transducer.isGenerating()) {
+                                generator.copyCurrentEvent(parser);
+                            }
                          } catch (IOException e) {
                              throw new RuntimeException(e);
                          }

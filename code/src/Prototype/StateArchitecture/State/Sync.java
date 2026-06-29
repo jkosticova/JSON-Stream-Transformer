@@ -9,6 +9,8 @@ import Prototype.StateArchitecture.Transducer.BufferTransducer;
 import Prototype.StateArchitecture.Transducer.DestinationTransducer;
 import Prototype.StateArchitecture.Transducer.SourceTransducer;
 import Prototype.StateArchitecture.Transducer.Transducer;
+
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -16,6 +18,7 @@ import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 public class Sync implements State {
     private final BufferTransducer transducer;
@@ -24,6 +27,7 @@ public class Sync implements State {
     private final JsonGenerator generator;
     private final TransformationFormat specification;    
     private final PathAutomaton sourcePa;    
+    private final JsonGenerator nullGenerator;
 
     public Sync(BufferTransducer transducer) {
         this.transducer = transducer;
@@ -32,20 +36,23 @@ public class Sync implements State {
         this.generator = transducer.getGenerator();
         this.specification = transducer.getSpecification();        
         this.sourcePa = sourceTransducer.getPa();        
+        try {
+    this.nullGenerator = new JsonFactory().createGenerator(OutputStream.nullOutputStream());
+} catch (IOException e) {
+    throw new RuntimeException(e);
+}
     }
 
     @Override
     public void process(JsonToken event, JsonParser parser) {
 
-        TokenBuffer sourceOutputStream = new TokenBuffer((ObjectCodec) null, false);
-        TokenBuffer destinationOutputStream = new TokenBuffer((ObjectCodec) null, false);
-
-        sourceTransducer.setGenerator(sourceOutputStream);
-        destinationTransducer.setGenerator(destinationOutputStream);
+        
+        sourceTransducer.setGenerator(nullGenerator);
+        destinationTransducer.setGenerator(nullGenerator);
 
         
-        sourceTransducer.setIsGenerating(true);                    
-        destinationTransducer.setIsGenerating(true);
+        sourceTransducer.setIsGenerating(false);                    
+        destinationTransducer.setIsGenerating(false);
         
         sourceTransducer.setNoGen(false);                    
         destinationTransducer.setNoGen(false);
