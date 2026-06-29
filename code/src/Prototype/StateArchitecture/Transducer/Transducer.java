@@ -33,6 +33,10 @@ public interface Transducer {
    
     TransformationFormat getSpecification();
 
+    boolean isGenerating();
+
+    void setIsGenerating(boolean isGenerating);
+    
     boolean process();
 
     State getCurrentState();

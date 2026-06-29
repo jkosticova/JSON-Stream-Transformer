@@ -36,6 +36,7 @@ public class DestinationTransducer implements Transducer {
     Stack<Integer> paStack;
     Stack<Integer> indexStack;
     TransformationFormat specification;
+    boolean isGenerating;
 
     public DestinationTransducer(SpecificationMapper mapper, BufferTransducer parentTransducer) {
         if (mapper.getTransformationFormat() instanceof CopyTransformation oldSpecification) {
@@ -79,8 +80,10 @@ public class DestinationTransducer implements Transducer {
         memoutState = new Memout(this);    
         
         currentState = evalState;
-        
+        isGenerating = true;
     }
+        
+   
 
     @Override
     public void setPaused(boolean paused) {
@@ -148,6 +151,16 @@ public class DestinationTransducer implements Transducer {
     @Override
     public PathAutomaton getPa() {
         return this.pa;
+    }
+    
+    @Override
+    public boolean isGenerating() {
+        return this.isGenerating;
+    }
+
+    @Override
+    public void setIsGenerating(boolean isGenerating) {
+        this.isGenerating = isGenerating;
     }
     
     @Override

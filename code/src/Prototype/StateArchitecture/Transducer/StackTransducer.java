@@ -24,7 +24,7 @@ public class StackTransducer implements Transducer {
     private final Gen genState;
     private final Del delState;
     private final Find_i find_iState;
-    private final Match_i match_iState;
+    private final Match_i match_iState;    
     // stacks
     Stack<Integer> paStack;    
     Stack<Integer> indexStack;    
@@ -35,12 +35,12 @@ public class StackTransducer implements Transducer {
     TransformationFormat specification;
 
     public StackTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {
-        specification = mapper.getTransformationFormat();
-                        
+        specification = mapper.getTransformationFormat();        
         // stacks
         paStack = new Stack<>();        
         indexStack = new Stack<>();        
         pa = new SimplePathAutomaton(specification.getPath()); 
+
         
         JsonFactory factory = new JsonFactory();
         try {
@@ -69,6 +69,11 @@ public class StackTransducer implements Transducer {
     @Override
     public JsonGenerator getGenerator() {
         return this.generator;
+    }
+
+    @Override
+    public boolean isGenerating() {
+        return true;
     }
 
     @Override

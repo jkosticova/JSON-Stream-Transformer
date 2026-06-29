@@ -37,6 +37,7 @@ public class SourceTransducer implements Transducer {
     Stack<Integer> paStack;
     Stack<Integer> indexStack;
     TransformationFormat specification;
+    boolean isGenerating;
 
     public SourceTransducer(SpecificationMapper mapper, BufferTransducer parentTransducer) {
         if (mapper.getTransformationFormat() instanceof CopyTransformation oldSpecification) {
@@ -79,6 +80,7 @@ public class SourceTransducer implements Transducer {
         memoutState = new Memout(this);    
 
         currentState = evalState;
+        isGenerating = true;
 
 
     }
@@ -94,6 +96,11 @@ public class SourceTransducer implements Transducer {
 
     public void setGenerator(JsonGenerator generator) {
         this.generator = generator;
+    }
+
+    @Override
+    public void setIsGenerating(boolean isGenerating) {
+        this.isGenerating = isGenerating;
     }
 
     @Override
@@ -119,6 +126,11 @@ public class SourceTransducer implements Transducer {
     @Override
     public State getDelState() {
         return this.delState;
+    }
+
+    @Override
+    public boolean isGenerating() {
+        return this.isGenerating;
     }
 
     @Override

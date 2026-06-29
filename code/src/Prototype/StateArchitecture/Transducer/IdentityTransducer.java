@@ -38,6 +38,16 @@ public class IdentityTransducer implements Transducer {
     }
 
     @Override
+    public boolean isGenerating() {
+        return true;
+    }
+    
+    @Override
+    public void setIsGenerating(boolean isGenerating) {
+            // do nothing
+    }
+
+    @Override
     public PathAutomaton getPa() {
         return null;
     }
