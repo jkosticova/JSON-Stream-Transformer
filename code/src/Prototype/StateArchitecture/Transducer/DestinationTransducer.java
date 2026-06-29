@@ -37,7 +37,7 @@ public class DestinationTransducer implements Transducer {
     Stack<Integer> indexStack;
     TransformationFormat specification;
 
-    public DestinationTransducer(SpecificationMapper mapper, InputStream inputStream, TokenBuffer tokenBuffer, BufferTransducer parentTransducer) {
+    public DestinationTransducer(SpecificationMapper mapper, BufferTransducer parentTransducer) {
         if (mapper.getTransformationFormat() instanceof CopyTransformation oldSpecification) {
             CopyTransformation newSpecification = new CopyTransformation();
             newSpecification.setIndex(oldSpecification.getIndex());
@@ -63,13 +63,9 @@ public class DestinationTransducer implements Transducer {
         paStack = new Stack<>();
         paStack.push(INITIAL_PA_STATE);
         indexStack = new Stack<>();
-        JsonFactory factory = new JsonFactory();
-        try {
-            parser = factory.createParser(inputStream);
-            generator = tokenBuffer;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        
+        generator = parentTransducer.generator;
+        
         paused = false;
         // states
         evalState = new Eval(this);

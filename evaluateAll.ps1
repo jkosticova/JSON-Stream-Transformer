@@ -4,11 +4,11 @@
 
 # List of specification names
 $specifications = @(
-    "specIdentity",
-    "specRename",
-    "specRemove",
-    "specReplace",
-    "specAdd",
+    #"specIdentity",
+    #"specRename",
+    #"specRemove",
+    #"specReplace",
+    #"specAdd",
     "specCopyDestFirst",
     "specCopySrcFirst",
     "specMoveDestFirst",

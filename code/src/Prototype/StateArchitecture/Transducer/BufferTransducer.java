@@ -1,6 +1,7 @@
 package Prototype.StateArchitecture.Transducer;
 
 import Prototype.Mapper.SpecificationMapper;
+import Prototype.Utils.Helper;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.State.State;
 import Prototype.StateArchitecture.State.Sync;
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
@@ -29,26 +31,22 @@ public class BufferTransducer {
     // Track the highest memory footprint the buffer reaches
     private long peakBufferBytes = 0;
 
-    public BufferTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {
-        try {
-            JsonFactory factory = new JsonFactory();
-            parser = factory.createParser(inputStream);
-            generator = factory.createGenerator(outputStream).useDefaultPrettyPrinter();
+    public BufferTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {        
             specification = mapper.getTransformationFormat();
-
             paused = false;
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            TokenBuffer sourceOutputStream = new TokenBuffer(objectMapper, false);
-            TokenBuffer destinationOutputStream = new TokenBuffer(objectMapper, false);
-            buffer = new TokenBuffer(objectMapper, false);
-
-            sourceTransducer = new SourceTransducer(mapper, inputStream, sourceOutputStream, this);
-            destinationTransducer = new DestinationTransducer(mapper, inputStream, destinationOutputStream, this);
-            currentState = new Sync(this);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            JsonFactory factory = new JsonFactory();
+            try {
+                parser = factory.createParser(inputStream);
+                generator = factory.createGenerator(outputStream).useDefaultPrettyPrinter();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            //ObjectMapper objectMapper = new ObjectMapper();
+            buffer = new TokenBuffer((ObjectCodec) null, false);
+            sourceTransducer = new SourceTransducer(mapper, this);
+            destinationTransducer = new DestinationTransducer(mapper, this);
+            currentState = new Sync(this);        
     }
 
     public void getFromMemory() {

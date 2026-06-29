@@ -12,20 +12,17 @@ import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 import java.io.IOException;
-
-import static Prototype.Utils.Helper.*;
 
 public class Sync implements State {
     private final BufferTransducer transducer;
     private final SourceTransducer sourceTransducer;
     private final DestinationTransducer destinationTransducer;
     private final JsonGenerator generator;
-    private final TransformationFormat specification;
-    private final ObjectMapper objectMapper;
+    private final TransformationFormat specification;    
     private final PathAutomaton sourcePa;    
 
     public Sync(BufferTransducer transducer) {
@@ -33,16 +30,15 @@ public class Sync implements State {
         this.sourceTransducer = transducer.getSourceTransducer();
         this.destinationTransducer = transducer.getDestinationTransducer();
         this.generator = transducer.getGenerator();
-        this.specification = transducer.getSpecification();
-        this.objectMapper = new ObjectMapper();
+        this.specification = transducer.getSpecification();        
         this.sourcePa = sourceTransducer.getPa();        
     }
 
     @Override
     public void process(JsonToken event, JsonParser parser) {
 
-        TokenBuffer sourceOutputStream = new TokenBuffer(objectMapper, false);
-        TokenBuffer destinationOutputStream = new TokenBuffer(objectMapper, false);
+        TokenBuffer sourceOutputStream = new TokenBuffer((ObjectCodec) null, false);
+        TokenBuffer destinationOutputStream = new TokenBuffer((ObjectCodec) null, false);
 
         sourceTransducer.setGenerator(sourceOutputStream);
         destinationTransducer.setGenerator(destinationOutputStream);

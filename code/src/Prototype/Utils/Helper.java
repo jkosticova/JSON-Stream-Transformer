@@ -19,5 +19,9 @@ public class Helper {
             gen.writeString(jsonOrValue);
         }
     }
+
+    public static ObjectMapper getObjectMapper() {
+        return OBJECT_MAPPER;
+    }
           
 }
