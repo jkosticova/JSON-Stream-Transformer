@@ -34,8 +34,9 @@ public interface Transducer {
     TransformationFormat getSpecification();
 
     boolean isGenerating();
-
     void setIsGenerating(boolean isGenerating);
+    boolean noGen();
+    void setNoGen(boolean noGen);
     
     boolean process();
 

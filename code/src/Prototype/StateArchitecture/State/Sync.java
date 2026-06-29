@@ -43,9 +43,12 @@ public class Sync implements State {
         sourceTransducer.setGenerator(sourceOutputStream);
         destinationTransducer.setGenerator(destinationOutputStream);
 
+        
         sourceTransducer.setIsGenerating(true);                    
         destinationTransducer.setIsGenerating(true);
-
+        
+        sourceTransducer.setNoGen(false);                    
+        destinationTransducer.setNoGen(false);
 
         State sourceState = sourceTransducer.getCurrentState();
         State destinationState = destinationTransducer.getCurrentState();
@@ -254,6 +257,7 @@ public class Sync implements State {
                 }
             } else {
                 try {
+                    
                     sourceState.process(event, parser);
                     destinationState.process(event, parser);
 
@@ -501,15 +505,36 @@ public class Sync implements State {
                 }
             } else {
                 try {
+                    sourceTransducer.setIsGenerating(false);
+                    destinationTransducer.setIsGenerating(false);
+                                        
                     sourceState.process(event, parser);
                     destinationState.process(event, parser);
+                    sourceState = sourceTransducer.getCurrentState();
+                    destinationState = destinationTransducer.getCurrentState();
 
-                    Transducer preferredTransducerState = getPreferredState(sourceTransducer.getCurrentState(), destinationTransducer.getCurrentState());
+                    // dest - noGen musi byt false
+                    if (sourceState instanceof Gen && !destinationTransducer.noGen()) {
+                        generator.copyCurrentEvent(parser);
+                    // src
+                    } else if (destinationState instanceof Gen && !sourceTransducer.noGen()) {
+                        generator.copyCurrentEvent(parser);
+                    // dest
+                    } else if (sourceState instanceof Eval && !destinationTransducer.noGen()) {                    
+                        generator.copyCurrentEvent(parser);
+                    // src
+                    } else if (destinationState instanceof Eval && !sourceTransducer.noGen()) {
+                        generator.copyCurrentEvent(parser);
+                    }
+                    
 
-                    assert preferredTransducerState != null;
-                    TokenBuffer tokenBuffer = (TokenBuffer) preferredTransducerState.getGenerator();
 
-                    tokenBuffer.serialize(generator);
+                    //Transducer preferredTransducerState = getPreferredState(sourceTransducer.getCurrentState(), destinationTransducer.getCurrentState());
+
+                    
+                    //TokenBuffer tokenBuffer = (TokenBuffer) preferredTransducerState.getGenerator();
+
+                    //tokenBuffer.serialize(generator);
 
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
 

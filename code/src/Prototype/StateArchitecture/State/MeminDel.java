@@ -27,6 +27,7 @@ public class MeminDel implements State {
 
     public void process(JsonToken event, JsonParser parser) {
         init();
+        transducer.setNoGen(true);
         Integer paState;
         switch (event) {
             case START_ARRAY:

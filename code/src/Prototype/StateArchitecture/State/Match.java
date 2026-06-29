@@ -28,6 +28,7 @@ public class Match implements State {
 
     @Override
     public void process(JsonToken event, JsonParser parser) {
+        transducer.setNoGen(true);
         switch (specification.getType()) {
             case "rename":
                 try {
@@ -65,7 +66,9 @@ public class Match implements State {
                     } else {
                         transducer.setState(transducer.getFind_iState());
                     }
-                    generator.copyCurrentEvent(parser);
+                    if (this.transducer.isGenerating()) {
+                        generator.copyCurrentEvent(parser);
+                    }
 
                     transducer.setPaused(false);
                 } catch (IOException e) {

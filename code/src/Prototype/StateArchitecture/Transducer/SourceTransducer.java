@@ -38,6 +38,7 @@ public class SourceTransducer implements Transducer {
     Stack<Integer> indexStack;
     TransformationFormat specification;
     boolean isGenerating;
+    boolean noGen;
 
     public SourceTransducer(SpecificationMapper mapper, BufferTransducer parentTransducer) {
         if (mapper.getTransformationFormat() instanceof CopyTransformation oldSpecification) {
@@ -80,7 +81,8 @@ public class SourceTransducer implements Transducer {
         memoutState = new Memout(this);            
 
         currentState = evalState;
-        isGenerating = true;
+        isGenerating= true;
+        noGen = false;
 
 
     }
@@ -99,8 +101,23 @@ public class SourceTransducer implements Transducer {
     }
 
     @Override
+    public boolean isGenerating() {
+        return this.isGenerating;
+    }
+
+    @Override
     public void setIsGenerating(boolean isGenerating) {
         this.isGenerating = isGenerating;
+    }
+
+    @Override
+    public boolean noGen() {
+        return this.noGen;
+    }
+    
+    @Override
+    public void setNoGen(boolean noGen) {
+            this.noGen = noGen;
     }
 
     @Override
@@ -128,10 +145,7 @@ public class SourceTransducer implements Transducer {
         return this.delState;
     }
 
-    @Override
-    public boolean isGenerating() {
-        return this.isGenerating;
-    }
+    
 
     @Override
     public State getFind_iState() {

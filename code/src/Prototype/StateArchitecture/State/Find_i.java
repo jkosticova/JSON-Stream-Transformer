@@ -65,6 +65,7 @@ public class Find_i implements State {
                             paStack.push(state1);
                             transducer.setState(transducer.getMatch_iState());
                             transducer.setPaused(true);
+                            transducer.setNoGen(true);
                             return;
                         }
 
@@ -83,6 +84,7 @@ public class Find_i implements State {
                             paStack.push(state1);
                             transducer.setState(transducer.getMatch_iState());
                             transducer.setPaused(true);
+                            transducer.setNoGen(true);
                             return;
                         }
                         paStack.push(array1);
@@ -100,6 +102,7 @@ public class Find_i implements State {
                             indexStack.push(0);
                             transducer.setState(transducer.getMatch_iState());
                             transducer.setPaused(true);
+                            transducer.setNoGen(true);
                             return;
                         }
                         paStack.push(array1);
@@ -117,6 +120,7 @@ public class Find_i implements State {
                     if (pa.isFinal(paStack.peek())) {
                         transducer.setState(transducer.getMatch_iState());
                         transducer.setPaused(true);
+                        transducer.setNoGen(true);
                         return;
                     }
 
@@ -142,6 +146,7 @@ public class Find_i implements State {
                         paStack.push(state2);
                         transducer.setState(transducer.getMatch_iState());
                         transducer.setPaused(true);
+                        transducer.setNoGen(true);
                         return;
                     } else if (specification instanceof MoveTransformation && ((MoveTransformation) specification).getIndex() != null && ((MoveTransformation) specification).getIndex().equals(index2)
                             && pa.isFinal(paStack.peek())) {
@@ -149,6 +154,7 @@ public class Find_i implements State {
                         paStack.push(state2);
                         transducer.setState(transducer.getMatch_iState());
                         transducer.setPaused(true);
+                        transducer.setNoGen(true);
                         return;
                     }
 
@@ -164,6 +170,7 @@ public class Find_i implements State {
                     if (pa.isFinal(paStack.peek())) {
                         transducer.setState(transducer.getMatch_iState());
                         transducer.setPaused(true);
+                        transducer.setNoGen(true);
                         return;
                     }
 
@@ -201,6 +208,7 @@ public class Find_i implements State {
                         paStack.push(state3);
                         transducer.setState(transducer.getMatch_iState());
                         transducer.setPaused(true);
+                        transducer.setNoGen(true);
                         return;
                     } else if (specification instanceof MoveTransformation && ((MoveTransformation) specification).getIndex() != null && ((MoveTransformation) specification).getIndex().equals(index3)
                             && pa.isFinal(paStack.peek())) {
@@ -208,6 +216,7 @@ public class Find_i implements State {
                         paStack.push(state3);
                         transducer.setState(transducer.getMatch_iState());
                         transducer.setPaused(true);
+                        transducer.setNoGen(true);
                         return;
                     }
 

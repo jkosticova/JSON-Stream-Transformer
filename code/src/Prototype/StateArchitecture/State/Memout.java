@@ -16,7 +16,9 @@ public class Memout implements State {
     public void process(JsonToken event, JsonParser parser) {
         try {
             transducer.getFromMemory();
-            transducer.getGenerator().copyCurrentEvent(parser);
+            if (this.transducer.isGenerating()) {
+                transducer.getGenerator().copyCurrentEvent(parser);
+            }
 
             transducer.setState(transducer.getGenState());
             transducer.setPaused(false);

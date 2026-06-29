@@ -54,6 +54,7 @@ public class Eval implements State {
                         transducer.setPaused(true);
                         indexStack.push(0);
                         paStack.push(ARR_MARKER);
+                        transducer.setNoGen(true);
                         return;
                     }
 
@@ -82,6 +83,7 @@ public class Eval implements State {
                         transducer.setState(transducer.getMatchState());
                         transducer.setPaused(true);
                         paStack.push(OBJ_MARKER);
+                        transducer.setNoGen(true);
                         return;
                     }
 
@@ -113,6 +115,7 @@ public class Eval implements State {
                     if (pa.isFinal(paStack.peek())) {
                         transducer.setState(transducer.getMatchState());
                         transducer.setPaused(true);
+                        transducer.setNoGen(true);
                         return;
                     }
 
@@ -135,6 +138,7 @@ public class Eval implements State {
                     if (pa.isFinal(paStack.peek())) {
                         transducer.setState(transducer.getMatchState());
                         transducer.setPaused(true);
+                        transducer.setNoGen(true);
                         return;
                     }
 
@@ -144,7 +148,7 @@ public class Eval implements State {
 
             if (this.transducer.isGenerating()) {
                 generator.copyCurrentEvent(parser);
-            }
+            }            
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

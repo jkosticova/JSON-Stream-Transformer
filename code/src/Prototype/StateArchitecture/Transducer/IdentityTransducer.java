@@ -48,6 +48,16 @@ public class IdentityTransducer implements Transducer {
     }
 
     @Override
+    public boolean noGen() {
+        return true;
+    }
+    
+    @Override
+    public void setNoGen(boolean noGen) {
+            // do nothing
+    }
+
+    @Override
     public PathAutomaton getPa() {
         return null;
     }

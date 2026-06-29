@@ -37,6 +37,7 @@ public class DestinationTransducer implements Transducer {
     Stack<Integer> indexStack;
     TransformationFormat specification;
     boolean isGenerating;
+    boolean noGen;
 
     public DestinationTransducer(SpecificationMapper mapper, BufferTransducer parentTransducer) {
         if (mapper.getTransformationFormat() instanceof CopyTransformation oldSpecification) {
@@ -81,6 +82,7 @@ public class DestinationTransducer implements Transducer {
         
         currentState = evalState;
         isGenerating = true;
+        noGen = false;
     }
         
    
@@ -171,6 +173,16 @@ public class DestinationTransducer implements Transducer {
     @Override
     public Stack<Integer> getIndexStack() {
         return this.indexStack;
+    }
+
+    @Override
+    public boolean noGen() {
+        return this.noGen;
+    }
+
+    @Override
+    public void setNoGen(boolean noGen) {
+            this.noGen = noGen;
     }
 
     @Override
