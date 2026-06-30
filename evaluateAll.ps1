@@ -9,7 +9,7 @@ $specifications = @(
     #"specRemove",
     #"specReplace",
     #"specAdd",
-    "specCopyDestFirst",
+    "specCopyDestFirst"
     "specCopySrcFirst",
     "specMoveDestFirst",
     "specMoveSrcFirst"
@@ -37,7 +37,7 @@ foreach ($input in $inputFiles) {
 
     Write-Host "Running: baseline with $input"
     
-    java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch -XX:TLABSize=2k -XX:-ResizeTLAB `
+    java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch `
             -cp "target\classes;out\production\code;target\dependency\*" `
             Measurements.Main `
             "JsonExamples\$input.json"
@@ -47,7 +47,7 @@ foreach ($input in $inputFiles) {
         Write-Host "Running: $spec with $input"
         
 
-        java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch -XX:TLABSize=2k -XX:-ResizeTLAB `
+        java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch `
             -cp "target\classes;out\production\code;target\dependency\*" `
             Measurements.Main `
             "JsonExamples\Evaluation\$spec.json" `

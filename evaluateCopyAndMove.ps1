@@ -41,7 +41,7 @@ foreach ($test in $tests) {
     Write-Host "Running: $spec with $input"
     Write-Host "========================================"
 
-    java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch `
+    java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch -XX:TLABSize=2k -XX:-ResizeTLAB `
         -cp "out\production\code;target\dependency\*;target\classes" `
         Measurements.Main `
         "JsonExamples\Evaluation\$spec.json" `
