@@ -5,14 +5,16 @@ import Prototype.StateArchitecture.Transducer.BufferTransducer;
 import Prototype.StateArchitecture.Transducer.IdentityTransducer;
 import Prototype.StateArchitecture.Transducer.StackTransducer;
 import Prototype.StateArchitecture.Transducer.Transducer;
-import jdk.jfr.*;
-import jdk.jfr.consumer.RecordedEvent;
-import jdk.jfr.consumer.RecordingFile;
+//import jdk.jfr.*;
+//import jdk.jfr.consumer.RecordedEvent;
+//import jdk.jfr.consumer.RecordingFile;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.*;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
@@ -20,12 +22,18 @@ import java.util.Scanner;
 
 import java.nio.file.Path;
 
+import java.lang.management.ManagementFactory;
+
+
 public class Main {
+    private static final com.sun.management.ThreadMXBean bean =
+        (com.sun.management.ThreadMXBean) ManagementFactory.getThreadMXBean();    
 
     public static void main(String[] args) throws Exception {
         int runRounds = 1;
-        int setupRounds = 50;
-        int evaluationRounds = 200;
+        int setupRounds = 1000;
+        int evaluationRounds = 1000;
+        long baselineBytes = 0;
         String transfType;
         String input;
         String output;
@@ -35,6 +43,8 @@ public class Main {
         Mapper mapper = null;
         Path csv = Path.of("JsonExamples/Evaluation/results.csv");
         initCsv(csv);
+        System.gc();
+        Thread.sleep(100);
 
         if (args.length == 2) {
             mapper = initializeMapper(args[0]);
@@ -62,31 +72,30 @@ public class Main {
                 // runBufferTransducerWithOutput(input, mapper, output);
 
                 long bytes = evaluateBufferTransducerRuns(setupRounds, evaluationRounds, mapper, input);
-                
-                appendCsv(csv,
-                        rr,
-                        specificationName,                        
-                        transfType,                    
-                        input,
-                        setupRounds,
-                        evaluationRounds,
-                        bytes);
-                continue;
-
-                //outputTotalBytes(transfType, evaluationRounds, result);               
-            }
-            if (transfType.equals("baseline")) {
-                long bytes = evaluateJacksonBaselineRuns(setupRounds, evaluationRounds, input);                
 
                 appendCsv(csv,
                         rr,
-                        specificationName,                        
+                        specificationName,
                         transfType,
                         input,
                         setupRounds,
                         evaluationRounds,
-                        bytes);
-                outputTotalBytes("baseline", evaluationRounds, result);                                    
+                        bytes, baselineBytes);
+                continue;
+
+                // outputTotalBytes(transfType, evaluationRounds, result);
+            }
+            if (transfType.equals("baseline")) {
+                long bytes = evaluateJacksonBaselineRuns(setupRounds, evaluationRounds, input);
+                baselineBytes = bytes / evaluationRounds;
+                appendCsv(csv,
+                        rr,
+                        specificationName,
+                        transfType,
+                        input,
+                        setupRounds,
+                        evaluationRounds,
+                        bytes, baselineBytes);
                 continue;
             }
             // runTransducerWithOutput(input, mapper, output);
@@ -95,13 +104,12 @@ public class Main {
 
             appendCsv(csv,
                     rr,
-                    specificationName,                        
+                    specificationName,
                     transfType,
                     input,
                     setupRounds,
                     evaluationRounds,
-                    bytes);
-            outputTotalBytes(transfType, evaluationRounds, result);
+                    bytes, baselineBytes);            
         }
     }
 
@@ -129,143 +137,85 @@ public class Main {
         outputStream.close();
     }
 
-    private static long evaluateTransducerRuns(int setupRounds, int evaluationRuns, Mapper mapper, String input)
-            throws IOException {
-        for (int i = 0; i < setupRounds; i++) {            
-            InputStream inputStream = new FileInputStream(input);
-            OutputStream outputStream = OutputStream.nullOutputStream();
+    private static long evaluateTransducerRuns(
+            int setupRounds,
+            int evaluationRuns,
+            Mapper mapper,
+            String input) throws IOException {
 
-            Transducer transducer = getTransducerFromType(mapper, inputStream, outputStream);
-
-            transducer.process();
-
-            inputStream.close();
-            outputStream.close();
-        }
-        long totalBytes = 0;
-
-        for (int i = 0; i < evaluationRuns; i++) {
-
-            Recording r = new Recording();
-            r.enable("jdk.ObjectAllocationInNewTLAB");
-            r.enable("jdk.ObjectAllocationOutsideTLAB");
-            r.enable("jdk.GCHeapSummary");
-            r.enable("jdk.GarbageCollection");
-
-            r.start();
-
-            InputStream inputStream = new FileInputStream(input);
-            OutputStream outputStream = OutputStream.nullOutputStream();
-
-            Transducer transducer = getTransducerFromType(mapper, inputStream, outputStream);
-
-            transducer.process();
-
-            inputStream.close();
-            outputStream.close();
-
-            r.stop();
-            r.dump(Path.of("JsonExamples\\Evaluation\\" + mapper.getTransformationFormat().getType() + "\\run_" + i + ".jfr"));
-            long bytes = readAllocation(Path.of("JsonExamples\\Evaluation\\" + mapper.getTransformationFormat().getType() + "\\run_" + i + ".jfr"));
-            totalBytes += bytes;
-            r.close();
-        }
-        return totalBytes;
-        /*
-         * r.stop();
-         * r.dump(Path.
-         * of("JsonExamples\\Evaluation\\" + mapper.getTransformationFormat().getType() + "
-         * \\run.jfr"));
-         * r.close();
-         */
-    }
-
-    private static long evaluateBufferTransducerRuns(int setupRounds, int evaluationRuns, Mapper mapper, String input)
-            throws IOException {
-         long totalBytes = 0;
+        // -------------------------
+        // WARMUP (no measurement)
+        // -------------------------
         for (int i = 0; i < setupRounds; i++) {
-            InputStream inputStream = new FileInputStream(input);
-            OutputStream outputStream = OutputStream.nullOutputStream();
+            try (InputStream inputStream = new FileInputStream(input);
+                    OutputStream outputStream = OutputStream.nullOutputStream()) {
 
-            BufferTransducer transducer = new BufferTransducer(mapper, inputStream, outputStream);
-
-            transducer.process();
-
-            inputStream.close();
-            outputStream.close();
-        }
-
-        for (int i = 0; i < evaluationRuns; i++) {
-            Recording r = new Recording();
-            r.enable("jdk.ObjectAllocationInNewTLAB")
-                    .withStackTrace()
-                    .withThreshold(Duration.ZERO);
-
-            r.enable("jdk.ObjectAllocationOutsideTLAB")
-                    .withStackTrace()
-                    .withThreshold(Duration.ZERO);
-            /*
-             * r.enable("jdk.ObjectAllocationSample")
-             * .withStackTrace()
-             * .withPeriod(Duration.ofMillis(1));
-             */
-
-            r.enable("jdk.GCHeapSummary");
-            r.enable("jdk.GarbageCollection");
-
-            r.start();
-
-            InputStream inputStream = new FileInputStream(input);
-            OutputStream outputStream = OutputStream.nullOutputStream();
-
-            BufferTransducer transducer = new BufferTransducer(mapper, inputStream, outputStream);
-
-            transducer.process();
-
-            inputStream.close();
-            outputStream.close();
-
-            r.stop();
-            r.dump(Path.of("JsonExamples\\Evaluation\\" + mapper.getTransformationFormat().getType() + "\\run_" + i + ".jfr"));
-            long bytes = readAllocation(Path.of("JsonExamples\\Evaluation\\" + mapper.getTransformationFormat().getType() + "\\run_" + i + ".jfr"));
-            totalBytes += bytes;
-            r.close();
-
-        }
-        return totalBytes;
-
-    }
-
-     private static void outputTotalBytes(String type, int evaluationRounds, Path result) throws IOException {
-        long totalBytes = 0;
-
-        for (int i = 0; i < evaluationRounds; i++) {
-            Path jfrPath = Path.of("JsonExamples\\Evaluation\\" + type + "\\run_" + i + ".jfr");
-            jfrPath.toFile().length();
-
-            try (RecordingFile rf = new RecordingFile(jfrPath)) {
-                while (rf.hasMoreEvents()) {
-                    RecordedEvent e = rf.readEvent();
-                    String name = e.getEventType().getName();
-
-                    if (name.equals("jdk.ObjectAllocationInNewTLAB")
-                            || name.equals("jdk.ObjectAllocationOutsideTLAB")) {
-                        totalBytes += e.getLong("allocationSize");
-                    }
-                }
+                Transducer transducer = getTransducerFromType(mapper, inputStream, outputStream);
+                transducer.process();
             }
         }
 
-        System.out.println("Total bytes counted: " + totalBytes);
+        long totalBytes = 0;
 
-        Files.writeString(result,
-                "Total allocated: " + totalBytes + "\n",
-                StandardOpenOption.APPEND);
+        // -------------------------
+        // MEASUREMENT PHASE
+        // -------------------------
+        for (int i = 0; i < evaluationRuns; i++) {
 
-        Files.writeString(result,
-                "Allocated per run(" + evaluationRounds + "): " + totalBytes / evaluationRounds + "\n",
-                StandardOpenOption.APPEND);
+            long bytes = measureAllocatedBytes(() -> {
+                try (InputStream inputStream = new FileInputStream(input);
+                        OutputStream outputStream = OutputStream.nullOutputStream()) {
+
+                    Transducer transducer = getTransducerFromType(mapper, inputStream, outputStream);
+                    transducer.process();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            totalBytes += bytes;
+        }
+
+        return totalBytes;
     }
+
+    private static long evaluateBufferTransducerRuns(
+            int setupRounds,
+            int evaluationRuns,
+            Mapper mapper,
+            String input) throws IOException {
+
+        for (int i = 0; i < setupRounds; i++) {
+            try (InputStream inputStream = new FileInputStream(input);
+                    OutputStream outputStream = OutputStream.nullOutputStream()) {
+
+                BufferTransducer t = new BufferTransducer(mapper, inputStream, outputStream);
+                t.process();
+            }
+        }
+
+        long totalBytes = 0;
+
+        for (int i = 0; i < evaluationRuns; i++) {
+
+            long bytes = measureAllocatedBytes(() -> {
+                try (InputStream inputStream = new FileInputStream(input);
+                        OutputStream outputStream = OutputStream.nullOutputStream()) {
+
+                    BufferTransducer t = new BufferTransducer(mapper, inputStream, outputStream);
+                    t.process();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            totalBytes += bytes;
+        }
+
+        return totalBytes;
+    }
+
+    
 
     private static Transducer getTransducerFromType(Mapper mapper, InputStream inputStream, OutputStream outputStream) {
         Transducer transducer;
@@ -283,49 +233,58 @@ public class Main {
         return new Mapper(specificationJsonFile);
     }
 
-    private static long evaluateJacksonBaselineRuns(int setupRounds, int evaluationRuns, String input)
-            throws IOException {
+    private static long evaluateJacksonBaselineRuns(
+            int setupRounds,
+            int evaluationRuns,
+            String input) throws IOException {
+
         JsonFactory factory = new JsonFactory();
-        long totalBytes = 0;        
+
         for (int i = 0; i < setupRounds; i++) {
             try (InputStream inputStream = new FileInputStream(input);
                     JsonParser parser = factory.createParser(inputStream);
                     JsonGenerator generator = factory.createGenerator(OutputStream.nullOutputStream())) {
+
                 while (parser.nextToken() != null) {
                     generator.copyCurrentEvent(parser);
                 }
             }
         }
+
+        long totalBytes = 0;
 
         for (int i = 0; i < evaluationRuns; i++) {
-            Recording r = new Recording();
-            r.enable("jdk.ObjectAllocationInNewTLAB").withStackTrace().withThreshold(Duration.ZERO);
-            r.enable("jdk.ObjectAllocationOutsideTLAB").withStackTrace().withThreshold(Duration.ZERO);
-            r.enable("jdk.GCHeapSummary");
-            r.enable("jdk.GarbageCollection");
-            r.start();
-            try (InputStream inputStream = new FileInputStream(input);
-                    JsonParser parser = factory.createParser(inputStream);
-                    JsonGenerator generator = factory.createGenerator(OutputStream.nullOutputStream())) {
-                while (parser.nextToken() != null) {
-                    generator.copyCurrentEvent(parser);
-                }
-            }
-            r.stop();
-            r.dump(Path.of("JsonExamples\\Evaluation\\baseline\\run_" + i + ".jfr"));
-            long bytes = readAllocation(Path.of("JsonExamples\\Evaluation\\baseline\\run_" + i + ".jfr"));
-            totalBytes += bytes;
-            r.close();
-        }
-        return totalBytes;
 
+            long bytes = measureAllocatedBytes(() -> {
+                try (InputStream inputStream = new FileInputStream(input);
+                        JsonParser parser = factory.createParser(inputStream);
+                        JsonGenerator generator = factory.createGenerator(OutputStream.nullOutputStream())) {
+
+                    while (parser.nextToken() != null) {
+                        generator.copyCurrentEvent(parser);
+                    }
+
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            totalBytes += bytes;
+        }
+
+        return totalBytes;
     }
 
     private static void initCsv(Path csv) throws IOException {
         if (!Files.exists(csv)) {
             Files.writeString(csv,
+                    "",
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING);
+            Files.writeString(csv,
                     "run,algorithm,specification,input,setupRounds,evaluationRounds,allocationBytes,bytesPerRun\n",
-                    StandardOpenOption.CREATE);
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.APPEND);
         }
     }
 
@@ -336,38 +295,35 @@ public class Main {
             String input,
             int setupRounds,
             int evaluationRounds,
-            long bytes) throws IOException {
+            long bytes, long baselineBytes) throws IOException {
 
-        String line = run + "," +
+        long perRun = (long) bytes / evaluationRounds;
+        long delta = perRun - baselineBytes;
+                String line = run + "," +
                 algorithm + "," +
                 spec + "," +
                 input + "," +
                 setupRounds + "," +
                 evaluationRounds + "," +
                 bytes + "," +
-                (bytes / evaluationRounds) + "\n";
+                perRun + "\n";
+                
 
         Files.writeString(csv, line,
                 StandardOpenOption.CREATE,
                 StandardOpenOption.APPEND);
     }
 
-    private static long readAllocation(Path jfrPath) throws IOException {
-        long total = 0;
+    private static long measureAllocatedBytes(Runnable task) {
+        long tid = Thread.currentThread().threadId();
 
-        try (RecordingFile rf = new RecordingFile(jfrPath)) {
-            while (rf.hasMoreEvents()) {
-                RecordedEvent e = rf.readEvent();
-                String name = e.getEventType().getName();
+        long before = bean.getThreadAllocatedBytes(tid);
 
-                if (name.equals("jdk.ObjectAllocationInNewTLAB")
-                        || name.equals("jdk.ObjectAllocationOutsideTLAB")) {
-                    total += e.getLong("allocationSize");
-                }
-            }
-        }
+        task.run();
 
-        return total;
+        long after = bean.getThreadAllocatedBytes(tid);
+
+        return after - before;
     }
-    
+
 }
