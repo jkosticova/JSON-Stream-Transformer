@@ -5,8 +5,10 @@ import Prototype.PathAutomaton.PathAutomaton;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.State.Gen;
 import Prototype.StateArchitecture.State.State;
+import Prototype.Writer.JsonWriter;
+import Prototype.Writer.RawUtf8Writer;
+
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -17,7 +19,7 @@ import java.util.Stack;
 
 public class IdentityTransducer implements Transducer {
     private State currentState;
-    JsonGenerator generator;
+    JsonWriter writer;
     JsonParser parser;
     TransformationFormat specification;
 
@@ -26,7 +28,8 @@ public class IdentityTransducer implements Transducer {
         JsonFactory factory = new JsonFactory();
         try {
             parser = factory.createParser(inputStream);
-            generator = factory.createGenerator(outputStream).useDefaultPrettyPrinter();
+            RawUtf8Writer rawWriter = new RawUtf8Writer(outputStream);
+            this.writer = new JsonWriter(rawWriter);            
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -63,8 +66,8 @@ public class IdentityTransducer implements Transducer {
     }
 
     @Override
-    public JsonGenerator getGenerator() {
-        return this.generator;
+    public JsonWriter getWriter() {
+        return this.writer;
     }
 
     @Override
@@ -94,7 +97,7 @@ public class IdentityTransducer implements Transducer {
             }
 
             parser.close();
-            generator.close();
+            //generator.close();
         } catch (Exception e) {
             System.out.println("Issue while processing IdentityTransducer: " + e.getMessage());
             return false;

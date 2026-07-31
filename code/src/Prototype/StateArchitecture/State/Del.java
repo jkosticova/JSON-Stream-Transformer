@@ -4,6 +4,7 @@ import Prototype.PathAutomaton.PathAutomaton;
 import Prototype.PathAutomaton.SimplePathAutomaton;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.Transducer;
+import Prototype.Writer.JsonWriter;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -15,13 +16,13 @@ public class Del implements State {
     Transducer transducer;
     private final Stack<Integer> paStack;
     private final Stack<Integer> indexStack;
-    private final JsonGenerator generator;
+    private final JsonWriter writer;
     private final TransformationFormat specification;
     private final PathAutomaton pa;
 
     public Del(Transducer transducer) {
         this.transducer = transducer;
-        this.generator = transducer.getGenerator();
+        this.writer = transducer.getWriter();
         this.paStack = transducer.getPaStack();
         this.indexStack = transducer.getIndexStack();
         this.specification = transducer.getSpecification();
@@ -44,7 +45,7 @@ public class Del implements State {
 
                 /*if (pa.isFinal(paStack.peek())) {
                     try {
-                        generator.copyCurrentEvent(parser);
+                        writer.writeCurrentEvent(parser);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -61,7 +62,7 @@ public class Del implements State {
             case END_ARRAY:
                 if (pa.isFinal(paStack.peek())) {
                     try {
-                        generator.copyCurrentEvent(parser);
+                        writer.writeCurrentEvent(parser);
                         transducer.setState(transducer.getGenState());
                         transducer.setPaused(false);
                         return;
@@ -143,7 +144,7 @@ public class Del implements State {
                        if (marker !=null && marker.equals(ARR_MARKER)) {
                          try {
                             if (transducer.isGenerating()) {
-                                generator.copyCurrentEvent(parser);
+                                writer.writeCurrentEvent(parser);
                             }
                          } catch (IOException e) {
                              throw new RuntimeException(e);

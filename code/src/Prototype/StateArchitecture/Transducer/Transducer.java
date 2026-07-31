@@ -3,7 +3,7 @@ package Prototype.StateArchitecture.Transducer;
 import Prototype.PathAutomaton.PathAutomaton;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.State.State;
-import com.fasterxml.jackson.core.JsonGenerator;
+import Prototype.Writer.JsonWriter;
 
 import java.util.Stack;
 
@@ -12,8 +12,8 @@ public interface Transducer {
     int OBJECT_ARR_INDEX = -1;
     
     void setPaused(boolean paused);
-
-    JsonGenerator getGenerator();    
+    
+    JsonWriter getWriter();    
     
     State getEvalState();
     State getMatchState();

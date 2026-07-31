@@ -3,6 +3,8 @@ package Prototype.StateArchitecture.State;
 import Prototype.SpecificationParser.AddTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.Transducer;
+import Prototype.Writer.JsonWriter;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -13,12 +15,12 @@ import static Prototype.Utils.Helper.writeJsonValue;
 
 public class Match_i implements State {
     private final Transducer transducer;
-    private final JsonGenerator generator;
+    private final JsonWriter writer;
     private final TransformationFormat specification;
 
     public Match_i(Transducer transducer) {
         this.transducer = transducer;
-        this.generator = transducer.getGenerator();
+        this.writer = transducer.getWriter();
         this.specification = transducer.getSpecification();
     }
 
@@ -29,15 +31,15 @@ public class Match_i implements State {
             case "add":
                 try {
                     if (((AddTransformation) specification).getKey() != null) {
-                        generator.writeFieldName(((AddTransformation) specification).getKey());
-                        writeJsonValue(generator, ((AddTransformation) specification).getValue());
+                        writer.writeFieldName(((AddTransformation) specification).getKey());
+                        writer.writeString(((AddTransformation) specification).getValue());
                         if (this.transducer.isGenerating()) {
-                           generator.copyCurrentEvent(parser);
+                           writer.writeCurrentEvent(parser);
                         }                        
                     } else {
-                        writeJsonValue(generator, ((AddTransformation) specification).getValue());
+                        writer.writeString(((AddTransformation) specification).getValue());
                         if (this.transducer.isGenerating()) {
-                            generator.copyCurrentEvent(parser);
+                            writer.writeCurrentEvent(parser);
                         }                        
                     }
                     transducer.setState(transducer.getGenState());

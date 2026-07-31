@@ -4,8 +4,10 @@ import Prototype.Mapper.SpecificationMapper;
 import Prototype.PathAutomaton.*;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.State.*;
+import Prototype.Writer.JsonWriter;
+import Prototype.Writer.RawUtf8Writer;
+
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -28,8 +30,9 @@ public class StackTransducer implements Transducer {
     // stacks
     Stack<Integer> paStack;    
     Stack<Integer> indexStack;    
-    JsonGenerator generator;
     JsonParser parser;
+    JsonWriter writer;
+    
     
     PathAutomaton pa;
     TransformationFormat specification;
@@ -45,7 +48,8 @@ public class StackTransducer implements Transducer {
         JsonFactory factory = new JsonFactory();
         try {
             parser = factory.createParser(inputStream);
-            generator = factory.createGenerator(outputStream).useDefaultPrettyPrinter();
+            RawUtf8Writer rawWriter = new RawUtf8Writer(outputStream);
+            this.writer = new JsonWriter(rawWriter);            
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -67,8 +71,8 @@ public class StackTransducer implements Transducer {
     }
 
     @Override
-    public JsonGenerator getGenerator() {
-        return this.generator;
+    public JsonWriter getWriter() {
+        return this.writer;
     }
 
     @Override
@@ -176,7 +180,7 @@ public class StackTransducer implements Transducer {
                 currentState.process(parser);
             }
             parser.close();
-            generator.close();
+            //writer.close();
         } catch (Exception e) {
             System.out.println("Issue while processing StackTransducer: " + e.getMessage());
             return false;

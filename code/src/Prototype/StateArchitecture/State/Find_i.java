@@ -7,6 +7,8 @@ import Prototype.SpecificationParser.CopyTransformation;
 import Prototype.SpecificationParser.MoveTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.Transducer;
+import Prototype.Writer.JsonWriter;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -16,7 +18,7 @@ import java.util.Stack;
 
 public class Find_i implements State {
     Transducer transducer;    
-    private JsonGenerator generator;
+    private JsonWriter writer;
     private Stack<Integer> paStack;
     private Stack<Integer> indexStack;
     private TransformationFormat specification;
@@ -29,7 +31,7 @@ public class Find_i implements State {
     }
 
     private void init() {
-        this.generator = this.transducer.getGenerator();
+        this.writer = this.transducer.getWriter();
         this.paStack = this.transducer.getPaStack();
         this.indexStack = this.transducer.getIndexStack();
         this.specification = this.transducer.getSpecification();
@@ -232,7 +234,7 @@ public class Find_i implements State {
 
 
             if (this.transducer.isGenerating()) {
-                generator.copyCurrentEvent(parser);
+                writer.writeCurrentEvent(parser);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

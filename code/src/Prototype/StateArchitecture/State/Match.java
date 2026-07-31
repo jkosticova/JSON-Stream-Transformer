@@ -7,6 +7,8 @@ import Prototype.SpecificationParser.RenameTransformation;
 import Prototype.SpecificationParser.ReplaceTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.Transducer;
+import Prototype.Writer.JsonWriter;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -17,12 +19,12 @@ import static Prototype.Utils.Helper.writeJsonValue;
 
 public class Match implements State {
     private final Transducer transducer;
-    private final JsonGenerator generator;
+    private final JsonWriter writer;
     private final TransformationFormat specification;
 
     public Match(Transducer transducer) {
         this.transducer = transducer;
-        this.generator = transducer.getGenerator();
+        this.writer = transducer.getWriter();
         this.specification = transducer.getSpecification();    
     }
 
@@ -33,7 +35,7 @@ public class Match implements State {
         switch (specification.getType()) {
             case "rename":
                 try {
-                    generator.writeFieldName(((RenameTransformation) specification).getKey());
+                    writer.writeFieldName(((RenameTransformation) specification).getKey());
                     transducer.setState(transducer.getGenState());
                     transducer.setPaused(false);
                 } catch (IOException e) {
@@ -47,13 +49,13 @@ public class Match implements State {
             case "replace":
                 try {
                     if (((ReplaceTransformation) specification).getKey() != null) {
-                        generator.writeFieldName(((ReplaceTransformation) specification).getKey());
+                        writer.writeFieldName(((ReplaceTransformation) specification).getKey());
                     // current key is copied only in case of object field name, it doesn't make sense for other cases
                     } else if (transducer.getPaStack().peek()>=0 && event == JsonToken.FIELD_NAME) {
-                        generator.copyCurrentEvent(parser);
+                        writer.writeCurrentEvent(parser);
                     }
 
-                    writeJsonValue(generator, ((ReplaceTransformation) specification).getValue());
+                    writer.writeString(((ReplaceTransformation) specification).getValue());
                     transducer.setState(transducer.getDelState());
                     transducer.setPaused(false);
                 } catch (IOException e) {
@@ -68,7 +70,7 @@ public class Match implements State {
                         transducer.setState(transducer.getFind_iState());
                     }
                     if (this.transducer.isGenerating()) {
-                        generator.copyCurrentEvent(parser);
+                        writer.writeCurrentEvent(parser);
                     }
 
                     transducer.setPaused(false);

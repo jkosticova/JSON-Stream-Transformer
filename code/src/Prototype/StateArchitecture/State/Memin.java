@@ -4,16 +4,19 @@ import Prototype.PathAutomaton.PathAutomaton;
 import Prototype.PathAutomaton.SimplePathAutomaton;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.Transducer;
+import Prototype.Writer.JsonWriter;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+
 
 import java.io.IOException;
 import java.util.Stack;
 
 public class Memin implements State {
     Transducer transducer;
-    private JsonGenerator generator;
+    private JsonWriter writer;
     private Stack<Integer> paStack;
     private Stack<Integer> indexStack;    
     private PathAutomaton pa;
@@ -24,7 +27,7 @@ public class Memin implements State {
     }
 
     private void init() {
-        this.generator = this.transducer.getGenerator();
+        this.writer = this.transducer.getWriter();
         this.paStack = this.transducer.getPaStack();
         this.indexStack = this.transducer.getIndexStack();
         this.pa = transducer.getPa();
@@ -105,7 +108,7 @@ public class Memin implements State {
         transducer.addToMemory();
         try {
             if (this.transducer.isGenerating()) {
-                generator.copyCurrentEvent(parser);
+                writer.writeCurrentEvent(parser);
             }            
         } catch (IOException e) {
             throw new RuntimeException(e);

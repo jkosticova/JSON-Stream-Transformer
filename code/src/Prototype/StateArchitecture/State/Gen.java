@@ -1,6 +1,7 @@
 package Prototype.StateArchitecture.State;
-
 import Prototype.StateArchitecture.Transducer.Transducer;
+import Prototype.Writer.JsonWriter;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -9,7 +10,7 @@ import java.io.IOException;
 
 public class Gen implements State {
     private final Transducer transducer;
-    private JsonGenerator generator;
+    private JsonWriter writer;
 
     public Gen(Transducer transducer) {
         this.transducer = transducer;
@@ -17,7 +18,7 @@ public class Gen implements State {
     }
 
     private void init() {
-        this.generator = transducer.getGenerator();
+        this.writer = transducer.getWriter();
     }
 
     @Override
@@ -26,7 +27,7 @@ public class Gen implements State {
 
         try {
             if (this.transducer.isGenerating()) {
-                generator.copyCurrentEvent(parser);
+                writer.writeCurrentEvent(parser);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

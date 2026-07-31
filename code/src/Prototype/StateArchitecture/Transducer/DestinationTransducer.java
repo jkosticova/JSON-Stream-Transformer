@@ -7,6 +7,9 @@ import Prototype.SpecificationParser.CopyTransformation;
 import Prototype.SpecificationParser.MoveTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.State.*;
+import Prototype.Writer.JsonWriter;
+import Prototype.Writer.RawUtf8Writer;
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -30,7 +33,7 @@ public class DestinationTransducer implements Transducer {
     private final Memin meminState;
     private final MeminDel meminDelState;
     private final Memout memoutState;
-    JsonGenerator generator;
+    JsonWriter writer;
     JsonParser parser;
     PathAutomaton pa;    
     Stack<Integer> paStack;
@@ -66,7 +69,7 @@ public class DestinationTransducer implements Transducer {
         paStack.push(INITIAL_PA_STATE);
         indexStack = new Stack<>();
         
-        generator = parentTransducer.generator;
+        writer = parentTransducer.getWriter();
         
         paused = false;
         // states
@@ -96,8 +99,8 @@ public class DestinationTransducer implements Transducer {
         return this.paused;
     }
 
-    public void setGenerator(JsonGenerator generator) {
-        this.generator = generator;
+    public void setWriter(JsonWriter writer) {
+        this.writer = writer;
     }
 
     @Override
@@ -146,8 +149,8 @@ public class DestinationTransducer implements Transducer {
     }
 
     @Override
-    public JsonGenerator getGenerator() {
-        return this.generator;
+    public JsonWriter getWriter() {
+        return this.writer;
     }
 
     @Override

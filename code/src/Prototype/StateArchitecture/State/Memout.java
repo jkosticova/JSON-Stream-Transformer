@@ -3,6 +3,7 @@ package Prototype.StateArchitecture.State;
 import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import Prototype.Writer.JsonWriter;
 
 import java.io.IOException;
 
@@ -17,7 +18,7 @@ public class Memout implements State {
         try {
             transducer.getFromMemory();
             if (this.transducer.isGenerating()) {
-                transducer.getGenerator().copyCurrentEvent(parser);
+                transducer.getWriter().writeCurrentEvent(parser);
             }
 
             transducer.setState(transducer.getGenState());

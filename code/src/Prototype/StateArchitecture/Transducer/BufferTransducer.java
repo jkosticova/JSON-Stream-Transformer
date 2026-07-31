@@ -2,6 +2,8 @@ package Prototype.StateArchitecture.Transducer;
 
 import Prototype.Mapper.SpecificationMapper;
 import Prototype.Utils.Helper;
+import Prototype.Writer.JsonWriter;
+import Prototype.Writer.RawUtf8Writer;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.State.State;
 import Prototype.StateArchitecture.State.Sync;
@@ -24,7 +26,7 @@ public class BufferTransducer {
     private final DestinationTransducer destinationTransducer;
 
     private boolean paused;
-    JsonGenerator generator;
+    JsonWriter writer;
     JsonParser parser;
     TokenBuffer buffer;
     TransformationFormat specification;
@@ -38,7 +40,9 @@ public class BufferTransducer {
             JsonFactory factory = new JsonFactory();
             try {
                 parser = factory.createParser(inputStream);
-                generator = factory.createGenerator(outputStream).useDefaultPrettyPrinter();
+                RawUtf8Writer rawWriter = new RawUtf8Writer(outputStream);
+                this.writer = new JsonWriter(rawWriter);            
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -51,7 +55,8 @@ public class BufferTransducer {
 
     public void getFromMemory() {
         try {
-            buffer.serialize(generator);
+            JsonParser bufferParser = buffer.asParser();
+            writer.writeBuffer(bufferParser);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -70,8 +75,8 @@ public class BufferTransducer {
         this.paused = paused;
     }
 
-    public JsonGenerator getGenerator() {
-        return this.generator;
+    public JsonWriter getWriter() {
+        return this.writer;
     }
 
     public TransformationFormat getSpecification() {
@@ -99,7 +104,7 @@ public class BufferTransducer {
             }
 
             parser.close();
-            generator.close();
+            //writer.close();
         } catch (Exception e) {
             System.out.println("Issue while processing BufferTransducer: " + e.getMessage());
             return false;

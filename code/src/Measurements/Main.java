@@ -238,7 +238,7 @@ public class Main {
                     JsonGenerator generator = factory.createGenerator(OutputStream.nullOutputStream())) {
 
                 while (parser.nextToken() != null) {
-                    generator.copyCurrentEvent(parser);
+                    writer.writeCurrentEvent(parser);
                 }
             }
         }
@@ -253,7 +253,7 @@ public class Main {
                         JsonGenerator generator = factory.createGenerator(OutputStream.nullOutputStream())) {
 
                     while (parser.nextToken() != null) {
-                        generator.copyCurrentEvent(parser);
+                        writer.writeCurrentEvent(parser);
                     }
 
                 } catch (IOException e) {
