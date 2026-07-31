@@ -24,16 +24,14 @@ import java.nio.file.Path;
 
 import java.lang.management.ManagementFactory;
 
-
 public class Main {
-    private static final com.sun.management.ThreadMXBean bean =
-        (com.sun.management.ThreadMXBean) ManagementFactory.getThreadMXBean();    
+    private static final com.sun.management.ThreadMXBean bean = (com.sun.management.ThreadMXBean) ManagementFactory
+            .getThreadMXBean();
 
     public static void main(String[] args) throws Exception {
         int runRounds = 1;
-        int setupRounds = 1000;
-        int evaluationRounds = 1000;
-        long baselineBytes = 0;
+        int setupRounds = 500;
+        int evaluationRounds = 500;        
         String transfType;
         String input;
         String output;
@@ -52,21 +50,17 @@ public class Main {
             transfType = mapper.getTransformationFormat().getType();
             specificationName = args[0].substring(args[0].lastIndexOf("\\") + 1, args[0].lastIndexOf("."));
             inputName = input.substring(input.lastIndexOf("\\") + 1, input.lastIndexOf("."));
-            output = "JsonExamples\\Evaluation\\" + transfType + "\\output" + specificationName + "_" + inputName
-                    + ".json";
-            result = Path.of("JsonExamples\\Evaluation\\" + transfType + "\\results\\" + specificationName + "_"
-                    + inputName + ".txt");
+      
         } else {// {if (args.length == 1) {
             transfType = "baseline";
             input = args[0];
             inputName = input.substring(input.lastIndexOf("\\") + 1, input.lastIndexOf("."));
-            output = "JsonExamples\\Evaluation\\" + transfType + "\\output\\baseline_" + inputName + ".json";
-            result = Path.of("JsonExamples\\Evaluation\\" + transfType + "\\results\\baseline_" + inputName + ".txt");
+            
         }
-        Files.writeString(result, "", StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        
 
         for (int rr = 0; rr < runRounds; rr++) {
-            Files.writeString(result, "Run " + (rr + 1) + " of " + runRounds + "\n", StandardOpenOption.APPEND);
+            //Files.writeString(result, "Run " + (rr + 1) + " of " + runRounds + "\n", StandardOpenOption.APPEND);
 
             if (transfType.equals("copy") || transfType.equals("move")) {
                 // runBufferTransducerWithOutput(input, mapper, output);
@@ -80,14 +74,14 @@ public class Main {
                         input,
                         setupRounds,
                         evaluationRounds,
-                        bytes, baselineBytes);
+                        bytes);
                 continue;
 
                 // outputTotalBytes(transfType, evaluationRounds, result);
             }
             if (transfType.equals("baseline")) {
                 long bytes = evaluateJacksonBaselineRuns(setupRounds, evaluationRounds, input);
-                baselineBytes = bytes / evaluationRounds;
+                
                 appendCsv(csv,
                         rr,
                         specificationName,
@@ -95,7 +89,7 @@ public class Main {
                         input,
                         setupRounds,
                         evaluationRounds,
-                        bytes, baselineBytes);
+                        bytes);
                 continue;
             }
             // runTransducerWithOutput(input, mapper, output);
@@ -109,7 +103,7 @@ public class Main {
                     input,
                     setupRounds,
                     evaluationRounds,
-                    bytes, baselineBytes);            
+                    bytes);
         }
     }
 
@@ -215,8 +209,6 @@ public class Main {
         return totalBytes;
     }
 
-    
-
     private static Transducer getTransducerFromType(Mapper mapper, InputStream inputStream, OutputStream outputStream) {
         Transducer transducer;
         if (mapper.getTransformationFormat().getType().equals("identity")) {
@@ -276,15 +268,12 @@ public class Main {
     }
 
     private static void initCsv(Path csv) throws IOException {
-        if (!Files.exists(csv)) {
-            Files.writeString(csv,
-                    "",
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.TRUNCATE_EXISTING);
+        File file = new File("file.txt");
+        if (!file.exists()) {
             Files.writeString(csv,
                     "run,algorithm,specification,input,setupRounds,evaluationRounds,allocationBytes,bytesPerRun\n",
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.APPEND);
+                    StandardOpenOption.CREATE
+                    );
         }
     }
 
@@ -295,11 +284,10 @@ public class Main {
             String input,
             int setupRounds,
             int evaluationRounds,
-            long bytes, long baselineBytes) throws IOException {
+            long bytes) throws IOException {
 
-        long perRun = (long) bytes / evaluationRounds;
-        long delta = perRun - baselineBytes;
-                String line = run + "," +
+        long perRun = (long) bytes / evaluationRounds;        
+        String line = run + "," +
                 algorithm + "," +
                 spec + "," +
                 input + "," +
@@ -307,7 +295,6 @@ public class Main {
                 evaluationRounds + "," +
                 bytes + "," +
                 perRun + "\n";
-                
 
         Files.writeString(csv, line,
                 StandardOpenOption.CREATE,

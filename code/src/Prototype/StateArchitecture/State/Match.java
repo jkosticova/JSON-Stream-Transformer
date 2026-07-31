@@ -27,8 +27,9 @@ public class Match implements State {
     }
 
     @Override
-    public void process(JsonToken event, JsonParser parser) {
+    public void process(JsonParser parser) {
         transducer.setNoGen(true);
+        JsonToken event = parser.currentToken();
         switch (specification.getType()) {
             case "rename":
                 try {

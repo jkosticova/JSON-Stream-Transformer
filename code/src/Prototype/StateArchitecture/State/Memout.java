@@ -13,7 +13,7 @@ public class Memout implements State {
         this.transducer = transducer;
     }
 
-    public void process(JsonToken event, JsonParser parser) {
+    public void process(JsonParser parser) {
         try {
             transducer.getFromMemory();
             if (this.transducer.isGenerating()) {

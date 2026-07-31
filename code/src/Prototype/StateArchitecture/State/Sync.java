@@ -44,9 +44,9 @@ public class Sync implements State {
     }
 
     @Override
-    public void process(JsonToken event, JsonParser parser) {
+    public void process(JsonParser parser) {
 
-        
+        JsonToken event = parser.currentToken();
         sourceTransducer.setGenerator(nullGenerator);
         destinationTransducer.setGenerator(nullGenerator);
 
@@ -82,7 +82,7 @@ public class Sync implements State {
                     sourceTransducer.setIsGenerating(true);                    
                     destinationTransducer.setIsGenerating(false);
                     
-                    destinationState.process(event, parser);
+                    destinationState.process(parser);
                     
                     // koniec memin
                     if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {                        
@@ -103,7 +103,7 @@ public class Sync implements State {
                     }
                     sourceTransducer.getPaStack().push(lastValue);
 
-                    sourceState.process(event, parser);
+                    sourceState.process(parser);
                     
 
                     //Transducer preferredTransducerState = getPreferredState(sourceTransducer.getCurrentState(), destinationTransducer.getCurrentState());
@@ -189,8 +189,8 @@ public class Sync implements State {
                         return;
                     }
 
-                    sourceState.process(event, parser);
-                    destinationState.process(event, parser);
+                    sourceState.process(parser);
+                    destinationState.process(parser);
 
                     destinationTransducer.setPaused(false);
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
@@ -223,7 +223,7 @@ public class Sync implements State {
                     sourceTransducer.setIsGenerating(true);                    
                     destinationTransducer.setIsGenerating(false);
                     
-                    destinationState.process(event, parser);
+                    destinationState.process(parser);
 
                     if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         transducer.addToMemory();
@@ -253,7 +253,7 @@ public class Sync implements State {
                     }
                     sourceTransducer.getPaStack().push(lastValue);
 
-                    sourceState.process(event, parser);
+                    sourceState.process(parser);
                     
 
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
@@ -268,8 +268,8 @@ public class Sync implements State {
                     sourceTransducer.setIsGenerating(false);
                     destinationTransducer.setIsGenerating(false);
                                         
-                    sourceState.process(event, parser);
-                    destinationState.process(event, parser);
+                    sourceState.process(parser);
+                    destinationState.process(parser);
                     sourceState = sourceTransducer.getCurrentState();
                     destinationState = destinationTransducer.getCurrentState();
 
@@ -302,7 +302,7 @@ public class Sync implements State {
                 transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
             } else if ((sourceState instanceof MeminDel) && (destinationState instanceof Eval)) {
                 try {
-                    destinationState.process(event, parser);
+                    destinationState.process(parser);
 
                     if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         transducer.addToMemory();
@@ -320,7 +320,7 @@ public class Sync implements State {
                     }
                     sourceTransducer.getPaStack().push(lastValue);
 
-                    sourceState.process(event, parser);
+                    sourceState.process(parser);
 
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
 
@@ -377,7 +377,7 @@ public class Sync implements State {
                 transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
             } else if ((sourceState instanceof Eval) && (destinationState instanceof MeminDel)) {
                 try {
-                    sourceState.process(event, parser);
+                    sourceState.process(parser);
 
                     if (sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         sourceTransducer.setState(new Match(sourceTransducer));
@@ -389,7 +389,7 @@ public class Sync implements State {
                         return;
                     }
 
-                    destinationState.process(event, parser);
+                    destinationState.process(parser);
                     destinationTransducer.setPaused(false);
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
 
@@ -465,11 +465,11 @@ public class Sync implements State {
 
                     Integer lastValueTmp = sourceTransducer.getPaStack().peek();
                     sourceTransducer.getPaStack().push(lastValueTmp);
-                    sourceState.process(event, parser);
+                    sourceState.process(parser);
                     Integer returnLastValue = sourceTransducer.getPaStack().pop();
                     sourceTransducer.getPaStack().pop();
                     sourceTransducer.getPaStack().push(returnLastValue);
-                    destinationState.process(event, parser);                    
+                    destinationState.process(parser);                    
 
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
 
@@ -484,7 +484,7 @@ public class Sync implements State {
                     destinationTransducer.setGenerator(generator);
                     sourceTransducer.setIsGenerating(true);                    
                     destinationTransducer.setIsGenerating(false);
-                    destinationState.process(event, parser);
+                    destinationState.process(parser);
 
                     if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         transducer.addToMemory();
@@ -514,7 +514,7 @@ public class Sync implements State {
                     }
                     sourceTransducer.getPaStack().push(lastValue);
 
-                    sourceState.process(event, parser);                   
+                    sourceState.process(parser);                   
 
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
 
@@ -527,8 +527,8 @@ public class Sync implements State {
                     sourceTransducer.setIsGenerating(false);
                     destinationTransducer.setIsGenerating(false);
                                         
-                    sourceState.process(event, parser);
-                    destinationState.process(event, parser);
+                    sourceState.process(parser);
+                    destinationState.process(parser);
                     sourceState = sourceTransducer.getCurrentState();
                     destinationState = destinationTransducer.getCurrentState();
 

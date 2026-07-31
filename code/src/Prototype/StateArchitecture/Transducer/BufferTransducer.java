@@ -95,7 +95,7 @@ public class BufferTransducer {
                     event = parser.nextToken();
                 }
                 if (event == null) break;
-                currentState.process(event, parser);
+                currentState.process(parser);
             }
 
             parser.close();

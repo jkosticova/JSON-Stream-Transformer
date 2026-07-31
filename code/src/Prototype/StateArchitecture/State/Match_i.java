@@ -23,7 +23,7 @@ public class Match_i implements State {
     }
 
     @Override
-    public void process(JsonToken event, JsonParser parser) {
+    public void process(JsonParser parser) {
         transducer.setNoGen(true);
         switch (specification.getType()) {
             case "add":

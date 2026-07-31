@@ -39,10 +39,11 @@ public class Find_i implements State {
         
     }
 
-    public void process(JsonToken event, JsonParser parser) {
+    public void process(JsonParser parser) {
         init();
         Integer paState;
         try {
+            JsonToken event = parser.currentToken();
             switch (event) {
                 case START_ARRAY:
                     if (paStack.peek().equals(ARR_MARKER)) {

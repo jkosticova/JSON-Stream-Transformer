@@ -11,5 +11,5 @@ public interface State {
     int ARR_MARKER = -1;
     int OBJ_MARKER = -2;
 
-    void process(JsonToken event, JsonParser parser);
+    void process(JsonParser parser);
 }

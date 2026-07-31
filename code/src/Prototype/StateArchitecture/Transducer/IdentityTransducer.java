@@ -90,7 +90,7 @@ public class IdentityTransducer implements Transducer {
                 event = parser.nextToken();
 
                 if (event == null) break;
-                currentState.process(event, parser);
+                currentState.process(parser);
             }
 
             parser.close();

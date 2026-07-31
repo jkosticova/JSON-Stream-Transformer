@@ -30,8 +30,9 @@ public class Memin implements State {
         this.pa = transducer.getPa();
     }
 
-    public void process(JsonToken event, JsonParser parser) {
+    public void process(JsonParser parser) {
         init();
+        JsonToken event = parser.currentToken();
         Integer paState;
 
         switch (event) {

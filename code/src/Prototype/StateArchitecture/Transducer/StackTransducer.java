@@ -173,7 +173,7 @@ public class StackTransducer implements Transducer {
                 }
                 // EOF && prazdny stack
                 if (event == null || paStack.isEmpty()) break;
-                currentState.process(event, parser);
+                currentState.process(parser);
             }
             parser.close();
             generator.close();

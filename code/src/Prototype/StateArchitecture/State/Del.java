@@ -28,8 +28,9 @@ public class Del implements State {
         this.pa = transducer.getPa();
     }
 
-    public void process(JsonToken event, JsonParser parser) {
+    public void process(JsonParser parser) {
         Integer paState;
+        JsonToken event = parser.currentToken();
         switch (event) {
             case START_ARRAY:
                 if (paStack.peek().equals(ARR_MARKER)) {

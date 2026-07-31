@@ -21,7 +21,7 @@ public class Gen implements State {
     }
 
     @Override
-    public void process(JsonToken event, JsonParser parser) {
+    public void process(JsonParser parser) {
         init();
 
         try {
