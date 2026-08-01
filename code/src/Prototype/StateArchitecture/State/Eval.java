@@ -47,6 +47,7 @@ public class Eval implements State {
                     }
 
                     if (pa.isFinal(paStack.peek())) {
+                        transducer.setEntryMode(Transducer.MatchEntryMode.AT_VALUE);                        
                         TransitionToMatch();                                                
                     }
                     
@@ -67,6 +68,7 @@ public class Eval implements State {
                     }
                     
                     if (pa.isFinal(paStack.peek())) {
+                        transducer.setEntryMode(Transducer.MatchEntryMode.AT_VALUE);                        
                         TransitionToMatch();                        
                     }
                     
@@ -96,6 +98,7 @@ public class Eval implements State {
                     paStack.push(pa.transition(paState, parser.getParsingContext().getCurrentName()));
 
                     if (pa.isFinal(paStack.peek())) {
+                        transducer.setEntryMode(Transducer.MatchEntryMode.AT_KEY);
                         TransitionToMatch();                    
                     }
 
@@ -111,6 +114,7 @@ public class Eval implements State {
                     }
 
                     if (pa.isFinal(paStack.peek())) {
+                        transducer.setEntryMode(Transducer.MatchEntryMode.AT_VALUE);                        
                         TransitionToMatch();
                         // tu sa nepopuje??                     
                     }

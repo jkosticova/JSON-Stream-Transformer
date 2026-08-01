@@ -43,10 +43,10 @@ public class Match implements State {
                 break;
             // skip current subtree, including current event
             case "remove":
-                // ak sme uz na prvku pola
-                if (parser.currentToken() != JsonToken.FIELD_NAME) {
+                
+                if (transducer.getEntryMode() == Transducer.MatchEntryMode.AT_VALUE) {
                         transducer.setPaused(true);
-                }   
+                }
                 transducer.setState(transducer.getSkipSubtreeState());                
                 break;
             
@@ -61,8 +61,7 @@ public class Match implements State {
 
                     writer.writeRaw(((ReplaceTransformation) specification).getValue());
                     
-                    // ak sme uz na prvku pola
-                    if (parser.currentToken() != JsonToken.FIELD_NAME) {
+                    if (transducer.getEntryMode() == Transducer.MatchEntryMode.AT_VALUE) {
                         transducer.setPaused(true);
                     }
                     transducer.setState(transducer.getSkipSubtreeState());                    

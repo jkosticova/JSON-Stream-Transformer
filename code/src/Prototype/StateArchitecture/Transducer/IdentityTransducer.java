@@ -17,75 +17,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Stack;
 
-public class IdentityTransducer implements Transducer {
-    private State currentState;
-    JsonWriter writer;
-    JsonParser parser;
-    TransformationFormat specification;
+public class IdentityTransducer extends Transducer {
 
     public IdentityTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {
-        specification = mapper.getTransformationFormat();
-        JsonFactory factory = new JsonFactory();
-        try {
-            parser = factory.createParser(inputStream);
-            RawUtf8Writer rawWriter = new RawUtf8Writer(outputStream);
-            this.writer = new JsonWriter(rawWriter);            
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        super(mapper, inputStream, outputStream);
         currentState = new Gen(this);
         
     }
-
-    @Override
-    public void setPaused(boolean paused) {
-    }
-
-    @Override
-    public boolean isGenerating() {
-        return true;
-    }
     
-    @Override
-    public void setIsGenerating(boolean isGenerating) {
-            // do nothing
-    }
-
-    @Override
-    public boolean noGen() {
-        return true;
-    }
-    
-    @Override
-    public void setNoGen(boolean noGen) {
-            // do nothing
-    }
-
-    @Override
-    public PathAutomaton getPa() {
-        return null;
-    }
-
-    @Override
-    public JsonWriter getWriter() {
-        return this.writer;
-    }
-
-    @Override
-    public Stack<Integer> getPaStack() {
-        return null;
-    }
-
-    @Override
-    public Stack<Integer> getIndexStack() {
-        return null;
-    }
-
-    @Override
-    public TransformationFormat getSpecification() {
-        return this.specification;
-    }
-
     public boolean process() {
         try {
             JsonToken event;
@@ -112,67 +51,5 @@ public class IdentityTransducer implements Transducer {
         return true;
     }
 
-    @Override
-    public State getCurrentState() {
-        return this.currentState;
-    }
 
-    @Override
-    public void getFromMemory() {
-    }
-
-    @Override
-    public void addToMemory() {
-    }
-
-    @Override
-    public void setState(State state) {
-        this.currentState = state;
-    }
-
-    @Override
-    public State getEvalState() {
-        return null;
-    }
-
-    @Override
-    public State getMatchState() {
-        return null;
-    }
-    
-    @Override
-    public State getGenState() {
-        return null;
-    }
-
-    @Override
-    public State getSkipSubtreeState() {
-        return null;
-    }
-
-
-    @Override
-    public State getFindPosState() {
-        return null;
-    }
-
-    @Override
-    public State getMatchPosState() {
-        return null;
-    }
-
-    @Override
-    public State getMeminState() {
-        return null;
-    }
-
-    @Override
-    public State getMeminSkipState() {
-        return null;
-    }
-
-    @Override
-    public State getMemoutState() {
-        return null;
-    }
 }
