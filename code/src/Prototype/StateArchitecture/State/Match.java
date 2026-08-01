@@ -73,6 +73,7 @@ public class Match implements State {
                 break;
             case "add":
                 try {                    
+                    transducer.setPaused(true); // prvy krok vo FindPos stave este stojime
                     transducer.setState(transducer.getFindPosState());                                          
                 } catch (Exception e) {
                     throw new RuntimeException(e);

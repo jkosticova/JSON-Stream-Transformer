@@ -1,6 +1,8 @@
 package Prototype.StateArchitecture.State;
 
 import Prototype.PathAutomaton.PathAutomaton;
+import Prototype.SpecificationParser.RemoveTransformation;
+import Prototype.SpecificationParser.ReplaceTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.Transducer;
 import Prototype.Writer.JsonWriter;
@@ -48,7 +50,7 @@ public class Eval implements State {
 
                     if (pa.isFinal(paStack.peek())) {
                         transducer.setEntryMode(Transducer.MatchEntryMode.AT_VALUE);                        
-                        TransitionToMatch();                                                
+                        TransitionToMatch();                                                                        
                     }
                     
                     indexStack.push(0);
@@ -96,8 +98,8 @@ public class Eval implements State {
                         paState = paStack.peek();
                     }
                     paStack.push(pa.transition(paState, parser.getParsingContext().getCurrentName()));
-
-                    if (pa.isFinal(paStack.peek())) {
+                    
+                    if (pa.isFinal(paStack.peek())) {                    
                         transducer.setEntryMode(Transducer.MatchEntryMode.AT_KEY);
                         TransitionToMatch();                    
                     }

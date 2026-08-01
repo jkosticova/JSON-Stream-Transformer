@@ -51,17 +51,14 @@ public class FindPos implements State {
     }
 
     public void process(JsonParser parser) {
-        init();        
+        init();                
         // ak sme na kluci
         if (this.depth == 0 && this.transducer.getEntryMode() == Transducer.MatchEntryMode.AT_KEY) {
-           try {
-            parser.nextToken(); // posunieme sa na value
-           } catch (IOException e) {            
-            e.printStackTrace();
-           } 
+            MoveToValue(parser);
         }
+        transducer.setPaused(false);
         try {
-            JsonToken event = parser.currentToken();            
+            JsonToken event = parser.currentToken();                        
             switch (event) {
                 case START_ARRAY:
                 case START_OBJECT:
@@ -69,12 +66,8 @@ public class FindPos implements State {
                     if (this.depth == 1 && paStack.peek().equals(ARR_MARKER)) {
                         Integer i = indexStack.pop();
                         if (searchedIndex.equals(i)) {
-                            TransitionToMatchPos();                                                
-                            // paStack updatneme iba ak je match
-                            paStack.pop(); // pop ARR_MARKER
-                            int paState = paStack.peek();
-                            paStack.push(ARR_MARKER); // push ARR_MARKER back
-                            paStack.push(pa.transition(paState, i.toString()));                            
+                            TransitionToMatchPos(); 
+                            return;                                                                       
                         }
                         indexStack.push(i + 1);
                     }                    
@@ -101,6 +94,7 @@ public class FindPos implements State {
                         Integer i = indexStack.pop();
                         if (searchedIndex.equals(i)) {
                             TransitionToMatchPos();
+                            return;
                         }
                         indexStack.push(i+1);
                     }                                        
@@ -119,5 +113,20 @@ public class FindPos implements State {
         transducer.setState(transducer.getMatchPosState());
         transducer.setPaused(true);
         transducer.setNoGen(true);
+    }
+
+    private void MoveToValue(JsonParser parser) {
+           try {
+            parser.nextToken(); // posunieme sa na value, ak je to struktura tak ju spracujeme
+            if (parser.currentToken() == JsonToken.START_ARRAY) {
+                paStack.push(ARR_MARKER);
+                indexStack.push(0);
+            }
+            else if (parser.currentToken() == JsonToken.START_OBJECT) {
+                paStack.push(OBJ_MARKER);
+            }
+           } catch (IOException e) {            
+            e.printStackTrace();
+           } 
     }
 }
