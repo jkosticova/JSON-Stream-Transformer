@@ -20,14 +20,12 @@ import static Prototype.Utils.Helper.writeJsonValue;
 public class Match implements State {
     private final Transducer transducer;
     private final JsonWriter writer;
-    private final TransformationFormat specification;
-    private boolean generating;
+    private final TransformationFormat specification;    
 
     public Match(Transducer transducer) {
         this.transducer = transducer;
         this.writer = transducer.getWriter();
-        this.specification = transducer.getSpecification();    
-        this.generating = false;
+        this.specification = transducer.getSpecification();            
     }
 
     @Override
@@ -69,8 +67,7 @@ public class Match implements State {
                     transducer.setState(transducer.getSkipSubtreeState());                    
                 } catch (IOException e) {
                     throw new RuntimeException(e);
-                }
-                this.generating = false;
+                }                
                 break;
             case "add":
                 try {                    

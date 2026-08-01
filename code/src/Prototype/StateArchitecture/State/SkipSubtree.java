@@ -18,18 +18,18 @@ TODO: It should be sufficient to remember the depth.
 public class SkipSubtree implements State {
     Transducer transducer;
     private final Stack<Integer> paStack;
-    private final Stack<Integer> indexStack;
-    private final JsonWriter writer;
+    private final Stack<Integer> indexStack;    
     private final TransformationFormat specification;
     private final PathAutomaton pa;
+    private JsonWriter writer;
 
     public SkipSubtree(Transducer transducer) {
-        this.transducer = transducer;
-        this.writer = transducer.getWriter();
+        this.transducer = transducer;        
         this.paStack = transducer.getPaStack();
         this.indexStack = transducer.getIndexStack();
         this.specification = transducer.getSpecification();
         this.pa = transducer.getPa();
+        this.writer = transducer.getWriter();
     }
 
     public void process(JsonParser parser) {
