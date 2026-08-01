@@ -15,7 +15,17 @@ import java.io.IOException;
 import java.util.Stack;
 
 /*
-This state search for position 𝑖 within the current structure.
+This state search for position "index" within the current structure.
+Transition to the state MatchPos happens when currentToken is:
+- If "index" points to an existing array element (value): 
+  => currentToken = value start (START_ARRAY, START_OBJECT or a primitive value)
+- If "index" points to an nonexisting array element or the current structure is object
+  => currentToken = current structure end (END_ARRAY or END_OBJECT)
+When entering MatchPos state, the content of the stacks is aligned 
+with the current structure (array or object). 
+
+If the previous match was entered at key, it is necessary to move to the corresponding 
+value and possibly align the content of the stacks.
 */
 public class FindPos implements State {
     Transducer transducer;        

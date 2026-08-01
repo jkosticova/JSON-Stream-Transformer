@@ -2,8 +2,6 @@ package Prototype.StateArchitecture.State;
 
 import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import Prototype.Writer.JsonWriter;
 
 import java.io.IOException;
 

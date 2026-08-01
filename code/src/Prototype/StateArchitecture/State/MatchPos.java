@@ -27,17 +27,9 @@ public class MatchPos implements State {
                 try {
                     if (((AddTransformation) specification).getKey() != null) {
                         writer.writeFieldName(((AddTransformation) specification).getKey());
-                        writer.writeRaw(((AddTransformation) specification).getValue());
-                        /*if (this.transducer.isGenerating()) {
-                           writer.writeCurrentEvent(parser);
-                        } */                       
+                        writer.writeRaw(((AddTransformation) specification).getValue());                        
                     } else {
-                        writer.writeRaw(((AddTransformation) specification).getValue());
-                        /*
-                        if (this.transducer.isGenerating()) {
-                            writer.writeCurrentEvent(parser);
-                        } 
-                        */                           
+                        writer.writeRaw(((AddTransformation) specification).getValue());       
                     }
                     transducer.setState(transducer.getGenState());
                     transducer.setPaused(false);
