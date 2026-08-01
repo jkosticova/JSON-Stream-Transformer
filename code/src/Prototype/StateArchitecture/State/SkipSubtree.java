@@ -18,161 +18,234 @@ TODO: It should be sufficient to remember the depth.
 public class SkipSubtree implements State {
     Transducer transducer;
     private final Stack<Integer> paStack;
-    private final Stack<Integer> indexStack;    
+    private final Stack<Integer> indexStack;
     private final TransformationFormat specification;
     private final PathAutomaton pa;
     private JsonWriter writer;
+    private int depth;
 
     public SkipSubtree(Transducer transducer) {
-        this.transducer = transducer;        
+        this.transducer = transducer;
         this.paStack = transducer.getPaStack();
         this.indexStack = transducer.getIndexStack();
         this.specification = transducer.getSpecification();
         this.pa = transducer.getPa();
         this.writer = transducer.getWriter();
+        this.depth = 0;
     }
 
     public void process(JsonParser parser) {
         Integer paState;
+        transducer.setPaused(false);        
         JsonToken event = parser.currentToken();
-        switch (event) {
-            case START_ARRAY:
-                if (paStack.peek().equals(ARR_MARKER)) {
-                    Integer i = indexStack.pop();
-                    paStack.pop(); // pop ARR_MARKER
-                    paState = paStack.peek();
-                    paStack.push(ARR_MARKER); // push ARR_MARKER back
-                    paStack.push(pa.transition(paState, i.toString()));                        
-                    indexStack.push(i + 1);
-                }
-                
-                indexStack.push(0);
-                paStack.push(ARR_MARKER);
-
-                break;
-            case END_ARRAY:
-                if (pa.isFinal(paStack.peek())) {
-                    try {
+        /*if (depth == 0 && !event.isStructStart()) {
+            // get marker
+            Integer top = paStack.pop();
+            Integer marker = null;
+            if (top > 0) {
+                marker = paStack.peek();
+            }
+            paStack.push(top);
+          
+            if (paStack.peek().equals(ARR_MARKER)) {
+                Integer i = indexStack.pop();
+                paStack.pop(); // pop ARR_MARKER
+                paState = paStack.peek();
+                paStack.push(ARR_MARKER); // push ARR_MARKER back
+                paStack.push(pa.transition(paState, i.toString()));
+                indexStack.push(i + 1);
+            }
+            if (marker != null && marker.equals(ARR_MARKER)) {
+                try {
+                    if (transducer.isGenerating()) {
                         writer.writeCurrentEvent(parser);
-                        transducer.setState(transducer.getGenState());
-                        transducer.setPaused(false);
-                        // TODO!!!!!
-                        parser.nextToken();
-                        return;
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
                     }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
+            }
+            transducer.setState(transducer.getGenState());
+            transducer.setPaused(false);
+            // TODO!!!!!
+            try {
+                parser.nextToken();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }            
+            return;
+        }*/
 
-
-                indexStack.pop();
-                paStack.pop();
-
-                if (pa.isFinal(paStack.peek())) {
-                    transducer.setState(transducer.getGenState());
-                    transducer.setPaused(false);
-                    // TODO!!!!!
-                    try {
-                        parser.nextToken();
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                    return;
-                }
-
-                paStack.pop();
-
-                break;
+        
+        switch (event) {
             case START_OBJECT:
-                if (paStack.peek().equals(ARR_MARKER)) {
-                    Integer i = indexStack.pop();
-                    paStack.pop(); // pop ARR_MARKER
-                    paState = paStack.peek();
-                    paStack.push(ARR_MARKER); // push ARR_MARKER back
-                    paStack.push(pa.transition(paState, i.toString()));                        
-                    indexStack.push(i + 1);
-                }
-
-                paStack.push(OBJ_MARKER);
-
+            case START_ARRAY:
+                depth++;
                 break;
             case END_OBJECT:
-                paStack.pop();
-
-                if (pa.isFinal(paStack.peek())) {
-                    transducer.setState(transducer.getGenState());
-                    transducer.setPaused(false);
-                    // TODO!!!!!
-                    try {
-                        parser.nextToken();
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                    return;
-                }
-
-                paStack.pop();
-
+            case END_ARRAY:
+                depth--;
                 break;
-            case FIELD_NAME:
-                paStack.pop(); // pop OBJ_MARKER
-                paState = paStack.peek();
-                paStack.push(OBJ_MARKER); // push OBJ_MARKER back
-                paStack.push(pa.transition(paState, parser.getParsingContext().getCurrentName()));
-
-                break;
-            case VALUE_FALSE:
-            case VALUE_NULL:
-            case VALUE_TRUE:
-            case VALUE_STRING:
-            case VALUE_NUMBER_INT:
-            case VALUE_NUMBER_FLOAT:
-                // get marker
-                Integer top = paStack.pop();
-                Integer marker = null;
-                if (top > 0) {
-                    marker = paStack.peek();
-                }
-                paStack.push(top);
-
-                if (paStack.peek().equals(ARR_MARKER)) {
-                    Integer i = indexStack.pop();
-                    paStack.pop(); // pop ARR_MARKER
-                    paState = paStack.peek();
-                    paStack.push(ARR_MARKER); // push ARR_MARKER back
-                    paStack.push(pa.transition(paState, i.toString()));                        
-                    indexStack.push(i + 1);
-                }
-
-                   if (pa.isFinal(paStack.peek())) {
-                       // copy rest of the values for arrays only
-                       if (marker !=null && marker.equals(ARR_MARKER)) {
-                         try {
-                            if (transducer.isGenerating()) {
-                                writer.writeCurrentEvent(parser);
-                            }
-                         } catch (IOException e) {
-                             throw new RuntimeException(e);
-                         }
-                     }
-                    transducer.setState(transducer.getGenState());
-                    // TODO!!!!!
-                    try {
-                        parser.nextToken();
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                    transducer.setPaused(false);
-                    return;
-                }
-
-                paStack.pop();
-
+            default:
                 break;
         }
+
+        if (depth == 0) {
+            try {
+                //writer.writeCurrentEvent(parser);
+                transducer.setState(transducer.getGenState());
+                transducer.setPaused(false);
+                // TODO!!!!!
+                parser.nextToken(); //posledny token podstromu chcek tiez vynechat
+                return;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
+        /*
+         * switch (event) {
+         * 
+         * case START_ARRAY:
+         * if (paStack.peek().equals(ARR_MARKER)) {
+         * Integer i = indexStack.pop();
+         * paStack.pop(); // pop ARR_MARKER
+         * paState = paStack.peek();
+         * paStack.push(ARR_MARKER); // push ARR_MARKER back
+         * paStack.push(pa.transition(paState, i.toString()));
+         * indexStack.push(i + 1);
+         * }
+         * 
+         * indexStack.push(0);
+         * paStack.push(ARR_MARKER);
+         * 
+         * break;
+         * case END_ARRAY:
+         * if (pa.isFinal(paStack.peek())) {
+         * try {
+         * writer.writeCurrentEvent(parser);
+         * transducer.setState(transducer.getGenState());
+         * transducer.setPaused(false);
+         * // TODO!!!!!
+         * parser.nextToken();
+         * return;
+         * } catch (IOException e) {
+         * throw new RuntimeException(e);
+         * }
+         * }
+         * 
+         * 
+         * indexStack.pop();
+         * paStack.pop();
+         * 
+         * if (pa.isFinal(paStack.peek())) {
+         * transducer.setState(transducer.getGenState());
+         * transducer.setPaused(false);
+         * // TODO!!!!!
+         * try {
+         * parser.nextToken();
+         * } catch (IOException e) {
+         * // TODO Auto-generated catch block
+         * e.printStackTrace();
+         * }
+         * return;
+         * }
+         * 
+         * paStack.pop();
+         * 
+         * break;
+         * case START_OBJECT:
+         * if (paStack.peek().equals(ARR_MARKER)) {
+         * Integer i = indexStack.pop();
+         * paStack.pop(); // pop ARR_MARKER
+         * paState = paStack.peek();
+         * paStack.push(ARR_MARKER); // push ARR_MARKER back
+         * paStack.push(pa.transition(paState, i.toString()));
+         * indexStack.push(i + 1);
+         * }
+         * 
+         * paStack.push(OBJ_MARKER);
+         * 
+         * break;
+         * case END_OBJECT:
+         * paStack.pop();
+         * 
+         * if (pa.isFinal(paStack.peek())) {
+         * transducer.setState(transducer.getGenState());
+         * transducer.setPaused(false);
+         * // TODO!!!!!
+         * try {
+         * parser.nextToken();
+         * } catch (IOException e) {
+         * // TODO Auto-generated catch block
+         * e.printStackTrace();
+         * }
+         * return;
+         * }
+         * 
+         * paStack.pop();
+         * 
+         * break;
+         * case FIELD_NAME:
+         * paStack.pop(); // pop OBJ_MARKER
+         * paState = paStack.peek();
+         * paStack.push(OBJ_MARKER); // push OBJ_MARKER back
+         * paStack.push(pa.transition(paState,
+         * parser.getParsingContext().getCurrentName()));
+         * 
+         * break;
+         * case VALUE_FALSE:
+         * case VALUE_NULL:
+         * case VALUE_TRUE:
+         * case VALUE_STRING:
+         * case VALUE_NUMBER_INT:
+         * case VALUE_NUMBER_FLOAT:
+         * // get marker
+         * Integer top = paStack.pop();
+         * Integer marker = null;
+         * if (top > 0) {
+         * marker = paStack.peek();
+         * }
+         * paStack.push(top);
+         * 
+         * if (paStack.peek().equals(ARR_MARKER)) {
+         * Integer i = indexStack.pop();
+         * paStack.pop(); // pop ARR_MARKER
+         * paState = paStack.peek();
+         * paStack.push(ARR_MARKER); // push ARR_MARKER back
+         * paStack.push(pa.transition(paState, i.toString()));
+         * indexStack.push(i + 1);
+         * }
+         * 
+         * if (pa.isFinal(paStack.peek())) {
+         * // copy rest of the values for arrays only
+         * if (marker !=null && marker.equals(ARR_MARKER)) {
+         * try {
+         * if (transducer.isGenerating()) {
+         * writer.writeCurrentEvent(parser);
+         * }
+         * } catch (IOException e) {
+         * throw new RuntimeException(e);
+         * }
+         * }
+         * transducer.setState(transducer.getGenState());
+         * // TODO!!!!!
+         * try {
+         * parser.nextToken();
+         * } catch (IOException e) {
+         * // TODO Auto-generated catch block
+         * e.printStackTrace();
+         * }
+         * transducer.setPaused(false);
+         * return;
+         * }
+         * 
+         * paStack.pop();
+         * 
+         * break;
+         * }
+         */
 
     }
 

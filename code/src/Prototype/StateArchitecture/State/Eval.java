@@ -5,11 +5,9 @@ import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.Transducer;
 import Prototype.Writer.JsonWriter;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
-import java.io.IOException;
 import java.util.Stack;
 
 
@@ -23,7 +21,6 @@ public class Eval implements State {
     private JsonWriter writer;
     private Stack<Integer> paStack;
     private Stack<Integer> indexStack;
-    private TransformationFormat specification;
     private PathAutomaton pa;
 
     public Eval(Transducer transducer) {
@@ -34,8 +31,7 @@ public class Eval implements State {
     private void init() {
         this.writer = this.transducer.getWriter();
         this.paStack = this.transducer.getPaStack();
-        this.indexStack = this.transducer.getIndexStack();
-        this.specification = this.transducer.getSpecification();
+        this.indexStack = this.transducer.getIndexStack();    
         this.pa = this.transducer.getPa();    
     }
 
@@ -51,19 +47,16 @@ public class Eval implements State {
                     }
 
                     if (pa.isFinal(paStack.peek())) {
-                        TransitionToMatch();
-                        indexStack.push(0);
-                        paStack.push(ARR_MARKER);                        
-                        return;
+                        TransitionToMatch();                                                
                     }
-
+                    
                     indexStack.push(0);
                     paStack.push(ARR_MARKER);
 
                     break;
                 case END_ARRAY:
                     indexStack.pop();
-
+                    
                     paStack.pop();
                     paStack.pop();
 
@@ -72,15 +65,13 @@ public class Eval implements State {
                     if (paStack.peek().equals(ARR_MARKER)) {
                         HandleArrayElement();
                     }
-
+                    
                     if (pa.isFinal(paStack.peek())) {
-                        TransitionToMatch();
-                        paStack.push(OBJ_MARKER);                                                
-                        return;
+                        TransitionToMatch();                        
                     }
-
+                    
                     paStack.push(OBJ_MARKER);
-
+                    
                     break;
                 case END_OBJECT:
                     if (!paStack.peek().equals(ARR_MARKER)) {
@@ -105,8 +96,7 @@ public class Eval implements State {
                     paStack.push(pa.transition(paState, parser.getParsingContext().getCurrentName()));
 
                     if (pa.isFinal(paStack.peek())) {
-                        TransitionToMatch();
-                        return;
+                        TransitionToMatch();                    
                     }
 
                     break;
@@ -122,16 +112,13 @@ public class Eval implements State {
 
                     if (pa.isFinal(paStack.peek())) {
                         TransitionToMatch();
-                        return;
+                        // tu sa nepopuje??                     
                     }
-
-                    paStack.pop(); // pop new state in case of array or fieldname
+                    else {
+                        paStack.pop(); // pop new state in case of array or fieldname
+                    }
                     break;
-            }
-
-            /*if (this.transducer.isGenerating()) {
-                writer.writeCurrentEvent(parser);
-            } */           
+            }                      
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

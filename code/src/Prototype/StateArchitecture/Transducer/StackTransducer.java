@@ -174,13 +174,16 @@ public class StackTransducer implements Transducer {
 
             // kym sa cita nieco zo vstupu
             while (!parser.isClosed()) {
+                boolean skipEvent = false;
                 if (!paused) {
                     event = parser.nextToken();
                 }
+                /*if (!skipEvent) {
+                    event = parser.nextToken();
+                }*/
                 // EOF && prazdny stack
                 if (event == null || paStack.isEmpty()) break;                
-                currentState.process(parser);
-                // ked pridem do match stavu, automaticky negenerujem a stojim
+                currentState.process(parser);                
                 if (currentState.isGenerating()) {
                     writer.writeCurrentEvent(parser);
                     writer.flush();
