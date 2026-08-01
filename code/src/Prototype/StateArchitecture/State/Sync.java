@@ -121,9 +121,9 @@ public class Sync implements State {
             } else if ((sourceState instanceof Gen) && (destinationState instanceof Match)) {
                 try {
                     if (((CopyTransformation) specification).getKey() != null)
-                        destinationTransducer.setState(new Find_i(destinationTransducer));
+                        destinationTransducer.setState(new FindPos(destinationTransducer));
                     else {
-                        destinationTransducer.setState(new Find_i(destinationTransducer));
+                        destinationTransducer.setState(new FindPos(destinationTransducer));
                     }
                     writer.writeCurrentEvent(parser);
 
@@ -132,7 +132,7 @@ public class Sync implements State {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            } else if ((sourceState instanceof Gen) && (destinationState instanceof Match_i)) {
+            } else if ((sourceState instanceof Gen) && (destinationState instanceof MatchPos)) {
                 try {
                     if (((CopyTransformation) specification).getKey() != null) {
                         writer.writeFieldName(((CopyTransformation) specification).getKey());
@@ -149,9 +149,9 @@ public class Sync implements State {
             } else if ((sourceState instanceof Eval) && (destinationState instanceof Match)) {
                 try {
                     if (((CopyTransformation) specification).getKey() != null) {
-                        destinationTransducer.setState(new Find_i(destinationTransducer));
+                        destinationTransducer.setState(new FindPos(destinationTransducer));
                     } else {
-                        destinationTransducer.setState(new Find_i(destinationTransducer));
+                        destinationTransducer.setState(new FindPos(destinationTransducer));
                     }
                     writer.writeCurrentEvent(parser);
 
@@ -160,14 +160,14 @@ public class Sync implements State {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            } else if ((sourceState instanceof Eval) && (destinationState instanceof Match_i)) {
+            } else if ((sourceState instanceof Eval) && (destinationState instanceof MatchPos)) {
                 try {
                     if (((CopyTransformation) specification).getKey() != null) {
                         String key = ((CopyTransformation) specification).getKey();
                         writer.writeFieldName(key);                       
                     }
 
-                    destinationTransducer.setState(new MeminDel(destinationTransducer));
+                    destinationTransducer.setState(new MeminSkip(destinationTransducer));
                     //transducer.addToMemory();
                     destinationTransducer.setPaused(true);
 
@@ -175,7 +175,7 @@ public class Sync implements State {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            } else if ((sourceState instanceof Eval) && (destinationState instanceof MeminDel)) {
+            } else if ((sourceState instanceof Eval) && (destinationState instanceof MeminSkip)) {
                 try {
                     if (sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         sourceTransducer.setState(new Match(sourceTransducer));
@@ -197,7 +197,7 @@ public class Sync implements State {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            } else if ((sourceState instanceof Match) && (destinationState instanceof MeminDel)) {
+            } else if ((sourceState instanceof Match) && (destinationState instanceof MeminSkip)) {
                 sourceTransducer.setState(new Memin(sourceTransducer));
                 destinationTransducer.setState(new Gen(destinationTransducer));
 
@@ -294,11 +294,11 @@ public class Sync implements State {
             }
         } else if (specification instanceof MoveTransformation) {
             if ((sourceState instanceof Match) && (destinationState instanceof Eval)) {
-                sourceTransducer.setState(new MeminDel(sourceTransducer));
+                sourceTransducer.setState(new MeminSkip(sourceTransducer));
                 sourceTransducer.setPaused(false);
 
                 transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
-            } else if ((sourceState instanceof MeminDel) && (destinationState instanceof Eval)) {
+            } else if ((sourceState instanceof MeminSkip) && (destinationState instanceof Eval)) {
                 try {
                     destinationState.process(parser);
 
@@ -329,9 +329,9 @@ public class Sync implements State {
             } else if ((sourceState instanceof Gen) && (destinationState instanceof Match)) {
                 try {
                     if (((MoveTransformation) specification).getKey() != null) {
-                        destinationTransducer.setState(new Find_i(destinationTransducer));
+                        destinationTransducer.setState(new FindPos(destinationTransducer));
                     } else {
-                        destinationTransducer.setState(new Find_i(destinationTransducer));
+                        destinationTransducer.setState(new FindPos(destinationTransducer));
                     }
                     writer.writeCurrentEvent(parser);
 
@@ -340,7 +340,7 @@ public class Sync implements State {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            } else if ((sourceState instanceof Gen) && (destinationState instanceof Match_i)) {
+            } else if ((sourceState instanceof Gen) && (destinationState instanceof MatchPos)) {
                 try {
                     if (((MoveTransformation) specification).getKey() != null) {
                         writer.writeFieldName(((MoveTransformation) specification).getKey());
@@ -356,9 +356,9 @@ public class Sync implements State {
             } else if ((sourceState instanceof Eval) && (destinationState instanceof Match)) {
                 try {
                     if (((MoveTransformation) specification).getKey() != null) {
-                        destinationTransducer.setState(new Find_i(destinationTransducer));
+                        destinationTransducer.setState(new FindPos(destinationTransducer));
                     } else {
-                        destinationTransducer.setState(new Find_i(destinationTransducer));
+                        destinationTransducer.setState(new FindPos(destinationTransducer));
                     }
                     writer.writeCurrentEvent(parser);
 
@@ -367,13 +367,13 @@ public class Sync implements State {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            } else if ((sourceState instanceof Eval) && (destinationState instanceof Match_i)) {
-                destinationTransducer.setState(new MeminDel(destinationTransducer));
+            } else if ((sourceState instanceof Eval) && (destinationState instanceof MatchPos)) {
+                destinationTransducer.setState(new MeminSkip(destinationTransducer));
                 //transducer.addToMemory();
                 destinationTransducer.setPaused(true);
 
                 transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
-            } else if ((sourceState instanceof Eval) && (destinationState instanceof MeminDel)) {
+            } else if ((sourceState instanceof Eval) && (destinationState instanceof MeminSkip)) {
                 try {
                     sourceState.process(parser);
 
@@ -395,7 +395,7 @@ public class Sync implements State {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            } else if ((sourceState instanceof Match) && (destinationState instanceof MeminDel)) {
+            } else if ((sourceState instanceof Match) && (destinationState instanceof MeminSkip)) {
                 try {
                     if (((MoveTransformation) specification).getKey() == null) {
                         writer.writeCurrentEvent(parser);

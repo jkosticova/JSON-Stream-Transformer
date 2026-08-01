@@ -8,13 +8,13 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import java.util.Stack;
 
-public class MeminDel implements State {
+public class MeminSkip implements State {
     Transducer transducer;
     private Stack<Integer> paStack;
     private Stack<Integer> indexStack;
     private PathAutomaton pa;
 
-    public MeminDel(Transducer transducer) {
+    public MeminSkip(Transducer transducer) {
         this.transducer = transducer;
         init();
     }

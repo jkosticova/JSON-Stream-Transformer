@@ -142,7 +142,7 @@ public class JsonWriter {
                     break;
             }
         }
-    }
+    }    
 
     void writeStartObject() throws IOException {
         beforeValue();
@@ -215,21 +215,19 @@ public class JsonWriter {
         out.write('"');
     }
 
-    public void writeRawValue(String value) throws IOException {
-        beforeValue();
-        
-        //out.write('"');
-        char[] chars = value.toCharArray();
-        out.write(chars, 0, chars.length);
-        //out.write('"');
-    }
 
-
-    void writeRaw(JsonParser parser) throws IOException {
+    public void writeRaw(JsonParser parser) throws IOException {
         beforeValue();
 
         char[] buffer = parser.getTextCharacters();
         out.write(buffer, parser.getTextOffset(), parser.getTextLength());
+    }
+
+    public void writeRaw(String value) throws IOException {
+        beforeValue();
+
+        char[] chars = value.toCharArray();
+        out.write(chars, 0, chars.length);
     }
 
     // void writeBoolean(boolean value);

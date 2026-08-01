@@ -16,7 +16,10 @@ import com.fasterxml.jackson.core.JsonToken;
 import java.io.IOException;
 import java.util.Stack;
 
-public class Find_i implements State {
+/*
+This state search for position 𝑖 within the current structure.
+*/
+public class FindPos implements State {
     Transducer transducer;    
     private JsonWriter writer;
     private Stack<Integer> paStack;
@@ -24,7 +27,7 @@ public class Find_i implements State {
     private TransformationFormat specification;
     private PathAutomaton pa;
 
-    public Find_i(Transducer transducer) {
+    public FindPos(Transducer transducer) {
         this.transducer = transducer;
         init();
     

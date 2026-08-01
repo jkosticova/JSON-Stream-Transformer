@@ -5,20 +5,15 @@ import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.Transducer;
 import Prototype.Writer.JsonWriter;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-
 import java.io.IOException;
 
-import static Prototype.Utils.Helper.writeJsonValue;
-
-public class Match_i implements State {
+public class MatchPos implements State {
     private final Transducer transducer;
     private final JsonWriter writer;
     private final TransformationFormat specification;
 
-    public Match_i(Transducer transducer) {
+    public MatchPos(Transducer transducer) {
         this.transducer = transducer;
         this.writer = transducer.getWriter();
         this.specification = transducer.getSpecification();
@@ -32,12 +27,12 @@ public class Match_i implements State {
                 try {
                     if (((AddTransformation) specification).getKey() != null) {
                         writer.writeFieldName(((AddTransformation) specification).getKey());
-                        writer.writeRawValue(((AddTransformation) specification).getValue());
+                        writer.writeRaw(((AddTransformation) specification).getValue());
                         if (this.transducer.isGenerating()) {
                            writer.writeCurrentEvent(parser);
                         }                        
                     } else {
-                        writer.writeRawValue(((AddTransformation) specification).getValue());
+                        writer.writeRaw(((AddTransformation) specification).getValue());
                         if (this.transducer.isGenerating()) {
                             writer.writeCurrentEvent(parser);
                         }                        

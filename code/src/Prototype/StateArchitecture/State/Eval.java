@@ -13,7 +13,11 @@ import java.io.IOException;
 import java.util.Stack;
 
 
+/*
+This state tracks the progress of a JSONPath match.
 
+At the same time it copies input events to the output.
+*/
 public class Eval implements State {
     Transducer transducer;
     private JsonWriter writer;

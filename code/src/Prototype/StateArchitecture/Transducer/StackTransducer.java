@@ -24,9 +24,9 @@ public class StackTransducer implements Transducer {
     private final Eval evalState;
     private final Match matchState;
     private final Gen genState;
-    private final Del delState;
-    private final Find_i find_iState;
-    private final Match_i match_iState;    
+    private final SkipSubtree delState;
+    private final FindPos find_iState;
+    private final MatchPos match_iState;    
     // stacks
     Stack<Integer> paStack;    
     Stack<Integer> indexStack;    
@@ -56,9 +56,9 @@ public class StackTransducer implements Transducer {
         // states
         evalState = new Eval(this);
         matchState = new Match(this);
-        delState = new Del(this);
-        find_iState = new Find_i(this);
-        match_iState = new Match_i(this);        
+        delState = new SkipSubtree(this);
+        find_iState = new FindPos(this);
+        match_iState = new MatchPos(this);        
         genState = new Gen(this);
         
         currentState = evalState;

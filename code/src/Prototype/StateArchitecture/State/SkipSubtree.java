@@ -1,18 +1,21 @@
 package Prototype.StateArchitecture.State;
 
 import Prototype.PathAutomaton.PathAutomaton;
-import Prototype.PathAutomaton.SimplePathAutomaton;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.Transducer;
 import Prototype.Writer.JsonWriter;
-import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 import java.util.Stack;
 
-public class Del implements State {
+/*
+This state prunes current subtree, i.e., doesn't copy it to the output.
+TODO: It should be sufficient to remember the depth.
+*/
+public class SkipSubtree implements State {
     Transducer transducer;
     private final Stack<Integer> paStack;
     private final Stack<Integer> indexStack;
@@ -20,7 +23,7 @@ public class Del implements State {
     private final TransformationFormat specification;
     private final PathAutomaton pa;
 
-    public Del(Transducer transducer) {
+    public SkipSubtree(Transducer transducer) {
         this.transducer = transducer;
         this.writer = transducer.getWriter();
         this.paStack = transducer.getPaStack();
