@@ -5,6 +5,10 @@ import Prototype.StateArchitecture.Transducer.BufferTransducer;
 import Prototype.StateArchitecture.Transducer.IdentityTransducer;
 import Prototype.StateArchitecture.Transducer.StackTransducer;
 import Prototype.StateArchitecture.Transducer.Transducer;
+import Prototype.Writer.JsonWriter;
+import Prototype.Writer.RawUtf8Writer;
+
+
 //import jdk.jfr.*;
 //import jdk.jfr.consumer.RecordedEvent;
 //import jdk.jfr.consumer.RecordingFile;
@@ -233,13 +237,18 @@ public class Main {
         JsonFactory factory = new JsonFactory();
 
         for (int i = 0; i < setupRounds; i++) {
-            try (InputStream inputStream = new FileInputStream(input);
-                    JsonParser parser = factory.createParser(inputStream);
-                    JsonGenerator generator = factory.createGenerator(OutputStream.nullOutputStream())) {
-
+            try {
+                InputStream inputStream = new FileInputStream(input);
+                JsonParser parser = factory.createParser(inputStream);
+                RawUtf8Writer rawWriter = new RawUtf8Writer(OutputStream.nullOutputStream());
+                JsonWriter nullWriter = new JsonWriter(rawWriter); 
+                                     
                 while (parser.nextToken() != null) {
-                    writer.writeCurrentEvent(parser);
+                    nullWriter.writeCurrentEvent(parser);
                 }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
@@ -248,17 +257,20 @@ public class Main {
         for (int i = 0; i < evaluationRuns; i++) {
 
             long bytes = measureAllocatedBytes(() -> {
-                try (InputStream inputStream = new FileInputStream(input);
-                        JsonParser parser = factory.createParser(inputStream);
-                        JsonGenerator generator = factory.createGenerator(OutputStream.nullOutputStream())) {
-
-                    while (parser.nextToken() != null) {
-                        writer.writeCurrentEvent(parser);
-                    }
-
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                            try {
+                InputStream inputStream = new FileInputStream(input);
+                JsonParser parser = factory.createParser(inputStream);
+                RawUtf8Writer rawWriter = new RawUtf8Writer(OutputStream.nullOutputStream());
+                JsonWriter nullWriter = new JsonWriter(rawWriter); 
+                                     
+                while (parser.nextToken() != null) {
+                    nullWriter.writeCurrentEvent(parser);
                 }
+            }
+            catch (IOException e) {
+                e.printStackTrace();                
+            }
+
             });
 
             totalBytes += bytes;

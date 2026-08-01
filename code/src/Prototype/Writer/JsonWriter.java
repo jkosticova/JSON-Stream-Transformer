@@ -215,13 +215,13 @@ public class JsonWriter {
         out.write('"');
     }
 
-    public void writeString(String value) throws IOException {
+    public void writeRawValue(String value) throws IOException {
         beforeValue();
         
-        out.write('"');
+        //out.write('"');
         char[] chars = value.toCharArray();
         out.write(chars, 0, chars.length);
-        out.write('"');
+        //out.write('"');
     }
 
 

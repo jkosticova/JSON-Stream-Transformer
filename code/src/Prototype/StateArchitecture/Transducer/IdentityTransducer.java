@@ -97,6 +97,7 @@ public class IdentityTransducer implements Transducer {
             }
 
             parser.close();
+            writer.flush();
             //generator.close();
         } catch (Exception e) {
             System.out.println("Issue while processing IdentityTransducer: " + e.getMessage());

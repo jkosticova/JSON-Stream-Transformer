@@ -32,12 +32,12 @@ public class Match_i implements State {
                 try {
                     if (((AddTransformation) specification).getKey() != null) {
                         writer.writeFieldName(((AddTransformation) specification).getKey());
-                        writer.writeString(((AddTransformation) specification).getValue());
+                        writer.writeRawValue(((AddTransformation) specification).getValue());
                         if (this.transducer.isGenerating()) {
                            writer.writeCurrentEvent(parser);
                         }                        
                     } else {
-                        writer.writeString(((AddTransformation) specification).getValue());
+                        writer.writeRawValue(((AddTransformation) specification).getValue());
                         if (this.transducer.isGenerating()) {
                             writer.writeCurrentEvent(parser);
                         }                        

@@ -55,7 +55,7 @@ public class Match implements State {
                         writer.writeCurrentEvent(parser);
                     }
 
-                    writer.writeString(((ReplaceTransformation) specification).getValue());
+                    writer.writeRawValue(((ReplaceTransformation) specification).getValue());
                     transducer.setState(transducer.getDelState());
                     transducer.setPaused(false);
                 } catch (IOException e) {

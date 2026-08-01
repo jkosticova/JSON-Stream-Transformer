@@ -178,8 +178,10 @@ public class StackTransducer implements Transducer {
                 // EOF && prazdny stack
                 if (event == null || paStack.isEmpty()) break;
                 currentState.process(parser);
+                writer.flush();
             }
             parser.close();
+            writer.flush();
             //writer.close();
         } catch (Exception e) {
             System.out.println("Issue while processing StackTransducer: " + e.getMessage());
