@@ -81,7 +81,7 @@ public class DestinationTransducer implements Transducer {
         genState = new Gen(this);    
         meminState = new Memin(this);    
         meminDelState = new MeminSkip(this);    
-        memoutState = new Memout(this);    
+        memoutState = new Memout(this);            
         
         currentState = evalState;
         isGenerating = true;
@@ -119,27 +119,28 @@ public class DestinationTransducer implements Transducer {
     }
 
     @Override
-    public State getDelState() {
+    public State getSkipSubtreeState() {
         return this.delState;
     }
 
     @Override
-    public State getFind_iState() {
+    public State getFindPosState() {
         return this.find_iState;
     }
 
     @Override
-    public State getMatch_iState() {
+    public State getMatchPosState() {
         return this.match_iState;
     }
 
+     
     @Override
     public State getMeminState() {
         return this.meminState;
     }
 
     @Override
-    public State getMeminDelState() {
+    public State getMeminSkipState() {
         return this.meminDelState;
     }
 

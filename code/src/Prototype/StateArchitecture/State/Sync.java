@@ -62,13 +62,13 @@ public class Sync implements State {
             // source match, dest eval -> source memin
             if ((sourceState instanceof Match) && (destinationState instanceof Eval)) {
                 try {
-                    writer.writeCurrentEvent(parser);
+                    //writer.writeCurrentEvent(parser);
 
                     sourceTransducer.setState(new Memin(sourceTransducer));
                     sourceTransducer.setPaused(false);
 
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
-                } catch (IOException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             // source memin, dest eval       
@@ -86,7 +86,7 @@ public class Sync implements State {
                     if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {                        
                         transducer.addToMemory(); 
                         sourceTransducer.setState(new Gen(sourceTransducer));
-                        writer.writeCurrentEvent(parser);
+                        //writer.writeCurrentEvent(parser);
 
                         return;
                     }
@@ -95,7 +95,7 @@ public class Sync implements State {
                     if (event.isStructEnd() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         transducer.addToMemory();
                         sourceTransducer.setState(new Gen(sourceTransducer));
-                        writer.writeCurrentEvent(parser);
+                        //writer.writeCurrentEvent(parser);
 
                         return;
                     }
@@ -125,11 +125,11 @@ public class Sync implements State {
                     else {
                         destinationTransducer.setState(new FindPos(destinationTransducer));
                     }
-                    writer.writeCurrentEvent(parser);
+                    //writer.writeCurrentEvent(parser);
 
                     destinationTransducer.setPaused(false);
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
-                } catch (IOException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             } else if ((sourceState instanceof Gen) && (destinationState instanceof MatchPos)) {
@@ -153,11 +153,11 @@ public class Sync implements State {
                     } else {
                         destinationTransducer.setState(new FindPos(destinationTransducer));
                     }
-                    writer.writeCurrentEvent(parser);
+                    //writer.writeCurrentEvent(parser);
 
                     destinationTransducer.setPaused(false);
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
-                } catch (IOException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             } else if ((sourceState instanceof Eval) && (destinationState instanceof MatchPos)) {
@@ -226,10 +226,10 @@ public class Sync implements State {
                     if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         transducer.addToMemory();
                         sourceTransducer.setState(new Memout(sourceTransducer));
-                        writer.writeCurrentEvent(parser);
+                        //writer.writeCurrentEvent(parser);
                         sourceTransducer.setPaused(false);
 
-                        writer.flush();
+                        //writer.flush();
 
                         transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
 
@@ -240,10 +240,10 @@ public class Sync implements State {
                     if (event.isStructEnd() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         transducer.addToMemory();
                         sourceTransducer.setState(new Memout(sourceTransducer));
-                        writer.writeCurrentEvent(parser);
+                        //writer.writeCurrentEvent(parser);
                         sourceTransducer.setPaused(false);
 
-                        writer.flush();
+                        //writer.flush();
 
                         transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
 
@@ -273,16 +273,16 @@ public class Sync implements State {
 
                     // dest - noGen musi byt false
                     if (sourceState instanceof Gen && !destinationTransducer.noGen()) {
-                        writer.writeCurrentEvent(parser);
+                       // writer.writeCurrentEvent(parser);
                     // src
                     } else if (destinationState instanceof Gen && !sourceTransducer.noGen()) {
-                        writer.writeCurrentEvent(parser);
+                        //writer.writeCurrentEvent(parser);
                     // dest
                     } else if (sourceState instanceof Eval && !destinationTransducer.noGen()) {                    
-                        writer.writeCurrentEvent(parser);
+                        //writer.writeCurrentEvent(parser);
                     // src
                     } else if (destinationState instanceof Eval && !sourceTransducer.noGen()) {
-                        writer.writeCurrentEvent(parser);
+                        //writer.writeCurrentEvent(parser);
                     }
                     
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
@@ -333,11 +333,11 @@ public class Sync implements State {
                     } else {
                         destinationTransducer.setState(new FindPos(destinationTransducer));
                     }
-                    writer.writeCurrentEvent(parser);
+                    //writer.writeCurrentEvent(parser);
 
                     destinationTransducer.setPaused(false);
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
-                } catch (IOException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             } else if ((sourceState instanceof Gen) && (destinationState instanceof MatchPos)) {
@@ -360,11 +360,11 @@ public class Sync implements State {
                     } else {
                         destinationTransducer.setState(new FindPos(destinationTransducer));
                     }
-                    writer.writeCurrentEvent(parser);
+                    //writer.writeCurrentEvent(parser);
 
                     destinationTransducer.setPaused(false);
                     transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
-                } catch (IOException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             } else if ((sourceState instanceof Eval) && (destinationState instanceof MatchPos)) {
@@ -443,8 +443,8 @@ public class Sync implements State {
 
                         transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
 
-                        writer.writeCurrentEvent(parser);
-                        writer.flush();
+                        //writer.writeCurrentEvent(parser);
+                        //writer.flush();
                         return;
                     }
 
@@ -455,8 +455,8 @@ public class Sync implements State {
 
                         transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
 
-                        writer.writeCurrentEvent(parser);
-                        writer.flush();
+                        //writer.writeCurrentEvent(parser);
+                        //writer.flush();
                         return;
                     }
                     sourceTransducer.getPaStack().push(lastValue);
@@ -487,10 +487,10 @@ public class Sync implements State {
                     if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         transducer.addToMemory();
                         sourceTransducer.setState(new Memout(sourceTransducer));
-                        writer.writeCurrentEvent(parser);
+                        // writer.writeCurrentEvent(parser);
                         sourceTransducer.setPaused(false);
 
-                        writer.flush();
+                        // writer.flush();
 
                         transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
 
@@ -501,10 +501,10 @@ public class Sync implements State {
                     if (event.isStructEnd() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         transducer.addToMemory();
                         sourceTransducer.setState(new Memout(sourceTransducer));
-                        writer.writeCurrentEvent(parser);
+                        // writer.writeCurrentEvent(parser);
                         sourceTransducer.setPaused(false);
 
-                        writer.flush();
+                        // writer.flush();
 
                         transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
 
@@ -531,6 +531,7 @@ public class Sync implements State {
                     destinationState = destinationTransducer.getCurrentState();
 
                     // dest - noGen musi byt false
+                    /* 
                     if (sourceState instanceof Gen && !destinationTransducer.noGen()) {
                         writer.writeCurrentEvent(parser);
                     // src
@@ -542,7 +543,7 @@ public class Sync implements State {
                     // src
                     } else if (destinationState instanceof Eval && !sourceTransducer.noGen()) {
                         writer.writeCurrentEvent(parser);
-                    }
+                    }*/
                     
 
 
@@ -576,5 +577,9 @@ public class Sync implements State {
         }
 
         return null;
+    }
+
+    public boolean isGenerating() {
+        return true;
     }
 }

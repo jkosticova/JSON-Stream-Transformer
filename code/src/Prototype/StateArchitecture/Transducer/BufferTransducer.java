@@ -8,20 +8,22 @@ import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.State.State;
 import Prototype.StateArchitecture.State.Sync;
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+
 import org.openjdk.jol.info.GraphLayout;
 
 public class BufferTransducer {
+    // dvojica stavov!!!
     private final State currentState;
+    //private final ArrayList<Transducer> childTransducers;
     private final SourceTransducer sourceTransducer;
     private final DestinationTransducer destinationTransducer;
 
@@ -48,8 +50,10 @@ public class BufferTransducer {
             }
             //ObjectMapper objectMapper = new ObjectMapper();
             buffer = new TokenBuffer((ObjectCodec) null, false);
+            //childTransducers = new ArrayList<>();
             sourceTransducer = new SourceTransducer(mapper, this);
             destinationTransducer = new DestinationTransducer(mapper, this);
+            
             currentState = new Sync(this);        
     }
 
@@ -93,16 +97,22 @@ public class BufferTransducer {
 
     public boolean process() {
         try {
-            JsonToken event = null;
+            JsonToken event = null;            
 
             while (!parser.isClosed()) {
                 if (!paused) {
                     event = parser.nextToken();
                 }
-                if (event == null) break;
+                if (event == null) break;     
+                State sourceState = sourceTransducer.getCurrentState();
+                State destState = destinationTransducer.getCurrentState();
                 currentState.process(parser);
+                if (sourceState.isGenerating() || destState.isGenerating()) {
+                    writer.writeCurrentEvent(parser);
+                }            
+                writer.flush();
             }
-
+            writer.flush();
             parser.close();
             //writer.close();
         } catch (Exception e) {

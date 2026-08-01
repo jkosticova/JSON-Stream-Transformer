@@ -25,6 +25,7 @@ public class Eval implements State {
     private Stack<Integer> indexStack;
     private TransformationFormat specification;
     private PathAutomaton pa;
+    private boolean generating;
 
     public Eval(Transducer transducer) {
         this.transducer = transducer;
@@ -37,9 +38,11 @@ public class Eval implements State {
         this.indexStack = this.transducer.getIndexStack();
         this.specification = this.transducer.getSpecification();
         this.pa = this.transducer.getPa();
+        this.generating = true;
     }
 
     public void process(JsonParser parser) {
+        generating = true;
         int paState;                
         try {
             init();
@@ -90,6 +93,7 @@ public class Eval implements State {
                         transducer.setPaused(true);
                         paStack.push(OBJ_MARKER);
                         transducer.setNoGen(true);
+                        this.generating = false;
                         return;
                     }
 
@@ -122,6 +126,7 @@ public class Eval implements State {
                         transducer.setState(transducer.getMatchState());
                         transducer.setPaused(true);
                         transducer.setNoGen(true);
+                        this.generating = false;
                         return;
                     }
 
@@ -145,6 +150,7 @@ public class Eval implements State {
                         transducer.setState(transducer.getMatchState());
                         transducer.setPaused(true);
                         transducer.setNoGen(true);
+                        this.generating = false;
                         return;
                     }
 
@@ -152,11 +158,15 @@ public class Eval implements State {
                     break;
             }
 
-            if (this.transducer.isGenerating()) {
+            /*if (this.transducer.isGenerating()) {
                 writer.writeCurrentEvent(parser);
-            }            
-        } catch (IOException e) {
+            } */           
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public boolean isGenerating() {
+        return true;
     }
 }

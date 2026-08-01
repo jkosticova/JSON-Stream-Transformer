@@ -34,6 +34,7 @@ public class IdentityTransducer implements Transducer {
             throw new RuntimeException(e);
         }
         currentState = new Gen(this);
+        
     }
 
     @Override
@@ -94,6 +95,11 @@ public class IdentityTransducer implements Transducer {
 
                 if (event == null) break;
                 currentState.process(parser);
+                State current = currentState;
+                currentState.process(parser);
+                if (current.isGenerating()) {
+                    writer.writeCurrentEvent(parser);
+                }            
             }
 
             parser.close();
@@ -140,17 +146,18 @@ public class IdentityTransducer implements Transducer {
     }
 
     @Override
-    public State getDelState() {
+    public State getSkipSubtreeState() {
+        return null;
+    }
+
+
+    @Override
+    public State getFindPosState() {
         return null;
     }
 
     @Override
-    public State getFind_iState() {
-        return null;
-    }
-
-    @Override
-    public State getMatch_iState() {
+    public State getMatchPosState() {
         return null;
     }
 
@@ -160,7 +167,7 @@ public class IdentityTransducer implements Transducer {
     }
 
     @Override
-    public State getMeminDelState() {
+    public State getMeminSkipState() {
         return null;
     }
 

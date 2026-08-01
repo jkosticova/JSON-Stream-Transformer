@@ -21,65 +21,71 @@ public class Match implements State {
     private final Transducer transducer;
     private final JsonWriter writer;
     private final TransformationFormat specification;
+    private boolean generating;
 
     public Match(Transducer transducer) {
         this.transducer = transducer;
         this.writer = transducer.getWriter();
         this.specification = transducer.getSpecification();    
+        this.generating = false;
     }
 
     @Override
-    public void process(JsonParser parser) {
+    public void process(JsonParser parser) {        
+        
         transducer.setNoGen(true);
         JsonToken event = parser.currentToken();
         switch (specification.getType()) {
+            // write fieldName from specification and only copy the rest of the input
             case "rename":
                 try {
-                    writer.writeFieldName(((RenameTransformation) specification).getKey());
+                    writer.writeFieldName(((RenameTransformation) specification).getKey());                    
+                    // TODO: preskocit aktualny fieldName - urobit nejako lepsie
+                    parser.nextToken();
                     transducer.setState(transducer.getGenState());
-                    transducer.setPaused(false);
+                    
                 } catch (IOException e) {
                     throw new RuntimeException(e);
-                }
+                }                                
                 break;
+            // skip current subtree, including current event
             case "remove":
-                transducer.setState(transducer.getDelState());
-                transducer.setPaused(false);
+                transducer.setState(transducer.getSkipSubtreeState());                
                 break;
+            
             case "replace":
-                try {
+                try {                    
                     if (((ReplaceTransformation) specification).getKey() != null) {
                         writer.writeFieldName(((ReplaceTransformation) specification).getKey());
+                        //parser.nextToken();
                     // current key is copied only in case of object field name, it doesn't make sense for other cases
                     } else if (transducer.getPaStack().peek()>=0 && event == JsonToken.FIELD_NAME) {
                         writer.writeCurrentEvent(parser);
+                        //parser.nextToken();
                     }
 
                     writer.writeRaw(((ReplaceTransformation) specification).getValue());
-                    transducer.setState(transducer.getDelState());
-                    transducer.setPaused(false);
+                    
+                    transducer.setState(transducer.getSkipSubtreeState());                    
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+                this.generating = false;
                 break;
             case "add":
-                try {
-                    if (((AddTransformation) specification).getKey() != null) {
-                        transducer.setState(transducer.getFind_iState());
-                    } else {
-                        transducer.setState(transducer.getFind_iState());
-                    }
-                    if (this.transducer.isGenerating()) {
-                        writer.writeCurrentEvent(parser);
-                    }
-
-                    transducer.setPaused(false);
-                } catch (IOException e) {
+                try {                    
+                    transducer.setState(transducer.getFindPosState());                                          
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
                 break;
             default:
                 break;
+
         }
+        transducer.setPaused(false);
+    }
+    public boolean isGenerating() {
+        return false;
     }
 }

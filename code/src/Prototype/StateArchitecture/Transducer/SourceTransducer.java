@@ -82,6 +82,7 @@ public class SourceTransducer implements Transducer {
         meminState = new Memin(this);    
         meminDelState = new MeminSkip(this);    
         memoutState = new Memout(this);            
+        
 
         currentState = evalState;
         isGenerating= true;
@@ -94,6 +95,8 @@ public class SourceTransducer implements Transducer {
     public void setPaused(boolean paused) {
         this.paused = paused;
     }
+
+    
 
     public boolean getPaused() {
         return this.paused;
@@ -144,19 +147,19 @@ public class SourceTransducer implements Transducer {
     }
 
     @Override
-    public State getDelState() {
+    public State getSkipSubtreeState() {
         return this.delState;
     }
 
     
 
     @Override
-    public State getFind_iState() {
+    public State getFindPosState() {
         return this.find_iState;
     }
 
     @Override
-    public State getMatch_iState() {
+    public State getMatchPosState() {
         return this.match_iState;
     }
 
@@ -166,7 +169,7 @@ public class SourceTransducer implements Transducer {
     }
 
     @Override
-    public State getMeminDelState() {
+    public State getMeminSkipState() {
         return this.meminDelState;
     }
 

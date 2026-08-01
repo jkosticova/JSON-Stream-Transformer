@@ -28,14 +28,16 @@ public class MatchPos implements State {
                     if (((AddTransformation) specification).getKey() != null) {
                         writer.writeFieldName(((AddTransformation) specification).getKey());
                         writer.writeRaw(((AddTransformation) specification).getValue());
-                        if (this.transducer.isGenerating()) {
+                        /*if (this.transducer.isGenerating()) {
                            writer.writeCurrentEvent(parser);
-                        }                        
+                        } */                       
                     } else {
                         writer.writeRaw(((AddTransformation) specification).getValue());
+                        /*
                         if (this.transducer.isGenerating()) {
                             writer.writeCurrentEvent(parser);
-                        }                        
+                        } 
+                        */                           
                     }
                     transducer.setState(transducer.getGenState());
                     transducer.setPaused(false);
@@ -46,5 +48,8 @@ public class MatchPos implements State {
             default:
                 break;
         }
+    }
+    public boolean isGenerating() {
+        return false;
     }
 }

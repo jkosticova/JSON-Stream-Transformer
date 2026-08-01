@@ -27,4 +27,8 @@ public class Memout implements State {
             throw new RuntimeException(e);
         }
     }
+
+    public boolean isGenerating() {
+        return false;
+    }
 }

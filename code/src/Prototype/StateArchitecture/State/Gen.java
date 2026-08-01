@@ -22,12 +22,16 @@ public class Gen implements State {
     public void process(JsonParser parser) {
         init();
 
-        try {
+        /*try {
             if (this.transducer.isGenerating()) {
                 writer.writeCurrentEvent(parser);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
+        }*/
+    }
+
+    public boolean isGenerating() {
+        return true;
     }
 }

@@ -106,12 +106,16 @@ public class Memin implements State {
         }
 
         transducer.addToMemory();
-        try {
+        /*try {
             if (this.transducer.isGenerating()) {
                 writer.writeCurrentEvent(parser);
             }            
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
+        }*/
+    }
+
+    public boolean isGenerating() {
+        return true;
     }
 }

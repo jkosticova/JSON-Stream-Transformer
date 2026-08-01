@@ -1,7 +1,6 @@
 package Prototype.StateArchitecture.State;
 
 import Prototype.PathAutomaton.PathAutomaton;
-import Prototype.PathAutomaton.SimplePathAutomaton;
 import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -107,5 +106,9 @@ public class MeminSkip implements State {
         }
 
         transducer.addToMemory();
+    }
+
+    public boolean isGenerating() {
+        return false;
     }
 }

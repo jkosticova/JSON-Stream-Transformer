@@ -45,19 +45,7 @@ public class SkipSubtree implements State {
                     paStack.push(pa.transition(paState, i.toString()));                        
                     indexStack.push(i + 1);
                 }
-
-                /*if (pa.isFinal(paStack.peek())) {
-                    try {
-                        writer.writeCurrentEvent(parser);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    transducer.setState(transducer.getGenState());
-                    transducer.setPaused(false);
-                    return;
-                }*/
-
+                
                 indexStack.push(0);
                 paStack.push(ARR_MARKER);
 
@@ -68,6 +56,8 @@ public class SkipSubtree implements State {
                         writer.writeCurrentEvent(parser);
                         transducer.setState(transducer.getGenState());
                         transducer.setPaused(false);
+                        // TODO!!!!!
+                        parser.nextToken();
                         return;
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -81,6 +71,13 @@ public class SkipSubtree implements State {
                 if (pa.isFinal(paStack.peek())) {
                     transducer.setState(transducer.getGenState());
                     transducer.setPaused(false);
+                    // TODO!!!!!
+                    try {
+                        parser.nextToken();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                     return;
                 }
 
@@ -106,6 +103,13 @@ public class SkipSubtree implements State {
                 if (pa.isFinal(paStack.peek())) {
                     transducer.setState(transducer.getGenState());
                     transducer.setPaused(false);
+                    // TODO!!!!!
+                    try {
+                        parser.nextToken();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                     return;
                 }
 
@@ -154,6 +158,13 @@ public class SkipSubtree implements State {
                          }
                      }
                     transducer.setState(transducer.getGenState());
+                    // TODO!!!!!
+                    try {
+                        parser.nextToken();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                     transducer.setPaused(false);
                     return;
                 }
@@ -163,5 +174,9 @@ public class SkipSubtree implements State {
                 break;
         }
 
+    }
+
+    public boolean isGenerating() {
+        return false;
     }
 }

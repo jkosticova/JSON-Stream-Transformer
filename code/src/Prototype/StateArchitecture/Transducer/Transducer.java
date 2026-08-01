@@ -17,12 +17,12 @@ public interface Transducer {
     
     State getEvalState();
     State getMatchState();
-    State getFind_iState();
-    State getMatch_iState();
-    State getDelState();
+    State getFindPosState();
+    State getMatchPosState();
+    State getSkipSubtreeState();    
     State getGenState();
     State getMeminState();
-    State getMeminDelState();
+    State getMeminSkipState();
     State getMemoutState();
     
     PathAutomaton getPa();

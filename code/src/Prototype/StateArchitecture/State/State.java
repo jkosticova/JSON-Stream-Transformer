@@ -1,7 +1,13 @@
 package Prototype.StateArchitecture.State;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+
+/*
+Traversing states: Eval, EvalSkip, FindPos, Gen, Memin, MeminSkip, SkipSubtree
+Switching states: Match, MatchPos 
+Special states: Memout, Sync
+
+*/
 
 public interface State {
     int INITIAL_PA_STATE = 0;
@@ -12,4 +18,7 @@ public interface State {
     int OBJ_MARKER = -2;
 
     void process(JsonParser parser);
+    boolean isGenerating();
+
+    
 }

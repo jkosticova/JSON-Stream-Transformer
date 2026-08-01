@@ -59,7 +59,7 @@ public class StackTransducer implements Transducer {
         delState = new SkipSubtree(this);
         find_iState = new FindPos(this);
         match_iState = new MatchPos(this);        
-        genState = new Gen(this);
+        genState = new Gen(this);        
         
         currentState = evalState;
         paused = false;
@@ -104,6 +104,8 @@ public class StackTransducer implements Transducer {
     public State getMatchState() {
         return this.matchState;
     }
+
+    
     
     @Override
     public State getGenState() {
@@ -111,17 +113,17 @@ public class StackTransducer implements Transducer {
     }
 
     @Override
-    public State getDelState() {
+    public State getSkipSubtreeState() {
         return this.delState;
     }
 
     @Override
-    public State getFind_iState() {
+    public State getFindPosState() {
         return this.find_iState;
     }
 
     @Override
-    public State getMatch_iState() {
+    public State getMatchPosState() {
         return this.match_iState;
     }
 
@@ -131,7 +133,7 @@ public class StackTransducer implements Transducer {
     }
 
     @Override
-    public State getMeminDelState() {
+    public State getMeminSkipState() {
         return null;
     }
 
@@ -176,9 +178,14 @@ public class StackTransducer implements Transducer {
                     event = parser.nextToken();
                 }
                 // EOF && prazdny stack
-                if (event == null || paStack.isEmpty()) break;
+                if (event == null || paStack.isEmpty()) break;                
                 currentState.process(parser);
-                writer.flush();
+                // ked pridem do match stavu, automaticky negenerujem a stojim
+                if (currentState.isGenerating()) {
+                    writer.writeCurrentEvent(parser);
+                    writer.flush();
+                }            
+                
             }
             parser.close();
             writer.flush();

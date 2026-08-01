@@ -26,6 +26,7 @@ public class FindPos implements State {
     private Stack<Integer> indexStack;
     private TransformationFormat specification;
     private PathAutomaton pa;
+    private boolean generating;
 
     public FindPos(Transducer transducer) {
         this.transducer = transducer;
@@ -69,7 +70,7 @@ public class FindPos implements State {
                                 && pa.isFinal(paStack.peek())) {
                             paStack.push(array1); // ARR_MARKER?
                             paStack.push(state1);
-                            transducer.setState(transducer.getMatch_iState());
+                            transducer.setState(transducer.getMatchPosState());
                             transducer.setPaused(true);
                             transducer.setNoGen(true);
                             return;
@@ -88,7 +89,7 @@ public class FindPos implements State {
                                 && pa.isFinal(paStack.peek())) {
                             paStack.push(array1);
                             paStack.push(state1);
-                            transducer.setState(transducer.getMatch_iState());
+                            transducer.setState(transducer.getMatchPosState());
                             transducer.setPaused(true);
                             transducer.setNoGen(true);
                             return;
@@ -106,7 +107,7 @@ public class FindPos implements State {
                             paStack.push(state1);
                             paStack.push(ARR_MARKER);
                             indexStack.push(0);
-                            transducer.setState(transducer.getMatch_iState());
+                            transducer.setState(transducer.getMatchPosState());
                             transducer.setPaused(true);
                             transducer.setNoGen(true);
                             return;
@@ -124,7 +125,7 @@ public class FindPos implements State {
                     paStack.pop();
 
                     if (pa.isFinal(paStack.peek())) {
-                        transducer.setState(transducer.getMatch_iState());
+                        transducer.setState(transducer.getMatchPosState());
                         transducer.setPaused(true);
                         transducer.setNoGen(true);
                         return;
@@ -150,7 +151,7 @@ public class FindPos implements State {
                             && pa.isFinal(paStack.peek())) {
                         paStack.push(array2);
                         paStack.push(state2);
-                        transducer.setState(transducer.getMatch_iState());
+                        transducer.setState(transducer.getMatchPosState());
                         transducer.setPaused(true);
                         transducer.setNoGen(true);
                         return;
@@ -158,7 +159,7 @@ public class FindPos implements State {
                             && pa.isFinal(paStack.peek())) {
                         paStack.push(array2);
                         paStack.push(state2);
-                        transducer.setState(transducer.getMatch_iState());
+                        transducer.setState(transducer.getMatchPosState());
                         transducer.setPaused(true);
                         transducer.setNoGen(true);
                         return;
@@ -174,7 +175,7 @@ public class FindPos implements State {
                     paStack.pop();
 
                     if (pa.isFinal(paStack.peek())) {
-                        transducer.setState(transducer.getMatch_iState());
+                        transducer.setState(transducer.getMatchPosState());
                         transducer.setPaused(true);
                         transducer.setNoGen(true);
                         return;
@@ -212,7 +213,7 @@ public class FindPos implements State {
                             && pa.isFinal(paStack.peek())) {
                         paStack.push(array3);
                         paStack.push(state3);
-                        transducer.setState(transducer.getMatch_iState());
+                        transducer.setState(transducer.getMatchPosState());
                         transducer.setPaused(true);
                         transducer.setNoGen(true);
                         return;
@@ -220,7 +221,7 @@ public class FindPos implements State {
                             && pa.isFinal(paStack.peek())) {
                         paStack.push(array3);
                         paStack.push(state3);
-                        transducer.setState(transducer.getMatch_iState());
+                        transducer.setState(transducer.getMatchPosState());
                         transducer.setPaused(true);
                         transducer.setNoGen(true);
                         return;
@@ -236,11 +237,15 @@ public class FindPos implements State {
             }
 
 
-            if (this.transducer.isGenerating()) {
+            /*if (this.transducer.isGenerating()) {
                 writer.writeCurrentEvent(parser);
-            }
-        } catch (IOException e) {
+            }*/
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public boolean isGenerating() {
+        return true;
     }
 }
