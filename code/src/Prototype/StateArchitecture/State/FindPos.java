@@ -7,9 +7,7 @@ import Prototype.SpecificationParser.CopyTransformation;
 import Prototype.SpecificationParser.MoveTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.Transducer;
-import Prototype.Writer.JsonWriter;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -20,175 +18,77 @@ import java.util.Stack;
 This state search for position 𝑖 within the current structure.
 */
 public class FindPos implements State {
-    Transducer transducer;    
-    private JsonWriter writer;
+    Transducer transducer;        
     private Stack<Integer> paStack;
     private Stack<Integer> indexStack;
-    private TransformationFormat specification;
+    private TransformationFormat specification;    
+    private int depth;
+    private Integer searchedIndex = null;
     private PathAutomaton pa;
-    private boolean generating;
+    
 
     public FindPos(Transducer transducer) {
         this.transducer = transducer;
         init();
+        this.depth = 0;
     
     }
 
-    private void init() {
-        this.writer = this.transducer.getWriter();
+    private void init() {        
         this.paStack = this.transducer.getPaStack();
         this.indexStack = this.transducer.getIndexStack();
         this.specification = this.transducer.getSpecification();
-        
-        pa = transducer.getPa();
-            
-        
+        this.pa = this.transducer.getPa();
+        if (specification instanceof AddTransformation) {
+            this.searchedIndex = ((AddTransformation) specification).getIndex();
+        }
+        else if (specification instanceof CopyTransformation) {
+            this.searchedIndex = ((CopyTransformation) specification).getIndex();
+        }
+        else if (specification instanceof MoveTransformation) {
+            this.searchedIndex = ((MoveTransformation) specification).getIndex();
+        };                                    
     }
 
     public void process(JsonParser parser) {
-        init();
-        Integer paState;
+        init();        
+        // ak sme na kluci
+        if (this.depth == 0 && this.transducer.getEntryMode() == Transducer.MatchEntryMode.AT_KEY) {
+           try {
+            parser.nextToken(); // posunieme sa na value
+           } catch (IOException e) {            
+            e.printStackTrace();
+           } 
+        }
         try {
-            JsonToken event = parser.currentToken();
+            JsonToken event = parser.currentToken();            
             switch (event) {
                 case START_ARRAY:
-                    if (paStack.peek().equals(ARR_MARKER)) {
-                        Integer i = indexStack.pop();
-                        paStack.pop(); // pop ARR_MARKER
-                        paState = paStack.peek();
-                        paStack.push(ARR_MARKER); // push ARR_MARKER back
-                        paStack.push(pa.transition(paState, i.toString()));
-                        indexStack.push(i + 1);
-                    }
-
-                    if (specification instanceof AddTransformation && ((AddTransformation) specification).getIndex() != null) {
-                        Integer state1 = paStack.pop();                        
-                        Integer array1 = paStack.pop(); // ARR_MARKER?
-                        Integer index1 = indexStack.peek()-1;
-                        
-                        if (((AddTransformation) specification).getIndex().equals(index1)
-                                && pa.isFinal(paStack.peek())) {
-                            paStack.push(array1); // ARR_MARKER?
-                            paStack.push(state1);
-                            transducer.setState(transducer.getMatchPosState());
-                            transducer.setPaused(true);
-                            transducer.setNoGen(true);
-                            return;
-                        }
-
-                        paStack.push(array1);
-                        paStack.push(state1);
-                    }
-
-                    if (specification instanceof CopyTransformation) {                        
-                        Integer state1 = paStack.pop();                                                
-                        Integer array1 = paStack.pop(); // ARR_MARKER?
-                        Integer index1 = indexStack.peek()-1;
-
-                        if (((CopyTransformation) specification).getIndex() != null && ((CopyTransformation) specification).getIndex().equals(index1)
-                                && pa.isFinal(paStack.peek())) {
-                            paStack.push(array1);
-                            paStack.push(state1);
-                            transducer.setState(transducer.getMatchPosState());
-                            transducer.setPaused(true);
-                            transducer.setNoGen(true);
-                            return;
-                        }
-                        paStack.push(array1);
-                        paStack.push(state1);
-                    } else if (specification instanceof MoveTransformation) {
-                        Integer state1 = paStack.pop();                                                
-                        Integer array1 = paStack.pop(); // ARR_MARKER?
-                        Integer index1 = indexStack.peek()-1;
-
-                        if (((MoveTransformation) specification).getIndex() != null && ((MoveTransformation) specification).getIndex().equals(index1)
-                                && pa.isFinal(paStack.peek())) {
-                            paStack.push(array1);
-                            paStack.push(state1);
-                            paStack.push(ARR_MARKER);
-                            indexStack.push(0);
-                            transducer.setState(transducer.getMatchPosState());
-                            transducer.setPaused(true);
-                            transducer.setNoGen(true);
-                            return;
-                        }
-                        paStack.push(array1);
-                        paStack.push(state1);
-                    }
-
-                    indexStack.push(0);
-                    paStack.push(ARR_MARKER);
-
-                    break;
-                case END_ARRAY:
-                    indexStack.pop();
-                    paStack.pop();
-
-                    if (pa.isFinal(paStack.peek())) {
-                        transducer.setState(transducer.getMatchPosState());
-                        transducer.setPaused(true);
-                        transducer.setNoGen(true);
-                        return;
-                    }
-
-                    paStack.pop();
-
-                    break;
                 case START_OBJECT:
-                    if (paStack.peek().equals(ARR_MARKER)) {
+                    // ak sme na i-tom prvku pola
+                    if (this.depth == 1 && paStack.peek().equals(ARR_MARKER)) {
                         Integer i = indexStack.pop();
-                        paStack.pop(); // pop ARR_MARKER
-                        paState = paStack.peek();
-                        paStack.push(ARR_MARKER); // push ARR_MARKER back
-                        paStack.push(pa.transition(paState, i.toString()));
+                        if (searchedIndex.equals(i)) {
+                            TransitionToMatchPos();                                                
+                            // paStack updatneme iba ak je match
+                            paStack.pop(); // pop ARR_MARKER
+                            int paState = paStack.peek();
+                            paStack.push(ARR_MARKER); // push ARR_MARKER back
+                            paStack.push(pa.transition(paState, i.toString()));                            
+                        }
                         indexStack.push(i + 1);
-                    }
-                    Integer state2 = paStack.pop();                                                
-                    Integer array2 = paStack.pop(); // ARR_MARKER?
-                    Integer index2 = indexStack.peek()-1;
-                                        
-                    if (specification instanceof CopyTransformation && ((CopyTransformation) specification).getIndex() != null && ((CopyTransformation) specification).getIndex().equals(index2)
-                            && pa.isFinal(paStack.peek())) {
-                        paStack.push(array2);
-                        paStack.push(state2);
-                        transducer.setState(transducer.getMatchPosState());
-                        transducer.setPaused(true);
-                        transducer.setNoGen(true);
-                        return;
-                    } else if (specification instanceof MoveTransformation && ((MoveTransformation) specification).getIndex() != null && ((MoveTransformation) specification).getIndex().equals(index2)
-                            && pa.isFinal(paStack.peek())) {
-                        paStack.push(array2);
-                        paStack.push(state2);
-                        transducer.setState(transducer.getMatchPosState());
-                        transducer.setPaused(true);
-                        transducer.setNoGen(true);
-                        return;
-                    }
-
-                    paStack.push(array2);
-                    paStack.push(state2);
-
-                    paStack.push(OBJ_MARKER);
-
-                    break;
+                    }                    
+                    depth++;                    
+                    break;                
+                case END_ARRAY:
                 case END_OBJECT:
-                    paStack.pop();
-
-                    if (pa.isFinal(paStack.peek())) {
-                        transducer.setState(transducer.getMatchPosState());
-                        transducer.setPaused(true);
-                        transducer.setNoGen(true);
-                        return;
+                    depth--;                    
+                    // sme na konci pola / objektu
+                    if (depth == 0) {
+                        TransitionToMatchPos();
                     }
-
-                    paStack.pop();
-
                     break;
-                case FIELD_NAME:
-                    paStack.pop(); // pop OBJ_MARKER
-                    paState = paStack.peek();
-                    paStack.push(OBJ_MARKER); // push OBJ_MARKER back
-                    paStack.push(pa.transition(paState, parser.getParsingContext().getCurrentName()));                   
+                case FIELD_NAME:                    
                     break;
                 case VALUE_FALSE:
                 case VALUE_NULL:
@@ -196,50 +96,16 @@ public class FindPos implements State {
                 case VALUE_STRING:
                 case VALUE_NUMBER_INT:
                 case VALUE_NUMBER_FLOAT:
-                    if (paStack.peek().equals(ARR_MARKER)) {
+                    // ak sme na i-tom prvku pola
+                    if (this.depth == 1 && paStack.peek().equals(ARR_MARKER)) {
                         Integer i = indexStack.pop();
-                        paStack.pop(); // pop ARR_MARKER
-                        paState = paStack.peek();
-                        paStack.push(ARR_MARKER); // push ARR_MARKER back
-                        paStack.push(pa.transition(paState, i.toString()));
-                        indexStack.push(i + 1);
-                    }
-
-                    Integer state3 = paStack.pop();                                                
-                    Integer array3 = paStack.pop(); // ARR_MARKER?
-                    Integer index3 = indexStack.peek()-1;
-
-                    if (specification instanceof CopyTransformation && ((CopyTransformation) specification).getIndex() != null && ((CopyTransformation) specification).getIndex().equals(index3)
-                            && pa.isFinal(paStack.peek())) {
-                        paStack.push(array3);
-                        paStack.push(state3);
-                        transducer.setState(transducer.getMatchPosState());
-                        transducer.setPaused(true);
-                        transducer.setNoGen(true);
-                        return;
-                    } else if (specification instanceof MoveTransformation && ((MoveTransformation) specification).getIndex() != null && ((MoveTransformation) specification).getIndex().equals(index3)
-                            && pa.isFinal(paStack.peek())) {
-                        paStack.push(array3);
-                        paStack.push(state3);
-                        transducer.setState(transducer.getMatchPosState());
-                        transducer.setPaused(true);
-                        transducer.setNoGen(true);
-                        return;
-                    }
-
-                    paStack.push(array3);
-                    paStack.push(state3);
-
-
-                    paStack.pop();
-
+                        if (searchedIndex.equals(i)) {
+                            TransitionToMatchPos();
+                        }
+                        indexStack.push(i+1);
+                    }                                        
                     break;
-            }
-
-
-            /*if (this.transducer.isGenerating()) {
-                writer.writeCurrentEvent(parser);
-            }*/
+            }            
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -247,5 +113,11 @@ public class FindPos implements State {
 
     public boolean isGenerating() {
         return true;
+    }
+
+    private void TransitionToMatchPos() {
+        transducer.setState(transducer.getMatchPosState());
+        transducer.setPaused(true);
+        transducer.setNoGen(true);
     }
 }

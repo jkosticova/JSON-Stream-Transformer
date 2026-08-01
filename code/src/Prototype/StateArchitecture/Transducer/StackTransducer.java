@@ -1,28 +1,17 @@
 package Prototype.StateArchitecture.Transducer;
 
 import Prototype.Mapper.SpecificationMapper;
-import Prototype.PathAutomaton.*;
-import Prototype.SpecificationParser.TransformationFormat;
-import Prototype.StateArchitecture.State.*;
-import Prototype.Writer.JsonWriter;
-import Prototype.Writer.RawUtf8Writer;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Stack;
 
 public class StackTransducer extends Transducer {
     
-
     public StackTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {
         super(mapper, inputStream, outputStream);
     }
-
     
     @Override
     public boolean process() {
