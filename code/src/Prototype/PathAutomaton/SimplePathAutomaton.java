@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 // Simple dot notation
-public class SimplePathAutomaton implements PathAutomaton {
+public class SimplePathAutomaton implements IPathAutomaton {
     int INITIAL_PA_STATE = 0;
     private final ArrayList<String> segments;    
     private final int finalState;

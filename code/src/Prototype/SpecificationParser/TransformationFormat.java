@@ -11,7 +11,8 @@ import com.fasterxml.jackson.annotation.*;
         @JsonSubTypes.Type(ReplaceTransformation.class),
         @JsonSubTypes.Type(CopyTransformation.class),
         @JsonSubTypes.Type(MoveTransformation.class)})
-public abstract class TransformationFormat {
+
+        public abstract class TransformationFormat {
     String path;
     private String type;
 

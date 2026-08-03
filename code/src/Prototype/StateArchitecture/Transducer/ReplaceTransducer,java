@@ -1,0 +1,68 @@
+package Prototype.StateArchitecture.Transducer;
+
+import Prototype.Mapper.SpecificationMapper;
+import Prototype.StateArchitecture.JsonPushdownAutomaton.JsonPushdownAutomaton;
+import Prototype.StateArchitecture.State.State;
+import Prototype.Writer.JsonWriter;
+import Prototype.Writer.RawUtf8Writer;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+
+public class ReplaceTransducer extends Transducer {
+
+    private ReplaceTransformation transf;     
+    
+    public ReplaceTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {
+        super(inputStream, outputStream);
+        this.transf = ((ReplaceTransformation) mapper.getTransformationFormat());        
+        this.jsonPda = new JsonPushdownAutomaton(transf.getPath(), transf.getType());
+        this.syncStates = new ArrayList()<State>;
+        syncStates.add(jsonPda.getMatchState());
+        syncStates.add(jsonPda.getSubtreeTraversedState());
+
+    }
+        
+    @Override
+    void synchronize() {
+        if (jsonPda.getState().equals(jsonPda.getMatchState())) {            
+                try {    
+                    StackConfiguration sc = jsonPda.getStackPeek();
+                    if (transf.getKey() != null) {
+                        jWriter.writeFieldName(transf.getKey());                                            
+                    }                 
+                    // current key is copied only in case of object field name, it doesn't make sense for other cases
+                    // TODO kontrolovat aj vrch stacku???
+                    else if (jParser.getCurrentToken() == JsonToken.FIELD_NAME) {
+                        jWriter.writeCurrentEvent(jParser);                        
+                    }
+
+                    jWriter.writeRaw(transf.getValue());
+                        
+                    /*if (transducer.getEntryMode() == OldTransducer.MatchEntryMode.AT_VALUE) {
+                            jsonPda.pause();
+                    }*/
+                    jsonPda.stopGenerating();
+                    jsonPda.setState(jsonPda.getTraverseSubtreeState());                    
+                    // prvy krok v skip stave este stojime
+                    jsonPda.pause();    
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }               
+            }
+            else if (jsonPda.getState().equals(jsonPda.getSubtreeTraversedState())) {            
+                jsonPda.startGenerating();
+                jsonPda.setState(jsonPda.getTraverseState());                    
+            }
+            else {
+                throw Exception("Invalid state for Replace transformation");
+            }    
+                
+        }
+
+    }    
+}

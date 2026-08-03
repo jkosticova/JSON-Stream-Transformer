@@ -1,8 +1,8 @@
 import Prototype.Mapper.Mapper;
 import Prototype.StateArchitecture.Transducer.BufferTransducer;
 import Prototype.StateArchitecture.Transducer.IdentityTransducer;
-import Prototype.StateArchitecture.Transducer.StackTransducer;
 import Prototype.StateArchitecture.Transducer.Transducer;
+import Prototype.StateArchitecture.Transducer.OldTransducer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -60,11 +60,11 @@ class TransformationTest {
             BufferTransducer bufferTransducer = new BufferTransducer(mapper, inputStream, outputStream);
             bufferTransducer.process();
         } else {
-            Transducer transducer = null;
+            OldTransducer transducer = null;
             if (mapper.getTransformationFormat().getType().equals("identity")) {
                 transducer = new IdentityTransducer(mapper, inputStream, outputStream);
             } else {
-                transducer = new StackTransducer(mapper, inputStream, outputStream);
+                transducer = new Transducer(mapper, inputStream, outputStream);
             }
             transducer.process();
         }

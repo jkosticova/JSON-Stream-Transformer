@@ -3,8 +3,8 @@ package Measurements;
 import Prototype.Mapper.Mapper;
 import Prototype.StateArchitecture.Transducer.BufferTransducer;
 import Prototype.StateArchitecture.Transducer.IdentityTransducer;
-import Prototype.StateArchitecture.Transducer.StackTransducer;
 import Prototype.StateArchitecture.Transducer.Transducer;
+import Prototype.StateArchitecture.Transducer.OldTransducer;
 import Prototype.Writer.JsonWriter;
 import Prototype.Writer.RawUtf8Writer;
 
@@ -127,7 +127,7 @@ public class Main {
         InputStream inputStream = new FileInputStream(input);
         OutputStream outputStream = new FileOutputStream(output);
 
-        Transducer transducer = getTransducerFromType(mapper, inputStream, outputStream);
+        OldTransducer transducer = getTransducerFromType(mapper, inputStream, outputStream);
 
         transducer.process();
 
@@ -148,7 +148,7 @@ public class Main {
             try (InputStream inputStream = new FileInputStream(input);
                     OutputStream outputStream = OutputStream.nullOutputStream()) {
 
-                Transducer transducer = getTransducerFromType(mapper, inputStream, outputStream);
+                OldTransducer transducer = getTransducerFromType(mapper, inputStream, outputStream);
                 transducer.process();
             }
         }
@@ -164,7 +164,7 @@ public class Main {
                 try (InputStream inputStream = new FileInputStream(input);
                         OutputStream outputStream = OutputStream.nullOutputStream()) {
 
-                    Transducer transducer = getTransducerFromType(mapper, inputStream, outputStream);
+                    OldTransducer transducer = getTransducerFromType(mapper, inputStream, outputStream);
                     transducer.process();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -213,12 +213,12 @@ public class Main {
         return totalBytes;
     }
 
-    private static Transducer getTransducerFromType(Mapper mapper, InputStream inputStream, OutputStream outputStream) {
-        Transducer transducer;
+    private static OldTransducer getTransducerFromType(Mapper mapper, InputStream inputStream, OutputStream outputStream) {
+        OldTransducer transducer;
         if (mapper.getTransformationFormat().getType().equals("identity")) {
             transducer = new IdentityTransducer(mapper, inputStream, outputStream);
         } else {
-            transducer = new StackTransducer(mapper, inputStream, outputStream);
+            transducer = new Transducer(mapper, inputStream, outputStream);
         }
 
         return transducer;

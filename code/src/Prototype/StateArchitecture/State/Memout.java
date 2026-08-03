@@ -1,14 +1,14 @@
 package Prototype.StateArchitecture.State;
 
-import Prototype.StateArchitecture.Transducer.Transducer;
+import Prototype.StateArchitecture.Transducer.OldTransducer;
 import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
 
 public class Memout implements State {
-    Transducer transducer;
+    OldTransducer transducer;
 
-    public Memout(Transducer transducer) {
+    public Memout(OldTransducer transducer) {
         this.transducer = transducer;
     }
 
@@ -19,7 +19,7 @@ public class Memout implements State {
                 transducer.getWriter().writeCurrentEvent(parser);
             }
 
-            transducer.setState(transducer.getGenState());
+            transducer.setState(transducer.getTraverseState());
             transducer.setPaused(false);
         } catch (IOException e) {
             throw new RuntimeException(e);

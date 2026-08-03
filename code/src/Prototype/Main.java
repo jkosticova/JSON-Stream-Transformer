@@ -2,9 +2,9 @@ package Prototype;
 
 import Prototype.Mapper.Mapper;
 import Prototype.StateArchitecture.Transducer.BufferTransducer;
-import Prototype.StateArchitecture.Transducer.StackTransducer;
-import Prototype.StateArchitecture.Transducer.IdentityTransducer;
 import Prototype.StateArchitecture.Transducer.Transducer;
+import Prototype.StateArchitecture.Transducer.IdentityTransducer;
+import Prototype.StateArchitecture.Transducer.OldTransducer;
 
 import java.io.*;
 import java.io.InputStream;
@@ -50,11 +50,11 @@ public class Main {
             //System.out.println("Done processing BUFFER Transformation.");
         }
         else {
-            Transducer transducer;                    
+            OldTransducer transducer;                    
             if (mapper.getTransformationFormat().getType().equals("identity")) {
                 transducer = new IdentityTransducer(mapper, inputStream, outputStream);
             } else {
-                transducer = new StackTransducer(mapper, inputStream, outputStream);
+                transducer = new Transducer(mapper, inputStream, outputStream);
             }
 
             if (transducer.process()) {

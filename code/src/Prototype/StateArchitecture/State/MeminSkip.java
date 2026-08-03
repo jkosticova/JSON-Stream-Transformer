@@ -1,19 +1,19 @@
 package Prototype.StateArchitecture.State;
 
 import Prototype.PathAutomaton.PathAutomaton;
-import Prototype.StateArchitecture.Transducer.Transducer;
+import Prototype.StateArchitecture.Transducer.OldTransducer;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import java.util.Stack;
 
 public class MeminSkip implements State {
-    Transducer transducer;
+    OldTransducer transducer;
     private Stack<Integer> paStack;
     private Stack<Integer> indexStack;
     private PathAutomaton pa;
 
-    public MeminSkip(Transducer transducer) {
+    public MeminSkip(OldTransducer transducer) {
         this.transducer = transducer;
         init();
     }

@@ -3,7 +3,7 @@ package Prototype.StateArchitecture.State;
 import Prototype.PathAutomaton.PathAutomaton;
 import Prototype.PathAutomaton.SimplePathAutomaton;
 import Prototype.SpecificationParser.TransformationFormat;
-import Prototype.StateArchitecture.Transducer.Transducer;
+import Prototype.StateArchitecture.Transducer.OldTransducer;
 import Prototype.Writer.JsonWriter;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -15,13 +15,13 @@ import java.io.IOException;
 import java.util.Stack;
 
 public class Memin implements State {
-    Transducer transducer;
+    OldTransducer transducer;
     private JsonWriter writer;
     private Stack<Integer> paStack;
     private Stack<Integer> indexStack;    
     private PathAutomaton pa;
 
-    public Memin(Transducer transducer) {
+    public Memin(OldTransducer transducer) {
         this.transducer = transducer;
         init();
     }

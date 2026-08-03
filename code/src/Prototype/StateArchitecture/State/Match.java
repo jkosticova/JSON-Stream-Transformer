@@ -3,7 +3,7 @@ package Prototype.StateArchitecture.State;
 import Prototype.SpecificationParser.RenameTransformation;
 import Prototype.SpecificationParser.ReplaceTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
-import Prototype.StateArchitecture.Transducer.Transducer;
+import Prototype.StateArchitecture.Transducer.OldTransducer;
 import Prototype.Writer.JsonWriter;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -12,11 +12,11 @@ import com.fasterxml.jackson.core.JsonToken;
 import java.io.IOException;
 
 public class Match implements State {
-    private final Transducer transducer;
+    private final OldTransducer transducer;
     private final JsonWriter writer;
     private final TransformationFormat specification;    
 
-    public Match(Transducer transducer) {
+    public Match(OldTransducer transducer) {
         this.transducer = transducer;
         this.writer = transducer.getWriter();
         this.specification = transducer.getSpecification();            
@@ -35,7 +35,7 @@ public class Match implements State {
                     writer.writeFieldName(((RenameTransformation) specification).getKey());                    
                     // TODO: preskocit aktualny fieldName - urobit nejako lepsie
                     parser.nextToken();
-                    transducer.setState(transducer.getGenState());
+                    transducer.setState(transducer.getTraverseState());
                     
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -44,10 +44,10 @@ public class Match implements State {
             // skip current subtree, including current event
             case "remove":
                 
-                if (transducer.getEntryMode() == Transducer.MatchEntryMode.AT_VALUE) {
+                if (transducer.getEntryMode() == OldTransducer.MatchEntryMode.AT_VALUE) {
                         transducer.setPaused(true);
                 }
-                transducer.setState(transducer.getSkipSubtreeState());                
+                transducer.setState(transducer.getTraverseSubtreeState());                
                 break;
             
             case "replace":
@@ -61,10 +61,10 @@ public class Match implements State {
 
                     writer.writeRaw(((ReplaceTransformation) specification).getValue());
                     
-                    if (transducer.getEntryMode() == Transducer.MatchEntryMode.AT_VALUE) {
+                    if (transducer.getEntryMode() == OldTransducer.MatchEntryMode.AT_VALUE) {
                         transducer.setPaused(true);
                     }
-                    transducer.setState(transducer.getSkipSubtreeState());                    
+                    transducer.setState(transducer.getTraverseSubtreeState());                    
                     // prvy krok v skip stave este stojime
                     
                 } catch (IOException e) {

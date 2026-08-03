@@ -17,7 +17,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Stack;
 
-public class IdentityTransducer extends Transducer {
+public class IdentityTransducer extends OldTransducer {
 
     public IdentityTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {
         super(mapper, inputStream, outputStream);

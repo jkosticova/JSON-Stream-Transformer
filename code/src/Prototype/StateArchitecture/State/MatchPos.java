@@ -2,18 +2,18 @@ package Prototype.StateArchitecture.State;
 
 import Prototype.SpecificationParser.AddTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
-import Prototype.StateArchitecture.Transducer.Transducer;
+import Prototype.StateArchitecture.Transducer.OldTransducer;
 import Prototype.Writer.JsonWriter;
 
 import com.fasterxml.jackson.core.JsonParser;
 import java.io.IOException;
 
 public class MatchPos implements State {
-    private final Transducer transducer;
+    private final OldTransducer transducer;
     private final JsonWriter writer;
     private final TransformationFormat specification;
 
-    public MatchPos(Transducer transducer) {
+    public MatchPos(OldTransducer transducer) {
         this.transducer = transducer;
         this.writer = transducer.getWriter();
         this.specification = transducer.getSpecification();
@@ -31,7 +31,7 @@ public class MatchPos implements State {
                     } else {
                         writer.writeRaw(((AddTransformation) specification).getValue());       
                     }
-                    transducer.setState(transducer.getGenState());
+                    transducer.setState(transducer.getTraverseState());
                     transducer.setPaused(false);
                 } catch (IOException e) {
                     throw new RuntimeException(e);

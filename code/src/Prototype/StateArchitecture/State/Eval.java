@@ -1,17 +1,10 @@
 package Prototype.StateArchitecture.State;
 
-import Prototype.PathAutomaton.PathAutomaton;
-import Prototype.SpecificationParser.RemoveTransformation;
-import Prototype.SpecificationParser.ReplaceTransformation;
-import Prototype.SpecificationParser.TransformationFormat;
-import Prototype.StateArchitecture.Transducer.Transducer;
-import Prototype.Writer.JsonWriter;
+import Prototype.StateArchitecture.JsonPushdownAutomaton.JsonPushdownAutomaton;
+import Prototype.StateArchitecture.JsonPushdownAutomaton.ProcessingResult;
+import Prototype.StateArchitecture.JsonPushdownAutomaton.StackConfiguration;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-
-import java.util.Stack;
-
 
 /*
 This state tracks the progress of a JSONPath match.
@@ -19,133 +12,103 @@ This state tracks the progress of a JSONPath match.
 At the same time it copies input events to the output.
 */
 public class Eval implements State {
-    Transducer transducer;
-    private JsonWriter writer;
-    private Stack<Integer> paStack;
-    private Stack<Integer> indexStack;
-    private PathAutomaton pa;
+     private final JsonPushdownAutomaton jsonPda;
 
-    public Eval(Transducer transducer) {
-        this.transducer = transducer;
-        init();
+    public Eval(JsonPushdownAutomaton jsonPda) {
+        this.jsonPda = jsonPda;                
     }
 
-    private void init() {
-        this.writer = this.transducer.getWriter();
-        this.paStack = this.transducer.getPaStack();
-        this.indexStack = this.transducer.getIndexStack();    
-        this.pa = this.transducer.getPa();    
-    }
-
-    public void process(JsonParser parser) {        
-        int paState;                
+    public void process(JsonToken token, String tokenString) {        
+        ProcessingResult result = new ProcessingResult();        
         try {
-            init();
-            JsonToken event = parser.currentToken();
-            switch (event) {
-                case START_ARRAY:                    
-                    if (paStack.peek().equals(ARR_MARKER)) {
-                        HandleArrayElement();
-                    }
-
-                    if (pa.isFinal(paStack.peek())) {
-                        transducer.setEntryMode(Transducer.MatchEntryMode.AT_VALUE);                        
-                        TransitionToMatch();                                                                        
-                    }
-                    
-                    indexStack.push(0);
-                    paStack.push(ARR_MARKER);
-
+            switch (token) {
+                case JsonToken.FIELD_NAME:
+                    StackConfiguration sc = jsonPda.getStackPeek();                    
+                    jsonPda.pushScWithTransition(tokenString, StackConfiguration.UNKNOWN_TYPE);
                     break;
-                case END_ARRAY:
-                    indexStack.pop();
-                    
-                    paStack.pop();
-                    paStack.pop();
-
-                    break;
-                case START_OBJECT:
-                    if (paStack.peek().equals(ARR_MARKER)) {
-                        HandleArrayElement();
+                case JsonToken.START_OBJECT:                                         
+                    sc = jsonPda.getStackPeek();
+                    // object after fieldname
+                    // fieldname: { ... }
+                    if (sc.getValueType() == StackConfiguration.UNKNOWN_TYPE) {
+                        sc.init(StackConfiguration.OBJECT_TYPE);
                     }
-                    
-                    if (pa.isFinal(paStack.peek())) {
-                        transducer.setEntryMode(Transducer.MatchEntryMode.AT_VALUE);                        
-                        TransitionToMatch();                        
+                    // object as an array element -> generate fieldName (=index)
+                    // "[... { ... } ... ]"
+                    else if (sc.getValueType() == StackConfiguration.ARRAY_TYPE) {
+                        handleArrayElement(StackConfiguration.OBJECT_TYPE);                        
                     }
-                    
-                    paStack.push(OBJ_MARKER);
-                    
-                    break;
-                case END_OBJECT:
-                    if (!paStack.peek().equals(ARR_MARKER)) {
-                        paStack.pop();
+                    if (jsonPda.isPathMatch()) {
+                        jsonPda.popSc();
+                        TransitionToMatch(result);
                     }
-                    if (!paStack.peek().equals(ARR_MARKER)) {
-                        paStack.pop();
+                    break;                
+                // $ [ ... ] - inicializacia
+                case JsonToken.START_ARRAY:                    
+                    sc = jsonPda.getStackPeek();
+                    // array after fieldname
+                    // fieldname : [ ... ]
+                    if (sc.getValueType() == StackConfiguration.UNKNOWN_TYPE) {
+                        sc.init(StackConfiguration.ARRAY_TYPE);
                     }
-
-                    break;
-                case FIELD_NAME:
-                    // field name after start object or start array
-                    if (paStack.peek() < 0) {
-                        int marker = paStack.pop(); // pop OBJ_MARKER
-                        paState = paStack.peek();
-                        paStack.push(marker); // push OBJ_MARKER back
+                    // array as an array element -> generate fieldName (=index)
+                    // "[... [ ... ] ... ]"
+                    else if (sc.getValueType() == StackConfiguration.ARRAY_TYPE) {
+                        handleArrayElement(StackConfiguration.ARRAY_TYPE);
+                        sc = jsonPda.getStackPeek();
                     }
-                    // field name within object
-                    else {
-                        paState = paStack.peek();
-                    }
-                    paStack.push(pa.transition(paState, parser.getParsingContext().getCurrentName()));
-                    
-                    if (pa.isFinal(paStack.peek())) {                    
-                        transducer.setEntryMode(Transducer.MatchEntryMode.AT_KEY);
-                        TransitionToMatch();                    
-                    }
-
-                    break;
-                case VALUE_FALSE:
-                case VALUE_NULL:
-                case VALUE_TRUE:
-                case VALUE_STRING:
-                case VALUE_NUMBER_INT:
-                case VALUE_NUMBER_FLOAT:
-                    if (paStack.peek().equals(ARR_MARKER)) {
-                        HandleArrayElement();                                                
-                    }
-
-                    if (pa.isFinal(paStack.peek())) {
-                        transducer.setEntryMode(Transducer.MatchEntryMode.AT_VALUE);                        
-                        TransitionToMatch();
-                        // tu sa nepopuje??                     
-                    }
-                    else {
-                        paStack.pop(); // pop new state in case of array or fieldname
+                    if (jsonPda.isPathMatch()) {                        
+                        jsonPda.popSc();
+                        TransitionToMatch(result);
                     }
                     break;
-            }                      
+
+                case JsonToken.END_OBJECT:
+                case JsonToken.END_ARRAY:    
+                    jsonPda.popSc();      
+                    break;
+                // literal value - after $, fieldName, "["
+                default:
+                    sc = jsonPda.getStackPeek();
+
+                    // primitive after fieldname
+                    // fieldname: val
+                    if (sc.getValueType() == StackConfiguration.UNKNOWN_TYPE) {
+                        sc.init(StackConfiguration.PRIMITIVE_TYPE);
+                    }
+                    // primitive value as an array element -> generate fieldName (=index)
+                    // "[... val ... ]"
+                    else if (sc.getValueType() == StackConfiguration.ARRAY_TYPE) {
+                        handleArrayElement(StackConfiguration.PRIMITIVE_TYPE);
+                        sc = jsonPda.getStackPeek();
+                    }
+                    if (jsonPda.isPathMatch()) {
+                        TransitionToMatch(result);
+                    }
+                    jsonPda.popSc();
+                    break;                               
+            }           
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        
+    }
+    
+
+    private void TransitionToMatch(ProcessingResult result) {
+        jsonPda.setState(jsonPda.getMatchState());
+        result.pause = true;        
+        jsonPda.stopGenerating();
     }
 
-    public boolean isGenerating() {
-        return true;
+    /*
+     * Perform transition on index of an array element and
+     * increment array size correspondingly
+     */
+    private void handleArrayElement(byte valType) {
+        StackConfiguration sc = jsonPda.getStackPeek();        
+        jsonPda.pushScWithTransition(sc.getArraySize(), valType);
+        sc.incrementArraySize();
     }
-
-    private void TransitionToMatch() {
-        transducer.setState(transducer.getMatchState());
-        transducer.setPaused(true);
-        transducer.setNoGen(true);        
-    }
-
-    private void HandleArrayElement() {
-        Integer i = indexStack.pop();
-        paStack.pop(); // pop ARR_MARKER
-        int paState = paStack.peek();
-        paStack.push(ARR_MARKER); // push ARR_MARKER back
-        paStack.push(pa.transition(paState, i.toString()));
-        indexStack.push(i + 1);
-    }
+    
 }
