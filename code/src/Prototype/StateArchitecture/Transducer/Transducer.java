@@ -11,15 +11,18 @@ public interface Transducer {
     int INITIAL_PA_STATE = 0;
     int OBJECT_ARR_INDEX = -1;
     
+    boolean getPaused();
     void setPaused(boolean paused);
 
     JsonGenerator getGenerator();    
+    void setGenerator(JsonGenerator generator);
     
+    // reusable states
     State getEvalState();
     State getMatchState();
-    State getFind_iState();
-    State getMatch_iState();
-    State getDelState();
+    State getFindPosState();
+    State getMatchPosState();
+    State getSkipSubtreeState();
     State getGenState();
     State getMeminState();
     State getMeminDelState();
@@ -31,6 +34,8 @@ public interface Transducer {
 
     Stack<Integer> getIndexStack();
    
+    String getTransfType();
+
     TransformationFormat getSpecification();
 
     boolean isGenerating();

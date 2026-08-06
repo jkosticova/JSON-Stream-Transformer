@@ -38,6 +38,18 @@ public class IdentityTransducer implements Transducer {
     }
 
     @Override
+    public boolean getPaused() {
+        return false;
+    }
+
+    @Override
+    public TransformationFormat getSpecification() {
+        return this.specification;
+    }
+
+    
+
+    @Override
     public boolean isGenerating() {
         return true;
     }
@@ -68,6 +80,11 @@ public class IdentityTransducer implements Transducer {
     }
 
     @Override
+    public void setGenerator(JsonGenerator generator) {
+        this.generator = generator;
+    }
+
+    @Override
     public Stack<Integer> getPaStack() {
         return null;
     }
@@ -78,8 +95,8 @@ public class IdentityTransducer implements Transducer {
     }
 
     @Override
-    public TransformationFormat getSpecification() {
-        return this.specification;
+    public String getTransfType() {
+        return "identity";
     }
 
     public boolean process() {
@@ -136,17 +153,17 @@ public class IdentityTransducer implements Transducer {
     }
 
     @Override
-    public State getDelState() {
+    public State getSkipSubtreeState() {
         return null;
     }
 
     @Override
-    public State getFind_iState() {
+    public State getFindPosState() {
         return null;
     }
 
     @Override
-    public State getMatch_iState() {
+    public State getMatchPosState() {
         return null;
     }
 

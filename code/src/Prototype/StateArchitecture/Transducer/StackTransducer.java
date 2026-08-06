@@ -1,7 +1,10 @@
 package Prototype.StateArchitecture.Transducer;
 
+import Prototype.Mapper.Mapper;
 import Prototype.Mapper.SpecificationMapper;
 import Prototype.PathAutomaton.*;
+import Prototype.SpecificationParser.CopyTransformation;
+import Prototype.SpecificationParser.MoveTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.State.*;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -18,29 +21,44 @@ public class StackTransducer implements Transducer {
     private State currentState;
     private boolean paused;
     
-    //states
+    // resuable states (must be reused due to measuremennt nethod that counts all memory allocations)
     private final Eval evalState;
     private final Match matchState;
     private final Gen genState;
-    private final Del delState;
-    private final Find_i find_iState;
-    private final Match_i match_iState;    
+    private final SkipSubtree skipSubtree;
+    private final FindPos findPosState;
+    private final MatchPos matchPosState;    
+    
     // stacks
     Stack<Integer> paStack;    
     Stack<Integer> indexStack;    
+    
     JsonGenerator generator;
     JsonParser parser;
     
-    PathAutomaton pa;
+    PathAutomaton pa;    
+    BufferTransducer parentTransducer;
+
     TransformationFormat specification;
 
-    public StackTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {
-        specification = mapper.getTransformationFormat();        
+    String path;
+    String transfType;
+
+    boolean isGenerating;
+    boolean noGen;
+
+    public StackTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {        
         // stacks
         paStack = new Stack<>();        
         indexStack = new Stack<>();        
-        pa = new SimplePathAutomaton(specification.getPath()); 
+        
+        parentTransducer = null;        
+        
+        this.specification = mapper.getTransformationFormat();
+        this.path = specification.getPath();
+        this.transfType = specification.getType();
 
+        pa = new SimplePathAutomaton(path); 
         
         JsonFactory factory = new JsonFactory();
         try {
@@ -52,13 +70,86 @@ public class StackTransducer implements Transducer {
         // states
         evalState = new Eval(this);
         matchState = new Match(this);
-        delState = new Del(this);
-        find_iState = new Find_i(this);
-        match_iState = new Match_i(this);        
+        skipSubtree = new SkipSubtree(this);
+        findPosState = new FindPos(this);
+        matchPosState = new MatchPos(this);        
+        genState = new Gen(this);
+        
+        currentState = evalState;
+        paused = false;        
+        isGenerating = true;
+        noGen = true;
+    }
+
+    // for copy and move transformations, processing is delegated to the parent buffer transducer
+    public StackTransducer(SpecificationMapper mapper, BufferTransducer parentTransducer, boolean source) {        
+        // stacks
+        paStack = new Stack<>();        
+        indexStack = new Stack<>();        
+        
+        this.parentTransducer = parentTransducer;
+        this.parser = parentTransducer.parser;
+        this.generator = parentTransducer.generator;
+
+        this.specification = mapper.getTransformationFormat();
+        this.transfType = specification.getType();
+        if (source) {
+            this.path = specification.getPath();
+        }
+        else if (transfType == "copy") {
+                this.path = ((CopyTransformation) specification).getDestPath();
+            }
+        else if (transfType == "move") {
+                this.path = ((MoveTransformation) specification).getDestPath();
+            }
+        else {
+            this.path = null;
+                // TODO exception
+            }    
+        pa = new SimplePathAutomaton(path);         
+        
+        // states
+        evalState = new Eval(this);
+        matchState = new Match(this);
+        skipSubtree = new SkipSubtree(this);
+        findPosState = new FindPos(this);
+        matchPosState = new MatchPos(this);        
         genState = new Gen(this);
         
         currentState = evalState;
         paused = false;
+        isGenerating = true;
+        noGen = true;    
+    }
+
+    // used only for stack transformations
+    public boolean process() {
+        try {
+            JsonToken event = null;
+            
+            paStack.clear();
+            indexStack.clear();
+            
+            paStack.push(INITIAL_PA_STATE);
+
+            // while the input is being read
+            while (!parser.isClosed()) {
+                if (!paused) {
+                    event = parser.nextToken();
+                }
+                // EOF && empty stack
+                if (event == null || paStack.isEmpty()) break;
+                currentState.process(parser);                
+                generator.flush();
+            }
+            generator.flush();
+            parser.close();
+            generator.close();
+        } catch (Exception e) {
+            System.out.println("Issue while processing StackTransducer: " + e.getMessage());
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -67,28 +158,43 @@ public class StackTransducer implements Transducer {
     }
 
     @Override
+    public TransformationFormat getSpecification() {
+        return this.specification;
+    }
+
+    @Override
+    public boolean getPaused() {
+        return this.paused;
+    }
+
+    @Override
     public JsonGenerator getGenerator() {
         return this.generator;
     }
 
     @Override
+    public void setGenerator(JsonGenerator generator) {
+        this.generator = generator;
+    }
+
+    @Override
     public boolean isGenerating() {
-        return true;
+        return this.isGenerating;
     }
 
     @Override
     public void setIsGenerating(boolean isGenerating) {
-           return;
+           this.isGenerating = isGenerating;
     }
 
     @Override
     public boolean noGen() {
-        return true;
+        return this.noGen;
     }
     
     @Override
     public void setNoGen(boolean noGen) {
-            // do nothing
+        this.noGen = noGen;
     }
 
     @Override
@@ -107,18 +213,18 @@ public class StackTransducer implements Transducer {
     }
 
     @Override
-    public State getDelState() {
-        return this.delState;
+    public State getSkipSubtreeState() {
+        return this.skipSubtree;
     }
 
     @Override
-    public State getFind_iState() {
-        return this.find_iState;
+    public State getFindPosState() {
+        return this.findPosState;
     }
 
     @Override
-    public State getMatch_iState() {
-        return this.match_iState;
+    public State getMatchPosState() {
+        return this.matchPosState;
     }
 
     @Override
@@ -152,37 +258,9 @@ public class StackTransducer implements Transducer {
 
 
     @Override
-    public TransformationFormat getSpecification() {
-        return this.specification;
-    }
-
-    public boolean process() {
-        try {
-            JsonToken event = null;
-
-            // inicializacia stackov - aby boli prazdne
-            paStack.clear();
-            indexStack.clear();
-            
-            paStack.push(INITIAL_PA_STATE);
-
-            // kym sa cita nieco zo vstupu
-            while (!parser.isClosed()) {
-                if (!paused) {
-                    event = parser.nextToken();
-                }
-                // EOF && prazdny stack
-                if (event == null || paStack.isEmpty()) break;
-                currentState.process(parser);
-            }
-            parser.close();
-            generator.close();
-        } catch (Exception e) {
-            System.out.println("Issue while processing StackTransducer: " + e.getMessage());
-            return false;
-        }
-        return true;
-    }
+    public String getTransfType() {
+        return this.transfType;
+    }    
 
     @Override
     public State getCurrentState() {

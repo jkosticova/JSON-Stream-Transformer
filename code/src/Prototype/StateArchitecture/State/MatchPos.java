@@ -5,18 +5,17 @@ import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 
 import static Prototype.Utils.Helper.writeJsonValue;
 
-public class Match_i implements State {
+public class MatchPos implements State {
     private final Transducer transducer;
     private final JsonGenerator generator;
     private final TransformationFormat specification;
 
-    public Match_i(Transducer transducer) {
+    public MatchPos(Transducer transducer) {
         this.transducer = transducer;
         this.generator = transducer.getGenerator();
         this.specification = transducer.getSpecification();

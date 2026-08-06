@@ -1,7 +1,6 @@
 package Prototype.StateArchitecture.State;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 
 public interface State {
     int INITIAL_PA_STATE = 0;
@@ -11,5 +10,5 @@ public interface State {
     int ARR_MARKER = -1;
     int OBJ_MARKER = -2;
 
-    void process(JsonParser parser);
+    void process(JsonParser parser);    
 }

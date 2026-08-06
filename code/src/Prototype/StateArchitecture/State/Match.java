@@ -17,20 +17,20 @@ import static Prototype.Utils.Helper.writeJsonValue;
 
 public class Match implements State {
     private final Transducer transducer;
-    private final JsonGenerator generator;
+    private final JsonGenerator generator;    
     private final TransformationFormat specification;
 
     public Match(Transducer transducer) {
         this.transducer = transducer;
-        this.generator = transducer.getGenerator();
-        this.specification = transducer.getSpecification();    
+        this.generator = transducer.getGenerator();        
+        this.specification = transducer.getSpecification();
     }
 
     @Override
     public void process(JsonParser parser) {
         transducer.setNoGen(true);
         JsonToken event = parser.currentToken();
-        switch (specification.getType()) {
+        switch (transducer.getTransfType()) {
             case "rename":
                 try {
                     generator.writeFieldName(((RenameTransformation) specification).getKey());
@@ -41,8 +41,8 @@ public class Match implements State {
                 }
                 break;
             case "remove":
-                transducer.setState(transducer.getDelState());
-                transducer.setPaused(false);
+                transducer.setState(transducer.getSkipSubtreeState());
+                transducer.setPaused(true);
                 break;
             case "replace":
                 try {
@@ -54,8 +54,8 @@ public class Match implements State {
                     }
 
                     writeJsonValue(generator, ((ReplaceTransformation) specification).getValue());
-                    transducer.setState(transducer.getDelState());
-                    transducer.setPaused(false);
+                    transducer.setState(transducer.getSkipSubtreeState());
+                    transducer.setPaused(true);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -63,16 +63,16 @@ public class Match implements State {
             case "add":
                 try {
                     if (((AddTransformation) specification).getKey() != null) {
-                        transducer.setState(transducer.getFind_iState());
+                        transducer.setState(transducer.getFindPosState());
                     } else {
-                        transducer.setState(transducer.getFind_iState());
-                    }
+                        transducer.setState(transducer.getFindPosState());
+                    }                    
                     if (this.transducer.isGenerating()) {
-                        generator.copyCurrentEvent(parser);
+                        generator.copyCurrentEvent(parser);                        
                     }
 
                     transducer.setPaused(false);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
                 break;

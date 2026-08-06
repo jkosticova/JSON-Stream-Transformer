@@ -1,29 +1,25 @@
 package Prototype.StateArchitecture.State;
 
 import Prototype.PathAutomaton.PathAutomaton;
-import Prototype.PathAutomaton.SimplePathAutomaton;
 import Prototype.SpecificationParser.CopyTransformation;
 import Prototype.SpecificationParser.MoveTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.BufferTransducer;
-import Prototype.StateArchitecture.Transducer.DestinationTransducer;
-import Prototype.StateArchitecture.Transducer.SourceTransducer;
+import Prototype.StateArchitecture.Transducer.StackTransducer;
 import Prototype.StateArchitecture.Transducer.Transducer;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
 public class Sync implements State {
     private final BufferTransducer transducer;
-    private final SourceTransducer sourceTransducer;
-    private final DestinationTransducer destinationTransducer;
+    private final StackTransducer sourceTransducer;
+    private final StackTransducer destinationTransducer;
     private final JsonGenerator generator;
     private final TransformationFormat specification;    
     private final PathAutomaton sourcePa;    
@@ -47,9 +43,12 @@ public class Sync implements State {
     public void process(JsonParser parser) {
 
         JsonToken event = parser.currentToken();
+        
+        // the code switches between null generator and output file generator to avoid 
+        // allocating temporary buffers on heap
+        // (restriction of measurement method)
         sourceTransducer.setGenerator(nullGenerator);
         destinationTransducer.setGenerator(nullGenerator);
-
         
         sourceTransducer.setIsGenerating(false);                    
         destinationTransducer.setIsGenerating(false);
@@ -123,9 +122,9 @@ public class Sync implements State {
             } else if ((sourceState instanceof Gen) && (destinationState instanceof Match)) {
                 try {
                     if (((CopyTransformation) specification).getKey() != null)
-                        destinationTransducer.setState(new Find_i(destinationTransducer));
+                        destinationTransducer.setState(new FindPos(destinationTransducer));
                     else {
-                        destinationTransducer.setState(new Find_i(destinationTransducer));
+                        destinationTransducer.setState(new FindPos(destinationTransducer));
                     }
                     generator.copyCurrentEvent(parser);
 
@@ -134,7 +133,7 @@ public class Sync implements State {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            } else if ((sourceState instanceof Gen) && (destinationState instanceof Match_i)) {
+            } else if ((sourceState instanceof Gen) && (destinationState instanceof MatchPos)) {
                 try {
                     if (((CopyTransformation) specification).getKey() != null) {
                         generator.writeFieldName(((CopyTransformation) specification).getKey());
@@ -151,9 +150,9 @@ public class Sync implements State {
             } else if ((sourceState instanceof Eval) && (destinationState instanceof Match)) {
                 try {
                     if (((CopyTransformation) specification).getKey() != null) {
-                        destinationTransducer.setState(new Find_i(destinationTransducer));
+                        destinationTransducer.setState(new FindPos(destinationTransducer));
                     } else {
-                        destinationTransducer.setState(new Find_i(destinationTransducer));
+                        destinationTransducer.setState(new FindPos(destinationTransducer));
                     }
                     generator.copyCurrentEvent(parser);
 
@@ -162,7 +161,7 @@ public class Sync implements State {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            } else if ((sourceState instanceof Eval) && (destinationState instanceof Match_i)) {
+            } else if ((sourceState instanceof Eval) && (destinationState instanceof MatchPos)) {
                 try {
                     if (((CopyTransformation) specification).getKey() != null) {
                         String key = ((CopyTransformation) specification).getKey();
@@ -331,9 +330,9 @@ public class Sync implements State {
             } else if ((sourceState instanceof Gen) && (destinationState instanceof Match)) {
                 try {
                     if (((MoveTransformation) specification).getKey() != null) {
-                        destinationTransducer.setState(new Find_i(destinationTransducer));
+                        destinationTransducer.setState(new FindPos(destinationTransducer));
                     } else {
-                        destinationTransducer.setState(new Find_i(destinationTransducer));
+                        destinationTransducer.setState(new FindPos(destinationTransducer));
                     }
                     generator.copyCurrentEvent(parser);
 
@@ -342,7 +341,7 @@ public class Sync implements State {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            } else if ((sourceState instanceof Gen) && (destinationState instanceof Match_i)) {
+            } else if ((sourceState instanceof Gen) && (destinationState instanceof MatchPos)) {
                 try {
                     if (((MoveTransformation) specification).getKey() != null) {
                         generator.writeFieldName(((MoveTransformation) specification).getKey());
@@ -358,9 +357,9 @@ public class Sync implements State {
             } else if ((sourceState instanceof Eval) && (destinationState instanceof Match)) {
                 try {
                     if (((MoveTransformation) specification).getKey() != null) {
-                        destinationTransducer.setState(new Find_i(destinationTransducer));
+                        destinationTransducer.setState(new FindPos(destinationTransducer));
                     } else {
-                        destinationTransducer.setState(new Find_i(destinationTransducer));
+                        destinationTransducer.setState(new FindPos(destinationTransducer));
                     }
                     generator.copyCurrentEvent(parser);
 
@@ -369,7 +368,7 @@ public class Sync implements State {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            } else if ((sourceState instanceof Eval) && (destinationState instanceof Match_i)) {
+            } else if ((sourceState instanceof Eval) && (destinationState instanceof MatchPos)) {
                 destinationTransducer.setState(new MeminDel(destinationTransducer));
                 //transducer.addToMemory();
                 destinationTransducer.setPaused(true);

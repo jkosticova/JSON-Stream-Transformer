@@ -2,6 +2,8 @@ package Prototype.StateArchitecture.Transducer;
 
 import Prototype.Mapper.SpecificationMapper;
 import Prototype.Utils.Helper;
+import Prototype.SpecificationParser.CopyTransformation;
+import Prototype.SpecificationParser.MoveTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.State.State;
 import Prototype.StateArchitecture.State.Sync;
@@ -20,17 +22,15 @@ import org.openjdk.jol.info.GraphLayout;
 
 public class BufferTransducer {
     private final State currentState;
-    private final SourceTransducer sourceTransducer;
-    private final DestinationTransducer destinationTransducer;
+    private final StackTransducer sourceTransducer;
+    private final StackTransducer destinationTransducer;
 
     private boolean paused;
     JsonGenerator generator;
     JsonParser parser;
     TokenBuffer buffer;
     TransformationFormat specification;
-    // Track the highest memory footprint the buffer reaches
-    private long peakBufferBytes = 0;
-
+    
     public BufferTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {        
             specification = mapper.getTransformationFormat();
             paused = false;
@@ -43,9 +43,10 @@ public class BufferTransducer {
                 throw new RuntimeException(e);
             }
             //ObjectMapper objectMapper = new ObjectMapper();
-            buffer = new TokenBuffer((ObjectCodec) null, false);
-            sourceTransducer = new SourceTransducer(mapper, this);
-            destinationTransducer = new DestinationTransducer(mapper, this);
+            buffer = new TokenBuffer((ObjectCodec) null, false);            
+            sourceTransducer = new StackTransducer(mapper, this, true);
+            destinationTransducer = new StackTransducer(mapper, this, false);
+            
             currentState = new Sync(this);        
     }
 
@@ -78,11 +79,11 @@ public class BufferTransducer {
         return this.specification;
     }
 
-    public SourceTransducer getSourceTransducer() {
+    public StackTransducer getSourceTransducer() {
         return this.sourceTransducer;
     }
 
-    public DestinationTransducer getDestinationTransducer() {
+    public StackTransducer getDestinationTransducer() {
         return this.destinationTransducer;
     }
 
@@ -96,8 +97,9 @@ public class BufferTransducer {
                 }
                 if (event == null) break;
                 currentState.process(parser);
+                generator.flush();
             }
-
+            generator.flush();
             parser.close();
             generator.close();
         } catch (Exception e) {
@@ -107,26 +109,4 @@ public class BufferTransducer {
         return true;
     }
 
-    public void recordBufferMemory() {
-        if (this.buffer != null) {
-            try {
-                // JOL walks the object graph safely on modern Java versions
-                long currentBufferBytes = GraphLayout.parseInstance(this.buffer).totalSize();
-
-                if (currentBufferBytes > this.peakBufferBytes) {
-                    this.peakBufferBytes = currentBufferBytes;
-                }
-            } catch (Exception e) {
-                System.err.println("Skipping memory sample: " + e.getMessage());
-            }
-        }
-    }
-
-    public long getPeakBufferBytes() {
-        return this.peakBufferBytes;
-    }
-
-    public double getPeakBufferMegabytes() {
-        return this.peakBufferBytes / (1024.0 * 1024.0);
-    }
 }

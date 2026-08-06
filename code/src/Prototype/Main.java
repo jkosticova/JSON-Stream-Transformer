@@ -42,8 +42,7 @@ public class Main {
                 String inputName = inputPath.getFileName().toString();
 
                 // Print a line starting with a specific prefix so PowerShell can grab it
-                // Format: EXPORT,Specification,InputFile,PeakBytes
-                System.out.println("EXPORT," + specName + "," + inputName + "," + bufferTransducer.getPeakBufferBytes());
+                // Format: EXPORT,Specification,InputFile,PeakBytes                
             } else {
                 //System.out.println("FAILURE");
             }
