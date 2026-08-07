@@ -11,4 +11,5 @@ public interface State {
     int OBJ_MARKER = -2;
 
     void process(JsonParser parser);    
+    boolean isGenerating();
 }

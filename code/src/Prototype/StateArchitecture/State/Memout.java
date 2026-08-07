@@ -14,6 +14,7 @@ public class Memout implements State {
     }
 
     public void process(JsonParser parser) {
+        transducer.setPaused(false);
         try {
             transducer.getFromMemory();
             if (this.transducer.isGenerating()) {
@@ -25,5 +26,10 @@ public class Memout implements State {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public boolean isGenerating() {
+        return false;
     }
 }

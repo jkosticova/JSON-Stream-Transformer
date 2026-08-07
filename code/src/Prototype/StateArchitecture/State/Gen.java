@@ -23,13 +23,20 @@ public class Gen implements State {
     @Override
     public void process(JsonParser parser) {
         init();
+        transducer.setPaused(false);
 
-        try {
+        /*try {
             if (this.transducer.isGenerating()) {
                 generator.copyCurrentEvent(parser);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
+        }*/
     }
+
+    @Override
+    public boolean isGenerating() {
+        return true;
+    }
+
 }

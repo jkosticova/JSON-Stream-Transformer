@@ -79,6 +79,7 @@ public class FindPos implements State {
                         Integer i = indexStack.pop();
                         if (searchedIndex.equals(i)) {
                             transitionToMatchPos(); 
+                            indexStack.push(i + 1);
                             return;                                                                       
                         }
                         indexStack.push(i + 1);
@@ -107,20 +108,22 @@ public class FindPos implements State {
                         Integer i = indexStack.pop();
                         if (searchedIndex.equals(i)) {
                             transitionToMatchPos();
+                            indexStack.push(i+1);
                             return;
                         }
                         indexStack.push(i+1);
                     }                                        
                     break;
             }  
-            if (this.transducer.isGenerating()) {
+            /*if (this.transducer.isGenerating()) {
                 generator.copyCurrentEvent(parser);
-            }            
+            } */           
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
+    @Override
     public boolean isGenerating() {
         return true;
     }

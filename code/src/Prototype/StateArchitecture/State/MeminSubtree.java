@@ -1,28 +1,37 @@
 package Prototype.StateArchitecture.State;
 
+import Prototype.PathAutomaton.PathAutomaton;
+import Prototype.PathAutomaton.SimplePathAutomaton;
+import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.Transducer;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 import java.util.Stack;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-
-/*
-This state prunes current subtree, i.e., doesn't copy it to the output.
-*/
-public class SkipSubtree implements State {
+public class MeminSubtree implements State {
     Transducer transducer;
-    private int depth;
+    private JsonGenerator generator;
     private Stack<Integer> paStack;
-    private Stack<Integer> indexStack;
+    private Stack<Integer> indexStack;    
+    private PathAutomaton pa;
+    private int depth;
 
-    public SkipSubtree(Transducer transducer) {
+    public MeminSubtree(Transducer transducer) {
         this.transducer = transducer;
-        this.depth = 0;
-        this.paStack = this.transducer.getPaStack();
-        this.indexStack = this.transducer.getIndexStack();        
+        init();
     }
+
+    private void init() {
+        this.generator = this.transducer.getGenerator();
+        this.paStack = this.transducer.getPaStack();
+        this.indexStack = this.transducer.getIndexStack();
+        this.pa = transducer.getPa();
+        this.depth = 0;
+    }
+
 
     public void process(JsonParser parser) {        
         transducer.setPaused(false);        
@@ -48,8 +57,8 @@ public class SkipSubtree implements State {
         // current token is last token of given subtree
         if (depth == 0) {
             try {
-                // last token of given subtree must be skipped
-                parser.nextToken(); 
+                // also last token of given subtree must be added to the memory
+                transducer.addToMemory();                
                 transducer.setState(transducer.getGenState());
                 transducer.setPaused(false);                
                 return;
@@ -57,13 +66,11 @@ public class SkipSubtree implements State {
                 throw new RuntimeException(e);
             }
         }        
+        transducer.addToMemory();
     }
 
     
-    @Override
-    public boolean isGenerating() {
-        return false;
-    }
+    
 
     private void moveToValue(JsonParser parser) {
            try {
@@ -78,5 +85,10 @@ public class SkipSubtree implements State {
            } catch (IOException e) {            
             e.printStackTrace();
            } 
+    }
+
+    @Override
+    public boolean isGenerating() {
+        return true;
     }
 }

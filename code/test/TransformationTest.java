@@ -56,7 +56,11 @@ class TransformationTest {
         InputStream inputStream = new FileInputStream(inputFileName);
         OutputStream outputStream = new FileOutputStream(outputFileName);
 
-        if (mapper.getTransformationFormat().getType().equals("copy") || mapper.getTransformationFormat().getType().equals("move")) {
+        if (mapper.getTransformationFormat().getType().equals("move")) {
+            // do nothing
+        }
+        else if (mapper.getTransformationFormat().getType().equals("copy") 
+    ) {
             BufferTransducer bufferTransducer = new BufferTransducer(mapper, inputStream, outputStream);
             bufferTransducer.process();
         } else {

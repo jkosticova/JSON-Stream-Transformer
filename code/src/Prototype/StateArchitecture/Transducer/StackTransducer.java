@@ -79,6 +79,8 @@ public class StackTransducer implements Transducer {
         paused = false;        
         isGenerating = true;
         noGen = true;
+
+        paStack.push(INITIAL_PA_STATE);
     }
 
     // for copy and move transformations, processing is delegated to the parent buffer transducer
@@ -120,26 +122,32 @@ public class StackTransducer implements Transducer {
         paused = false;
         isGenerating = true;
         noGen = true;    
+
+        paStack.push(INITIAL_PA_STATE);
     }
 
     // used only for stack transformations
     public boolean process() {
         try {
             JsonToken event = null;
-            
-            paStack.clear();
-            indexStack.clear();
-            
-            paStack.push(INITIAL_PA_STATE);
-
+                        
             // while the input is being read
             while (!parser.isClosed()) {
                 if (!paused) {
                     event = parser.nextToken();
                 }
                 // EOF && empty stack
-                if (event == null || paStack.isEmpty()) break;
+                if (event == null || paStack.isEmpty()) {
+                    break;
+                }
                 currentState.process(parser);                
+                try {
+                    if (this.getCurrentState().isGenerating())
+                        generator.copyCurrentEvent(parser);
+                    }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
                 generator.flush();
             }
             generator.flush();
@@ -269,10 +277,12 @@ public class StackTransducer implements Transducer {
 
     @Override
     public void getFromMemory() {
+        parentTransducer.getFromMemory();
     }
 
     @Override
     public void addToMemory() {
+        parentTransducer.addToMemory();
     }
 
     @Override

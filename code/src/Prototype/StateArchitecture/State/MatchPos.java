@@ -26,20 +26,15 @@ public class MatchPos implements State {
         transducer.setNoGen(true);
         switch (specification.getType()) {
             case "add":
+                // current token is either a fieldname or a value
                 try {
                     if (((AddTransformation) specification).getKey() != null) {
                         generator.writeFieldName(((AddTransformation) specification).getKey());
-                        writeJsonValue(generator, ((AddTransformation) specification).getValue());
-                        if (this.transducer.isGenerating()) {
-                           generator.copyCurrentEvent(parser);
-                        }                        
+                        writeJsonValue(generator, ((AddTransformation) specification).getValue());                                             
                     } else {
-                        writeJsonValue(generator, ((AddTransformation) specification).getValue());
-                        if (this.transducer.isGenerating()) {
-                            generator.copyCurrentEvent(parser);
-                        }                        
-                    }
-                    transducer.setState(transducer.getGenState());
+                        writeJsonValue(generator, ((AddTransformation) specification).getValue());                                                
+                    }                    
+                    transducer.setState(transducer.getGenState());                    
                     transducer.setPaused(false);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -48,5 +43,10 @@ public class MatchPos implements State {
             default:
                 break;
         }
+    }
+
+    @Override
+    public boolean isGenerating() {
+        return false;
     }
 }

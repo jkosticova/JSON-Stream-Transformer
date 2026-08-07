@@ -2,29 +2,24 @@ package Prototype.StateArchitecture.State;
 
 import Prototype.PathAutomaton.PathAutomaton;
 import Prototype.PathAutomaton.SimplePathAutomaton;
-import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.Transducer;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
-import java.io.IOException;
 import java.util.Stack;
 
-public class Memin implements State {
+public class MeminSkip implements State {
     Transducer transducer;
-    private JsonGenerator generator;
     private Stack<Integer> paStack;
-    private Stack<Integer> indexStack;    
+    private Stack<Integer> indexStack;
     private PathAutomaton pa;
 
-    public Memin(Transducer transducer) {
+    public MeminSkip(Transducer transducer) {
         this.transducer = transducer;
         init();
     }
 
     private void init() {
-        this.generator = this.transducer.getGenerator();
         this.paStack = this.transducer.getPaStack();
         this.indexStack = this.transducer.getIndexStack();
         this.pa = transducer.getPa();
@@ -32,18 +27,18 @@ public class Memin implements State {
 
     public void process(JsonParser parser) {
         init();
-        JsonToken event = parser.currentToken();
+        transducer.setNoGen(true);
         Integer paState;
-
+        JsonToken event = parser.currentToken();
         switch (event) {
             case START_ARRAY:
                 if (paStack.peek().equals(ARR_MARKER)) {
                     Integer i = indexStack.pop();
-                    paStack.pop(); // pop ARR_MARKER
-                    paState = paStack.peek();
-                    paStack.push(ARR_MARKER); // push ARR_MARKER back
-                    paStack.push(pa.transition(paState, i.toString()));                        
-                    indexStack.push(i + 1);
+                        paStack.pop(); // pop ARR_MARKER
+                        paState = paStack.peek();
+                        paStack.push(ARR_MARKER); // push ARR_MARKER back
+                        paStack.push(pa.transition(paState, i.toString()));                        
+                        indexStack.push(i + 1);
                 }
 
                 indexStack.push(0);
@@ -59,27 +54,37 @@ public class Memin implements State {
             case START_OBJECT:
                 if (paStack.peek().equals(ARR_MARKER)) {
                     Integer i = indexStack.pop();
-                    paStack.pop(); // pop ARR_MARKER
-                    paState = paStack.peek();
-                    paStack.push(ARR_MARKER); // push ARR_MARKER back
-                    paStack.push(pa.transition(paState, i.toString()));                        
-                    indexStack.push(i + 1);
+                        paStack.pop(); // pop ARR_MARKER
+                        paState = paStack.peek();
+                        paStack.push(ARR_MARKER); // push ARR_MARKER back
+                        paStack.push(pa.transition(paState, i.toString()));                        
+                        indexStack.push(i + 1);
                 }
 
                 paStack.push(OBJ_MARKER);
 
                 break;
             case END_OBJECT:
-                paStack.pop();
-                paStack.pop();
+                if (!paStack.peek().equals(ARR_MARKER)) {
+                    paStack.pop();
+                }
+                if (!paStack.peek().equals(ARR_MARKER)) {
+                    paStack.pop();
+                }
 
                 break;
             case FIELD_NAME:
-                paStack.pop(); // pop OBJ_MARKER
-                paState = paStack.peek();
-                paStack.push(OBJ_MARKER); // push OBJ_MARKER back
+                // field name after start object or start array
+                if (paStack.peek() < 0) {
+                    int marker = paStack.pop(); // pop OBJ_MARKER
+                    paState = paStack.peek();
+                    paStack.push(marker); // push OBJ_MARKER back
+                }
+                // field name within object
+                else {
+                    paState = paStack.peek();
+                }
                 paStack.push(pa.transition(paState, parser.getParsingContext().getCurrentName()));
-
 
                 break;
             case VALUE_FALSE:
@@ -98,17 +103,14 @@ public class Memin implements State {
                 }
 
                 paStack.pop();
-
                 break;
         }
 
         transducer.addToMemory();
-        try {
-            if (this.transducer.isGenerating()) {
-                generator.copyCurrentEvent(parser);
-            }            
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    }
+
+    @Override
+    public boolean isGenerating() {
+        return false;
     }
 }

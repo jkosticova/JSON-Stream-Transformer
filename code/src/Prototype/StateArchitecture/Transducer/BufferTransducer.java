@@ -12,13 +12,11 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import org.openjdk.jol.info.GraphLayout;
 
 public class BufferTransducer {
     private final State currentState;
@@ -30,6 +28,7 @@ public class BufferTransducer {
     JsonParser parser;
     TokenBuffer buffer;
     TransformationFormat specification;
+    public boolean generateFromSource;
     
     public BufferTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {        
             specification = mapper.getTransformationFormat();
@@ -42,7 +41,6 @@ public class BufferTransducer {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            //ObjectMapper objectMapper = new ObjectMapper();
             buffer = new TokenBuffer((ObjectCodec) null, false);            
             sourceTransducer = new StackTransducer(mapper, this, true);
             destinationTransducer = new StackTransducer(mapper, this, false);
@@ -92,11 +90,16 @@ public class BufferTransducer {
             JsonToken event = null;
 
             while (!parser.isClosed()) {
+                setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused()); 
                 if (!paused) {
                     event = parser.nextToken();
                 }
                 if (event == null) break;
                 currentState.process(parser);
+                if (sourceTransducer.getCurrentState().isGenerating() &&
+                    destinationTransducer.getCurrentState().isGenerating()) {
+                    generator.copyCurrentEvent(parser);                    
+                }                
                 generator.flush();
             }
             generator.flush();

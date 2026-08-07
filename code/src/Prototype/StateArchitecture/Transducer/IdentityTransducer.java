@@ -108,6 +108,9 @@ public class IdentityTransducer implements Transducer {
 
                 if (event == null) break;
                 currentState.process(parser);
+                if (this.getCurrentState().isGenerating()) {
+                    generator.copyCurrentEvent(parser);
+                }
             }
 
             parser.close();

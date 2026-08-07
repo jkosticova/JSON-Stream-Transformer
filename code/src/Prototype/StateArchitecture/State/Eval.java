@@ -6,14 +6,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
-import java.io.IOException;
 import java.util.Stack;
 
-
-
 public class Eval implements State {
-    Transducer transducer;
-    private JsonGenerator generator;
+    Transducer transducer;    
     private Stack<Integer> paStack;
     private Stack<Integer> indexStack;    
     private PathAutomaton pa;
@@ -24,7 +20,6 @@ public class Eval implements State {
     }
 
     private void init() {
-        this.generator = this.transducer.getGenerator();
         this.paStack = this.transducer.getPaStack();
         this.indexStack = this.transducer.getIndexStack();        
         this.pa = this.transducer.getPa();
@@ -112,15 +107,16 @@ public class Eval implements State {
                     paStack.pop(); // pop new state in case of array or fieldname
                     break;
             }
-
-            if (this.transducer.isGenerating()) {
-                generator.copyCurrentEvent(parser);
-            }            
-        } catch (IOException e) {
+         
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
+    @Override
+    public boolean isGenerating() {
+        return true;
+    }
     /*
         Perform transducer transition to match state
     */
