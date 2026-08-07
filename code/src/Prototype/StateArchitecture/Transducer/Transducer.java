@@ -10,9 +10,17 @@ import java.util.Stack;
 public interface Transducer {
     int INITIAL_PA_STATE = 0;
     int OBJECT_ARR_INDEX = -1;
+    public byte SOURCE = 0;
+    public byte DEST = 1;
+
+    
     
     boolean getPaused();
     void setPaused(boolean paused);
+
+    byte getTransdType();
+    void setTransdType(byte type);
+    
 
     JsonGenerator getGenerator();    
     void setGenerator(JsonGenerator generator);

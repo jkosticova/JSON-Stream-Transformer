@@ -59,7 +59,12 @@ public class MeminSubtree implements State {
             try {
                 // also last token of given subtree must be added to the memory
                 transducer.addToMemory();                
-                transducer.setState(transducer.getGenState());
+                if (transducer.getTransdType() == Transducer.SOURCE) {
+                    transducer.setState(transducer.getGenState());
+                }
+                else {
+                    transducer.setState(transducer.getMemoutState());
+                }
                 transducer.setPaused(false);                
                 return;
             } catch (Exception e) {

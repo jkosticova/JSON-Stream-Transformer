@@ -37,7 +37,11 @@ public class StackTransducer implements Transducer {
     JsonParser parser;
     
     PathAutomaton pa;    
-    BufferTransducer parentTransducer;
+    BufferTransducer parentTransducer;    
+    Byte stackTransdType = SOURCE;
+
+
+    
 
     TransformationFormat specification;
 
@@ -95,14 +99,17 @@ public class StackTransducer implements Transducer {
 
         this.specification = mapper.getTransformationFormat();
         this.transfType = specification.getType();
-        if (source) {
+        if (source) {            
             this.path = specification.getPath();
+            this.stackTransdType = SOURCE;
         }
         else if (transfType == "copy") {
                 this.path = ((CopyTransformation) specification).getDestPath();
+                this.stackTransdType = DEST;
             }
         else if (transfType == "move") {
                 this.path = ((MoveTransformation) specification).getDestPath();
+                this.stackTransdType = DEST;
             }
         else {
             this.path = null;
@@ -163,6 +170,17 @@ public class StackTransducer implements Transducer {
     @Override
     public void setPaused(boolean paused) {
         this.paused = paused;
+    }
+
+    
+    @Override
+    public byte getTransdType() {
+        return this.stackTransdType;
+    }
+    
+    @Override
+    public void setTransdType(byte type) {
+        this.stackTransdType = type;
     }
 
     @Override

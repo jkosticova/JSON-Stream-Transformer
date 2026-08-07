@@ -136,6 +136,16 @@ public class IdentityTransducer implements Transducer {
     }
 
     @Override
+    public byte getTransdType() {
+        return SOURCE;
+    }
+    
+    @Override
+    public void setTransdType(byte type) {
+        
+    }
+
+    @Override
     public void setState(State state) {
         this.currentState = state;
     }
