@@ -31,9 +31,9 @@ public class FindPos implements State {
     private Stack<Integer> paStack;
     private Stack<Integer> indexStack;
     private TransformationFormat specification;    
+    // we use depth integer instead of using stack to remember current nesting level
     private int depth;
-    private Integer searchedIndex = null;    
-    private JsonGenerator generator;
+    private Integer searchedIndex = null;      
     
     public FindPos(Transducer transducer) {
         this.transducer = transducer;
@@ -44,8 +44,7 @@ public class FindPos implements State {
 
     private void init() {        
         this.paStack = this.transducer.getPaStack();
-        this.indexStack = this.transducer.getIndexStack();        
-        this.generator = transducer.getGenerator();
+        this.indexStack = this.transducer.getIndexStack();                
         this.specification = transducer.getSpecification();
         if (specification instanceof AddTransformation) {
             this.searchedIndex = ((AddTransformation) specification).getIndex();
@@ -60,7 +59,7 @@ public class FindPos implements State {
 
     public void process(JsonParser parser) {
         init();                
-        // ak sme na kluci
+        // move from fieldname to the corresponding value
         if (this.depth == 0 && parser.getCurrentToken() == JsonToken.FIELD_NAME) {
             moveToValue(parser);
         }
@@ -74,7 +73,7 @@ public class FindPos implements State {
                         indexStack.push(0);
                     }
                 case START_OBJECT:                    
-                    // ak sme na i-tom prvku pola
+                    // i-th array element 
                     if (this.depth == 1 && paStack.peek().equals(ARR_MARKER)) {
                         Integer i = indexStack.pop();
                         if (searchedIndex.equals(i)) {
@@ -89,7 +88,7 @@ public class FindPos implements State {
                 case END_ARRAY:
                 case END_OBJECT:
                     depth--;                    
-                    // sme na konci pola / objektu
+                    // end of the array / object
                     if (depth == 0) {
                         transitionToMatchPos();
                         return;
@@ -114,10 +113,7 @@ public class FindPos implements State {
                         indexStack.push(i+1);
                     }                                        
                     break;
-            }  
-            /*if (this.transducer.isGenerating()) {
-                generator.copyCurrentEvent(parser);
-            } */           
+            }       
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -130,8 +126,7 @@ public class FindPos implements State {
 
     private void transitionToMatchPos() {
         transducer.setState(transducer.getMatchPosState());
-        transducer.setPaused(true);
-        transducer.setNoGen(true);
+        transducer.setPaused(true);    
     }
 
     

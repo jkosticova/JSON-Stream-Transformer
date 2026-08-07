@@ -13,22 +13,20 @@ import java.io.IOException;
 import static Prototype.Utils.Helper.writeJsonValue;
 
 public class Match implements State {
-    private final Transducer transducer;
-    private final JsonGenerator generator;    
+    private final Transducer transducer;    
     private final TransformationFormat specification;
 
     public Match(Transducer transducer) {
-        this.transducer = transducer;
-        this.generator = transducer.getGenerator();        
+        this.transducer = transducer;        
         this.specification = transducer.getSpecification();
     }
 
     @Override
-    public void process(JsonParser parser) {
-        transducer.setNoGen(true);
+    public void process(JsonParser parser) {        
         JsonToken event = parser.currentToken();
+        JsonGenerator generator = transducer.getGenerator();
         // parser is positioned at a match - either a fieldname or a value
-        switch (transducer.getTransfType()) {
+        switch (transducer.getTransformationType()) {
             case "rename":
                 // current token MUST be a fieldname
                 try {

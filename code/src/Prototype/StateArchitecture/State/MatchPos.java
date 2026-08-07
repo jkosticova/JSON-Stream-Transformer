@@ -11,19 +11,17 @@ import java.io.IOException;
 import static Prototype.Utils.Helper.writeJsonValue;
 
 public class MatchPos implements State {
-    private final Transducer transducer;
-    private final JsonGenerator generator;
-    private final TransformationFormat specification;
+    private final Transducer transducer;    
 
     public MatchPos(Transducer transducer) {
         this.transducer = transducer;
-        this.generator = transducer.getGenerator();
-        this.specification = transducer.getSpecification();
+        
     }
 
     @Override
-    public void process(JsonParser parser) {
-        transducer.setNoGen(true);
+    public void process(JsonParser parser) {  
+        TransformationFormat specification = transducer.getSpecification();
+        JsonGenerator generator = transducer.getGenerator();
         switch (specification.getType()) {
             case "add":
                 // current token is either a fieldname or a value

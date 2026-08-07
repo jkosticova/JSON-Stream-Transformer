@@ -17,123 +17,58 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Stack;
 
-public class StackTransducer implements Transducer {
-    private State currentState;
-    private boolean paused;
+public class StackTransducer extends Transducer {    
+        
     
-    // resuable states (must be reused due to measuremennt nethod that counts all memory allocations)
-    private final Eval evalState;
-    private final Match matchState;
-    private final Gen genState;
-    private final SkipSubtree skipSubtree;
-    private final FindPos findPosState;
-    private final MatchPos matchPosState;    
-    
-    // stacks
-    Stack<Integer> paStack;    
-    Stack<Integer> indexStack;    
-    
-    JsonGenerator generator;
-    JsonParser parser;
-    
-    PathAutomaton pa;    
-    BufferTransducer parentTransducer;    
-    Byte stackTransdType = SOURCE;
-
-
-    
-
-    TransformationFormat specification;
-
-    String path;
-    String transfType;
-
-    boolean isGenerating;
-    boolean noGen;
-
+    /* constructor for a single STACK transformation */
     public StackTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {        
-        // stacks
-        paStack = new Stack<>();        
-        indexStack = new Stack<>();        
-        
-        parentTransducer = null;        
-        
-        this.specification = mapper.getTransformationFormat();
-        this.path = specification.getPath();
-        this.transfType = specification.getType();
+        super(mapper, true);
 
-        pa = new SimplePathAutomaton(path); 
-        
+        parentTransducer = null;        
         JsonFactory factory = new JsonFactory();
         try {
             parser = factory.createParser(inputStream);
             generator = factory.createGenerator(outputStream).useDefaultPrettyPrinter();
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-        // states
-        evalState = new Eval(this);
-        matchState = new Match(this);
-        skipSubtree = new SkipSubtree(this);
-        findPosState = new FindPos(this);
-        matchPosState = new MatchPos(this);        
-        genState = new Gen(this);
-        
-        currentState = evalState;
-        paused = false;        
-        isGenerating = true;
-        noGen = true;
-
+        }            
+        // stacks
+        this.paStack = new Stack<>();        
+        this.indexStack = new Stack<>();        
+                            
+        pa = new SimplePathAutomaton(path); 
         paStack.push(INITIAL_PA_STATE);
+        
+        initStates();        
+        
+        currentState = evalState;                
     }
 
-    // for copy and move transformations, processing is delegated to the parent buffer transducer
+    /* constructor for a single COPY or MOVE transformation */
     public StackTransducer(SpecificationMapper mapper, BufferTransducer parentTransducer, boolean source) {        
+        super(mapper, source);
+
+        this.parentTransducer = parentTransducer;
+        this.parser = parentTransducer.parser;
+        this.generator = parentTransducer.generator;
+        
         // stacks
         paStack = new Stack<>();        
         indexStack = new Stack<>();        
         
-        this.parentTransducer = parentTransducer;
-        this.parser = parentTransducer.parser;
-        this.generator = parentTransducer.generator;
-
-        this.specification = mapper.getTransformationFormat();
-        this.transfType = specification.getType();
-        if (source) {            
-            this.path = specification.getPath();
-            this.stackTransdType = SOURCE;
-        }
-        else if (transfType == "copy") {
-                this.path = ((CopyTransformation) specification).getDestPath();
-                this.stackTransdType = DEST;
-            }
-        else if (transfType == "move") {
-                this.path = ((MoveTransformation) specification).getDestPath();
-                this.stackTransdType = DEST;
-            }
-        else {
-            this.path = null;
-                // TODO exception
-            }    
+        
+        
+                                                
         pa = new SimplePathAutomaton(path);         
-        
-        // states
-        evalState = new Eval(this);
-        matchState = new Match(this);
-        skipSubtree = new SkipSubtree(this);
-        findPosState = new FindPos(this);
-        matchPosState = new MatchPos(this);        
-        genState = new Gen(this);
-        
-        currentState = evalState;
-        paused = false;
-        isGenerating = true;
-        noGen = true;    
+        paStack.push(INITIAL_PA_STATE);            
 
-        paStack.push(INITIAL_PA_STATE);
+        initStates();        
+        
+        currentState = evalState;                
     }
 
     // used only for stack transformations
+    @Override
     public boolean process() {
         try {
             JsonToken event = null;
@@ -162,149 +97,16 @@ public class StackTransducer implements Transducer {
             generator.close();
         } catch (Exception e) {
             System.out.println("Issue while processing StackTransducer: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
         return true;
     }
 
-    @Override
-    public void setPaused(boolean paused) {
-        this.paused = paused;
-    }
+    
 
     
-    @Override
-    public byte getTransdType() {
-        return this.stackTransdType;
-    }
+
     
-    @Override
-    public void setTransdType(byte type) {
-        this.stackTransdType = type;
-    }
-
-    @Override
-    public TransformationFormat getSpecification() {
-        return this.specification;
-    }
-
-    @Override
-    public boolean getPaused() {
-        return this.paused;
-    }
-
-    @Override
-    public JsonGenerator getGenerator() {
-        return this.generator;
-    }
-
-    @Override
-    public void setGenerator(JsonGenerator generator) {
-        this.generator = generator;
-    }
-
-    @Override
-    public boolean isGenerating() {
-        return this.isGenerating;
-    }
-
-    @Override
-    public void setIsGenerating(boolean isGenerating) {
-           this.isGenerating = isGenerating;
-    }
-
-    @Override
-    public boolean noGen() {
-        return this.noGen;
-    }
     
-    @Override
-    public void setNoGen(boolean noGen) {
-        this.noGen = noGen;
-    }
-
-    @Override
-    public State getEvalState() {
-        return this.evalState;
-    }
-
-    @Override
-    public State getMatchState() {
-        return this.matchState;
-    }
-    
-    @Override
-    public State getGenState() {
-        return this.genState;
-    }
-
-    @Override
-    public State getSkipSubtreeState() {
-        return this.skipSubtree;
-    }
-
-    @Override
-    public State getFindPosState() {
-        return this.findPosState;
-    }
-
-    @Override
-    public State getMatchPosState() {
-        return this.matchPosState;
-    }
-
-    @Override
-    public State getMeminState() {
-        return null;
-    }
-
-    @Override
-    public State getMeminDelState() {
-        return null;
-    }
-
-    @Override
-    public State getMemoutState() {
-        return null;
-    }
-
-    @Override
-    public Stack<Integer> getPaStack() {
-        return this.paStack;
-    }
-
-    @Override
-    public PathAutomaton getPa() {
-        return this.pa;
-    }
-
-    @Override
-    public Stack<Integer> getIndexStack() {
-        return this.indexStack;    }
-
-
-    @Override
-    public String getTransfType() {
-        return this.transfType;
-    }    
-
-    @Override
-    public State getCurrentState() {
-        return this.currentState;
-    }
-
-    @Override
-    public void getFromMemory() {
-        parentTransducer.getFromMemory();
-    }
-
-    @Override
-    public void addToMemory() {
-        parentTransducer.addToMemory();
-    }
-
-    @Override
-    public void setState(State state) {
-        this.currentState = state;
-    }
 }

@@ -21,8 +21,7 @@ public class Sync implements State {
     private final StackTransducer destinationTransducer;
     private final JsonGenerator generator;
     private final TransformationFormat specification;
-    private final PathAutomaton sourcePa;
-    private final JsonGenerator nullGenerator;
+    private final PathAutomaton sourcePa;    
 
     public Sync(BufferTransducer transducer) {
         this.transducer = transducer;
@@ -30,12 +29,7 @@ public class Sync implements State {
         this.destinationTransducer = transducer.getDestinationTransducer();
         this.generator = transducer.getGenerator();
         this.specification = transducer.getSpecification();
-        this.sourcePa = sourceTransducer.getPa();
-        try {
-            this.nullGenerator = new JsonFactory().createGenerator(OutputStream.nullOutputStream());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        this.sourcePa = sourceTransducer.getPa();        
     }
 
     @Override
@@ -43,18 +37,9 @@ public class Sync implements State {
 
         JsonToken event = parser.currentToken();
 
-        // the code switches between null generator and output file generator to avoid
-        // allocating temporary buffers on heap
-        // (restriction of measurement method)
         sourceTransducer.setGenerator(generator);
         destinationTransducer.setGenerator(generator);
-
-        sourceTransducer.setIsGenerating(true);
-        destinationTransducer.setIsGenerating(false);
-
-        // sourceTransducer.setNoGen(false);
-        // destinationTransducer.setNoGen(false);
-
+        
         State sourceState = sourceTransducer.getCurrentState();
         State destinationState = destinationTransducer.getCurrentState();
         
@@ -123,7 +108,11 @@ public class Sync implements State {
                  } else if ((sourceState instanceof Match) && (destinationState instanceof MeminSkip)) {
                     sourceTransducer.setState(new MeminSubtree(sourceTransducer));
                     destinationTransducer.setState(new Gen(destinationTransducer));
-
+                    
+                    // sme na matchi (fieldName) a potrebujeme ho este dat do pamate a posunut sa na valu
+                    transducer.addToMemory();
+                    parser.nextToken();
+                    
                     sourceTransducer.setPaused(false);
                     destinationTransducer.setPaused(false);                    
                     // (Match, Gen) -> (Memin, Gen)
@@ -288,12 +277,6 @@ public class Sync implements State {
 
                 } else if ((sourceState instanceof Eval) && (destinationState instanceof Gen)) {
 
-                    // Eval/Memout + Gen -> generuje source Transducer
-                    sourceTransducer.setGenerator(generator);
-                    destinationTransducer.setGenerator(generator);
-                    sourceTransducer.setIsGenerating(true);
-                    destinationTransducer.setIsGenerating(false);
-
                     if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
                         sourceTransducer.setState(new Memout(sourceTransducer));
                         sourceTransducer.setPaused(false);
@@ -325,11 +308,7 @@ public class Sync implements State {
 
                 } else if ((sourceState instanceof MeminSubtree) && (destinationState instanceof Gen)) {
 
-                    // Memin/Memout + Gen -> generuje source Transducer
-                    sourceTransducer.setGenerator(generator);
-                    destinationTransducer.setGenerator(generator);
-                    sourceTransducer.setIsGenerating(true);
-                    destinationTransducer.setIsGenerating(false);
+                    
                     destinationState.process(parser);
 
                     if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {

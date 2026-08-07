@@ -12,11 +12,9 @@ import java.io.IOException;
 import java.util.Stack;
 
 public class MeminSubtree implements State {
-    Transducer transducer;
-    private JsonGenerator generator;
+    Transducer transducer;    
     private Stack<Integer> paStack;
-    private Stack<Integer> indexStack;    
-    private PathAutomaton pa;
+    private Stack<Integer> indexStack;        
     private int depth;
 
     public MeminSubtree(Transducer transducer) {
@@ -24,11 +22,9 @@ public class MeminSubtree implements State {
         init();
     }
 
-    private void init() {
-        this.generator = this.transducer.getGenerator();
+    private void init() {        
         this.paStack = this.transducer.getPaStack();
-        this.indexStack = this.transducer.getIndexStack();
-        this.pa = transducer.getPa();
+        this.indexStack = this.transducer.getIndexStack();        
         this.depth = 0;
     }
 
@@ -59,7 +55,7 @@ public class MeminSubtree implements State {
             try {
                 // also last token of given subtree must be added to the memory
                 transducer.addToMemory();                
-                if (transducer.getTransdType() == Transducer.SOURCE) {
+                if (transducer.getTransducerRole() == Transducer.SRC_TRANSDUCER) {
                     transducer.setState(transducer.getGenState());
                 }
                 else {

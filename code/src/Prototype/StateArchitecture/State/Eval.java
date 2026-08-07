@@ -122,8 +122,7 @@ public class Eval implements State {
     */
     private void transitionToMatch() {
         transducer.setState(transducer.getMatchState());
-        transducer.setPaused(true);
-        transducer.setNoGen(true);
+        transducer.setPaused(true);   
     }
     
     /*

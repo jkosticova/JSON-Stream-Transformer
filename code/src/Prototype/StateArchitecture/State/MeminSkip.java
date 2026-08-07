@@ -26,9 +26,9 @@ public class MeminSkip implements State {
     }
 
     public void process(JsonParser parser) {
-        init();
-        transducer.setNoGen(true);
+        init();    
         Integer paState;
+        transducer.setPaused(false);
         JsonToken event = parser.currentToken();
         switch (event) {
             case START_ARRAY:
