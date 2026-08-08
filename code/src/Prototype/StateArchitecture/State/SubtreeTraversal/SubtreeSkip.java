@@ -14,15 +14,11 @@ This state prunes current subtree, i.e., doesn't copy it to the output.
 */
 public class SubtreeSkip implements State {
     private final Transducer transducer;
-    private int depth;
-    private Stack<Integer> paStack;
-    private Stack<Integer> indexStack;
+    private SubtreeProcess subtreeProcessState;
 
     public SubtreeSkip(Transducer transducer) {
         this.transducer = transducer;
-        this.depth = 0;
-        this.paStack = this.transducer.getPaStack();
-        this.indexStack = this.transducer.getIndexStack();        
+        this.subtreeProcessState = new SubtreeProcess();
     }
 
     @Override
@@ -30,21 +26,10 @@ public class SubtreeSkip implements State {
         transducer.setPaused(false);        
         transducer.setGenerating(false);                
         
-        switch (parser.currentToken()) {
-            case START_OBJECT:
-            case START_ARRAY:
-                depth++;
-                break;
-            case END_OBJECT:
-            case END_ARRAY:
-                depth--;
-                break;
-            default:
-                break;
-        }
-
+        subtreeProcessState.process(parser);        
+       
         // current token is last token of given subtree
-        if (depth == 0) {
+        if (subtreeProcessState.isSubtreeEnd()) {
             try {                
                 transducer.setState(transducer.getGenState());
                 transducer.setPaused(false);                                
