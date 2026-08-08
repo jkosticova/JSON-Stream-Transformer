@@ -1,6 +1,5 @@
 package prototype.stateArchitecture.state.eval;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -9,9 +8,7 @@ import prototype.specificationParser.CopyTransformation;
 import prototype.specificationParser.MoveTransformation;
 import prototype.specificationParser.TransformationFormat;
 import prototype.stateArchitecture.state.State;
-import prototype.stateArchitecture.transducer.StackTransducer;
 import prototype.stateArchitecture.transducer.Transducer;
-import prototype.pathAutomaton.PathAutomaton;
 
 import java.io.IOException;
 import java.util.Stack;
@@ -64,10 +61,6 @@ public class FindPos implements State {
     public void process(JsonParser parser) {
         init();                
         transducer.setGenerating(true);
-        // move from fieldname to the corresponding value
-        if (this.depth == 0 && parser.getCurrentToken() == JsonToken.FIELD_NAME) {
-            moveToValue(parser);
-        }
         transducer.setPaused(false);
         try {
             JsonToken event = parser.currentToken();                        
@@ -131,19 +124,5 @@ public class FindPos implements State {
     }
 
     
-    private void moveToValue(JsonParser parser) {
-           try {
-            parser.nextToken(); // move to value and if it is a structure, process opening token
-            if (parser.currentToken() == JsonToken.START_ARRAY) {
-                paStack.push(ARR_MARKER);
-                indexStack.push(0);
-            }
-            else if (parser.currentToken() == JsonToken.START_OBJECT) {
-                paStack.push(OBJ_MARKER);
-            }
-           } catch (IOException e) {            
-            e.printStackTrace();
-           } 
-    }
 
 }
