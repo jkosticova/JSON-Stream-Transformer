@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonParser;
 
 
 /* 
-    This state traverses the value (subtree) and put it into the memory
+    This state traverses the value (subtree) and puts it into the memory
     Entering token: the start of given value (START_ARRAY, START_OBJECT, literal value)
     Leaving token: one token after the end of given value
 */

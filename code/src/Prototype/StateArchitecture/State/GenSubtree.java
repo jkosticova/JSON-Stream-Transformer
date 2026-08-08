@@ -15,18 +15,28 @@ public class GenSubtree implements State {
     private final Transducer transducer;
     private ProcessSubtree processSubtreeState;
 
-    public GenSubtree(Transducer transducer) {        
+    public GenSubtree(Transducer transducer) {
         this.transducer = transducer;
-        this.processSubtreeState = new ProcessSubtree(transducer);
+        this.processSubtreeState = new ProcessSubtree();
     }
 
     @Override
     public void process(JsonParser parser) {
-        transducer.setPaused(false);        
-        transducer.setGenerating(true);                
+        transducer.setPaused(false);
+        transducer.setGenerating(true);
         this.processSubtreeState.process(parser);
-    }
+        if (processSubtreeState.isSubtreeEnd()) {
+            try {
+                // applies to dest first, src match scenario
+                transducer.setState(transducer.getMemoutState());
+                transducer.setPaused(false);
 
-    
+                return;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    }
 
 }

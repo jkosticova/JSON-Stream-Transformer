@@ -4,12 +4,10 @@ import com.fasterxml.jackson.core.JsonParser;
 
 import Prototype.StateArchitecture.Transducer.Transducer;
 
-public class ProcessSubtree implements State {
-    private Transducer transducer;
+public class ProcessSubtree implements State {    
     private int depth;
 
-    public ProcessSubtree(Transducer transducer) {
-        this.transducer = transducer;
+    public ProcessSubtree() {        
         this.depth = 0;
     }
 
@@ -29,17 +27,15 @@ public class ProcessSubtree implements State {
                 break;
         }
         // current token is last token of given subtree
-        if (depth == 0) {
-            try {                                
-                // applies to dest first, src match scenario
-                transducer.setState(transducer.getMemoutState());
-                transducer.setPaused(false);                                
-
-                return;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }        
-    }       
+        //if (depth == 0) {
+        //    return;
+        //}
+            
+                
+    }   
+    
+    public boolean isSubtreeEnd() {
+        return (this.depth == 0);        
+    }
 
 }

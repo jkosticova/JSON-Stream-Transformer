@@ -15,9 +15,14 @@ import static Prototype.Utils.Helper.writeJsonValue;
 
 /*
     This state captures behavior when a match of a path is found.
-    It always transitions to another state.
-    It applies on all path-evaluating transformations.
+    It always 
+    - transitions to another state
+    - keeps transducer paused
+    It applies on all path-evaluating transformations.    
+    It uses generator and specificiation to be able to perform specific operations on matching the path.
+    
 */
+
 public class Match implements State {
     private final Transducer transducer;
     private final TransformationFormat specification;
