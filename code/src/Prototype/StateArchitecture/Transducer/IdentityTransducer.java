@@ -18,7 +18,7 @@ public class IdentityTransducer extends Transducer {
     JsonParser parser;    
 
     public IdentityTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {
-        super(mapper, true);
+        super(mapper, SIMPLE_TRANSDUCER);
         
         JsonFactory factory = new JsonFactory();
         try {

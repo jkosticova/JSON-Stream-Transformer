@@ -26,8 +26,10 @@ import java.util.Stack;
 public abstract class Transducer {
     public static final int INITIAL_PA_STATE = 0;
     public static final int OBJECT_ARR_INDEX = -1;
-    public static byte SRC_TRANSDUCER = 0;
-    public static byte DEST_TRANSDUCER = 1;
+    
+    public static byte SIMPLE_TRANSDUCER = 0;
+    public static byte SRC_TRANSDUCER = 1;
+    public static byte DEST_TRANSDUCER = 2;
 
     // transducer state
     protected State currentState;
@@ -65,25 +67,26 @@ public abstract class Transducer {
     protected MeminSkip meminSkipState;    
     protected Memout memoutState;    
 
-    public Transducer(SpecificationMapper mapper, boolean source) {
+    public Transducer(SpecificationMapper mapper, byte role) {
         
         paused = false;
         generating = true;
 
         this.specification = mapper.getTransformationFormat();       
         this.transformationType = specification.getType();
-        
-        if (source) {            
+        this.transducerRole = role;
+
+        // simple and source transducer
+        if (this.transducerRole != DEST_TRANSDUCER) {            
             this.path = specification.getPath();
-            this.transducerRole = SRC_TRANSDUCER;
+            
         }
+        // destination transducer
         else if (transformationType.equals("copy")) {
-                this.path = ((CopyTransformation) specification).getDestPath();
-                this.transducerRole = DEST_TRANSDUCER;
+                this.path = ((CopyTransformation) specification).getDestPath();                
             }
         else if (transformationType.equals("move")) {
-                this.path = ((MoveTransformation) specification).getDestPath();
-                this.transducerRole = DEST_TRANSDUCER;
+                this.path = ((MoveTransformation) specification).getDestPath();                
             }
         else {
             this.path = null;

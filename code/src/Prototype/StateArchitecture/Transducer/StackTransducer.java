@@ -22,7 +22,7 @@ public class StackTransducer extends Transducer {
     
     /* constructor for a single STACK transformation */
     public StackTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {        
-        super(mapper, true);
+        super(mapper, SIMPLE_TRANSDUCER);
 
         parentTransducer = null;        
         JsonFactory factory = new JsonFactory();
@@ -45,8 +45,8 @@ public class StackTransducer extends Transducer {
     }
 
     /* constructor for a single COPY or MOVE transformation */
-    public StackTransducer(SpecificationMapper mapper, BufferTransducer parentTransducer, boolean source) {        
-        super(mapper, source);
+    public StackTransducer(SpecificationMapper mapper, BufferTransducer parentTransducer, byte role) {        
+        super(mapper, role);
 
         this.parentTransducer = parentTransducer;
         this.parser = parentTransducer.parser;

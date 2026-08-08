@@ -21,7 +21,7 @@ public class Sync implements State {
     private final StackTransducer destinationTransducer;
     private final JsonGenerator generator;
     private final TransformationFormat specification;
-    private final PathAutomaton sourcePa;    
+    private final PathAutomaton sourcePa;
 
     public Sync(BufferTransducer transducer) {
         this.transducer = transducer;
@@ -29,7 +29,7 @@ public class Sync implements State {
         this.destinationTransducer = transducer.getDestinationTransducer();
         this.generator = transducer.getGenerator();
         this.specification = transducer.getSpecification();
-        this.sourcePa = sourceTransducer.getPa();        
+        this.sourcePa = sourceTransducer.getPa();
     }
 
     @Override
@@ -39,37 +39,47 @@ public class Sync implements State {
 
         sourceTransducer.setGenerator(generator);
         destinationTransducer.setGenerator(generator);
-        
+
         State sourceState = sourceTransducer.getCurrentState();
         State destinationState = destinationTransducer.getCurrentState();
-        
+
         try {
             if (specification instanceof CopyTransformation) {
                 /*
                  * SOURCE MATCHED FIRST
-                 * SRC: eval -> match (sync) -> meminSubtree   -> gen     -> gen (sync) -> gen    -> gen
-                 * DEST: eval -> eval -> eval -> eval -> match -> findPos -> matchPos -> memout -> gen
+                 * SRC: eval -> match (sync) -> meminSubtree -> gen -> gen (sync) -> gen -> gen
+                 * DEST: eval -> eval -> eval -> eval -> match -> findPos -> matchPos -> memout
+                 * -> gen
                  * -> gen
                  */
-                // (match, eval) -> (memin, eval)
-                // (paused, not paused)
-                if ((sourceState instanceof Match) && (destinationState instanceof Eval)) {                    
-                    sourceTransducer.setState(new MeminSubtree(sourceTransducer));                    
+                // source Match handled
+            /*    if ((sourceState instanceof Match) && (destinationState instanceof Eval)) {
+                    // generate current fieldname in case of object member match
+                    if (parser.currentToken().equals(JsonToken.FIELD_NAME)) {
+                        try {
+                            generator.copyCurrentEvent(parser);
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+
+                    sourceTransducer.setState(sourceTransducer.getMeminSubtreeState());
                     sourceTransducer.processValueAfterMatch();
-                    
+                    destinationTransducer.setPaused(false);
                     // (gen, matchPos) -> (gen, memout)
-                
-                
-                } else if ((sourceState instanceof Gen) && (destinationState instanceof MatchPos)) {
+
+                    // destination MatchPos handled
+                } else */ if ((sourceState instanceof Gen) && (destinationState instanceof MatchPos)) {
                     if (((CopyTransformation) specification).getKey() != null) {
                         generator.writeFieldName(((CopyTransformation) specification).getKey());
                     }
                     destinationTransducer.setState(new Memout(destinationTransducer));
                     destinationTransducer.setPaused(true);
 
-                /* DESTINATION MATCHED FIRST */
+                    /* DESTINATION MATCHED FIRST */
 
-                // (Eval, MatchPos) -> (Eval, MeminDel)
+                    // (Eval, MatchPos) -> (Eval, MeminDel)
                 } else if ((sourceState instanceof Eval) && (destinationState instanceof MatchPos)) {
 
                     if (((CopyTransformation) specification).getKey() != null) {
@@ -80,99 +90,113 @@ public class Sync implements State {
                     destinationTransducer.setState(new MeminSkip(destinationTransducer));
                     // transducer.addToMemory();
                     destinationTransducer.setPaused(true);
-                    
 
                     // (Eval, MeminDel) -> (Eval, MeminDel)
                     // [fragment is in memory] -> (Match, Gen)
-                /* } else if ((sourceState instanceof Eval) && (destinationState instanceof MeminSkip)) {
-
-                    if (sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
-                        sourceTransducer.setState(new Match(sourceTransducer));
-                        destinationTransducer.setState(new Gen(destinationTransducer));
-
-                        sourceTransducer.setPaused(true);
-                        destinationTransducer.setPaused(false);
-                        transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
-                        return;
-                    }
-
-                    sourceState.process(parser);
-                    destinationState.process(parser);
-
-                    destinationTransducer.setPaused(false);
-                    transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
-
-                    generator.flush();
-                    */
+                    /*
+                     * } else if ((sourceState instanceof Eval) && (destinationState instanceof
+                     * MeminSkip)) {
+                     * 
+                     * if (sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
+                     * sourceTransducer.setState(new Match(sourceTransducer));
+                     * destinationTransducer.setState(new Gen(destinationTransducer));
+                     * 
+                     * sourceTransducer.setPaused(true);
+                     * destinationTransducer.setPaused(false);
+                     * transducer.setPaused(sourceTransducer.getPaused() ||
+                     * destinationTransducer.getPaused());
+                     * return;
+                     * }
+                     * 
+                     * sourceState.process(parser);
+                     * destinationState.process(parser);
+                     * 
+                     * destinationTransducer.setPaused(false);
+                     * transducer.setPaused(sourceTransducer.getPaused() ||
+                     * destinationTransducer.getPaused());
+                     * 
+                     * generator.flush();
+                     */
                     // (Match, Memindel)[fragment is in memory] -> (MeminSubtree, Gen)
-                 } else if ((sourceState instanceof Match) && (destinationState instanceof MeminSkip)) {
+                } else if ((sourceState instanceof Match) && (destinationState instanceof MeminSkip)) {
                     sourceTransducer.setState(new MeminSubtree(sourceTransducer));
                     destinationTransducer.setState(new Gen(destinationTransducer));
-                    
-                    // sme na matchi (fieldName) a potrebujeme ho este dat do pamate a posunut sa na value
-                    //transducer.addToMemory();                    
-                    
+
+                    // sme na matchi (fieldName) a potrebujeme ho este dat do pamate a posunut sa na
+                    // value
+                    // transducer.addToMemory();
+
                     // posun sa na value a spracuj ju
                     sourceTransducer.setPaused(false);
                     // posun sa na value a spracuj ju
-                    destinationTransducer.setPaused(false);                    
+                    destinationTransducer.setPaused(false);
                     // (Match, Gen) -> (Memin, Gen)
-                /* } else if ((sourceState instanceof Match) && (destinationState instanceof Gen)) {
-                    sourceTransducer.setState(new MeminSubtree(sourceTransducer));
-                    sourceTransducer.setPaused(false);
-
-                    if (((CopyTransformation) specification).getKey() == null) {
-                        transducer.addToMemory();
-                    }
-
-                    transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
-                    */
-                // (Memin, Gen)
-                /* } else if ((sourceState instanceof MeminSubtree) && (destinationState instanceof Gen)) {
-                
-                    destinationState.process(parser);
-
-                    if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
-                        transducer.addToMemory();
-                        sourceTransducer.setState(new Memout(sourceTransducer));
-                        generator.copyCurrentEvent(parser);
-                        sourceTransducer.setPaused(false);
-
-                        generator.flush();
-
-                        transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
-
-                        return;
-                    }
-
-                    Integer lastValue = sourceTransducer.getPaStack().pop();
-                    if (event.isStructEnd() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
-                        transducer.addToMemory();
-                        sourceTransducer.setState(new Memout(sourceTransducer));
-                        generator.copyCurrentEvent(parser);
-                        sourceTransducer.setPaused(false);
-
-                        generator.flush();
-
-                        transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
-
-                        return;
-                    }
-                    sourceTransducer.getPaStack().push(lastValue);
-
-                    sourceState.process(parser);
-
-                    transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
-
-                    generator.flush();
-                    */
+                    /*
+                     * } else if ((sourceState instanceof Match) && (destinationState instanceof
+                     * Gen)) {
+                     * sourceTransducer.setState(new MeminSubtree(sourceTransducer));
+                     * sourceTransducer.setPaused(false);
+                     * 
+                     * if (((CopyTransformation) specification).getKey() == null) {
+                     * transducer.addToMemory();
+                     * }
+                     * 
+                     * transducer.setPaused(sourceTransducer.getPaused() ||
+                     * destinationTransducer.getPaused());
+                     */
+                    // (Memin, Gen)
+                    /*
+                     * } else if ((sourceState instanceof MeminSubtree) && (destinationState
+                     * instanceof Gen)) {
+                     * 
+                     * destinationState.process(parser);
+                     * 
+                     * if (!event.isStructStart() &&
+                     * sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
+                     * transducer.addToMemory();
+                     * sourceTransducer.setState(new Memout(sourceTransducer));
+                     * generator.copyCurrentEvent(parser);
+                     * sourceTransducer.setPaused(false);
+                     * 
+                     * generator.flush();
+                     * 
+                     * transducer.setPaused(sourceTransducer.getPaused() ||
+                     * destinationTransducer.getPaused());
+                     * 
+                     * return;
+                     * }
+                     * 
+                     * Integer lastValue = sourceTransducer.getPaStack().pop();
+                     * if (event.isStructEnd() &&
+                     * sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
+                     * transducer.addToMemory();
+                     * sourceTransducer.setState(new Memout(sourceTransducer));
+                     * generator.copyCurrentEvent(parser);
+                     * sourceTransducer.setPaused(false);
+                     * 
+                     * generator.flush();
+                     * 
+                     * transducer.setPaused(sourceTransducer.getPaused() ||
+                     * destinationTransducer.getPaused());
+                     * 
+                     * return;
+                     * }
+                     * sourceTransducer.getPaStack().push(lastValue);
+                     * 
+                     * sourceState.process(parser);
+                     * 
+                     * transducer.setPaused(sourceTransducer.getPaused() ||
+                     * destinationTransducer.getPaused());
+                     * 
+                     * generator.flush();
+                     */
                 } else {
                     // process next token
                     if (!destinationTransducer.getPaused() && !sourceTransducer.getPaused()) {
                         // dest urobi moveToNext pri meminSubtree
                         destinationState.process(parser);
                         sourceState.process(parser);
-                        
+
                     }
                     // process the same token by the paused transducers only
                     else {
@@ -184,7 +208,7 @@ public class Sync implements State {
                         }
                     }
                     sourceState = sourceTransducer.getCurrentState();
-                    destinationState = destinationTransducer.getCurrentState();            
+                    destinationState = destinationTransducer.getCurrentState();
                 }
             } else if (specification instanceof MoveTransformation) {
                 if ((sourceState instanceof Match) && (destinationState instanceof Eval)) {
@@ -323,7 +347,6 @@ public class Sync implements State {
 
                 } else if ((sourceState instanceof MeminSubtree) && (destinationState instanceof Gen)) {
 
-                    
                     destinationState.process(parser);
 
                     if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
@@ -355,14 +378,14 @@ public class Sync implements State {
                     sourceTransducer.getPaStack().push(lastValue);
 
                     sourceState.process(parser);
-                    
+
                     generator.flush();
 
-                } else {                    
+                } else {
                     sourceState.process(parser);
                     destinationState.process(parser);
                     sourceState = sourceTransducer.getCurrentState();
-                    destinationState = destinationTransducer.getCurrentState();                    
+                    destinationState = destinationTransducer.getCurrentState();
                 }
             }
         } catch (Exception e) {

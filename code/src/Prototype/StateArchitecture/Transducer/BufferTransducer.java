@@ -42,8 +42,8 @@ public class BufferTransducer {
                 throw new RuntimeException(e);
             }
             buffer = new TokenBuffer((ObjectCodec) null, false);            
-            sourceTransducer = new StackTransducer(mapper, this, true);
-            destinationTransducer = new StackTransducer(mapper, this, false);
+            sourceTransducer = new StackTransducer(mapper, this, Transducer.SRC_TRANSDUCER);
+            destinationTransducer = new StackTransducer(mapper, this, Transducer.DEST_TRANSDUCER);
             
             currentState = new Sync(this);        
     }
