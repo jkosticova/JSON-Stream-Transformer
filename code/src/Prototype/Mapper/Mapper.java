@@ -1,6 +1,5 @@
-package Prototype.Mapper;
+package prototype.mapper;
 
-import Prototype.SpecificationParser.TransformationFormat;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,6 +7,8 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
+
+import prototype.specificationParser.TransformationFormat;
 
 import java.io.File;
 import java.io.InputStream;

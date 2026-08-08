@@ -1,10 +1,11 @@
-package Prototype.PathAutomaton;
+package prototype.pathAutomaton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-// Simple dot notation
+/* 
+   Path Automaton evaluates simple dot notation syntax for JSONPath.
+*/
 public class SimplePathAutomaton implements PathAutomaton {
     int INITIAL_PA_STATE = 0;
     private final ArrayList<String> segments;    

@@ -1,11 +1,8 @@
-package Prototype.StateArchitecture.State;
-
-import Prototype.StateArchitecture.Transducer.BufferTransducer;
-import Prototype.StateArchitecture.Transducer.Transducer;
-
-import java.nio.Buffer;
+package prototype.stateArchitecture.state;
 
 import com.fasterxml.jackson.core.JsonParser;
+
+import prototype.stateArchitecture.transducer.Transducer;
 
 /* 
    This state generates the content of the buffer to the output AT ONCE.

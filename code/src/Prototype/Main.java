@@ -1,16 +1,16 @@
-package Prototype;
-
-import Prototype.Mapper.Mapper;
-import Prototype.StateArchitecture.Transducer.BufferTransducer;
-import Prototype.StateArchitecture.Transducer.StackTransducer;
-import Prototype.StateArchitecture.Transducer.IdentityTransducer;
-import Prototype.StateArchitecture.Transducer.Transducer;
+package prototype;
 
 import java.io.*;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import prototype.mapper.Mapper;
+import prototype.stateArchitecture.transducer.BufferTransducer;
+import prototype.stateArchitecture.transducer.IdentityTransducer;
+import prototype.stateArchitecture.transducer.StackTransducer;
+import prototype.stateArchitecture.transducer.Transducer;
 public class Main {
 
     public static void main(String[] args) throws IOException {

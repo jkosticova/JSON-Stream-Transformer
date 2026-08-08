@@ -1,9 +1,0 @@
-[
-  {
-    "copy": {
-      "path": "$[1].name",
-      "destPath": "$[0].contact.phone",
-      "index": 1
-    }
-  }
-]

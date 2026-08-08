@@ -1,14 +1,12 @@
-package Prototype.StateArchitecture.Transducer;
-
-import Prototype.Mapper.SpecificationMapper;
-import Prototype.SpecificationParser.TransformationFormat;
-import Prototype.StateArchitecture.State.State;
-import Prototype.StateArchitecture.State.FreeTraversal.Gen;
+package prototype.stateArchitecture.transducer;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+
+import prototype.mapper.SpecificationMapper;
+import prototype.stateArchitecture.state.freeTraversal.Gen;
 
 import java.io.IOException;
 import java.io.InputStream;

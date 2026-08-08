@@ -1,8 +1,8 @@
-package Prototype.StateArchitecture.State.SubtreeTraversal;
+package prototype.stateArchitecture.state.subtreeTraversal;
 
 import com.fasterxml.jackson.core.JsonParser;
 
-import Prototype.StateArchitecture.State.State;
+import prototype.stateArchitecture.state.State;
 
 
 /*

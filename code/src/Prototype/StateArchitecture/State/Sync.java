@@ -1,15 +1,15 @@
-package Prototype.StateArchitecture.State;
-
-import Prototype.SpecificationParser.CopyTransformation;
-import Prototype.SpecificationParser.MoveTransformation;
-import Prototype.SpecificationParser.TransformationFormat;
-import Prototype.StateArchitecture.State.Eval.EvalPath;
-import Prototype.StateArchitecture.State.FreeTraversal.MeminSkip;
-import Prototype.StateArchitecture.State.Match.MatchPath;
-import Prototype.StateArchitecture.Transducer.BufferTransducer;
-import Prototype.StateArchitecture.Transducer.StackTransducer;
+package prototype.stateArchitecture.state;
 
 import com.fasterxml.jackson.core.JsonParser;
+
+import prototype.specificationParser.CopyTransformation;
+import prototype.specificationParser.MoveTransformation;
+import prototype.specificationParser.TransformationFormat;
+import prototype.stateArchitecture.transducer.BufferTransducer;
+import prototype.stateArchitecture.transducer.StackTransducer;
+import prototype.stateArchitecture.state.eval.EvalPath;
+import prototype.stateArchitecture.state.freeTraversal.MeminSkip;
+import prototype.stateArchitecture.state.match.MatchPath;
 
 /* 
    This is a synchronization state of BufferTransducer. It provides 

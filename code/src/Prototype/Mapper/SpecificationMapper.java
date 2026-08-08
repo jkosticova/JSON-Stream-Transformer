@@ -1,6 +1,6 @@
-package Prototype.Mapper;
+package prototype.mapper;
 
-import Prototype.SpecificationParser.TransformationFormat;
+import prototype.specificationParser.TransformationFormat;
 
 public interface SpecificationMapper {
     TransformationFormat getTransformationFormat();

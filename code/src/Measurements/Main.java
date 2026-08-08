@@ -1,14 +1,14 @@
-package Measurements;
-
-import Prototype.Mapper.Mapper;
-import Prototype.StateArchitecture.Transducer.BufferTransducer;
-import Prototype.StateArchitecture.Transducer.IdentityTransducer;
-import Prototype.StateArchitecture.Transducer.StackTransducer;
-import Prototype.StateArchitecture.Transducer.Transducer;
+package measurements;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+
+import prototype.mapper.Mapper;
+import prototype.stateArchitecture.transducer.BufferTransducer;
+import prototype.stateArchitecture.transducer.IdentityTransducer;
+import prototype.stateArchitecture.transducer.StackTransducer;
+import prototype.stateArchitecture.transducer.Transducer;
 
 import java.io.File;
 import java.io.FileInputStream;

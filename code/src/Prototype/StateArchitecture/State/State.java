@@ -1,4 +1,4 @@
-package Prototype.StateArchitecture.State;
+package prototype.stateArchitecture.state;
 
 import com.fasterxml.jackson.core.JsonParser;
 

@@ -1,17 +1,10 @@
-package Prototype.StateArchitecture.State.SubtreeTraversal;
+package prototype.stateArchitecture.state.subtreeTraversal;
 
-import Prototype.PathAutomaton.PathAutomaton;
-import Prototype.PathAutomaton.SimplePathAutomaton;
-import Prototype.SpecificationParser.TransformationFormat;
-import Prototype.StateArchitecture.State.State;
-import Prototype.StateArchitecture.Transducer.BufferTransducer;
-import Prototype.StateArchitecture.Transducer.Transducer;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 
-import java.io.IOException;
-import java.util.Stack;
+import prototype.stateArchitecture.state.State;
+import prototype.stateArchitecture.transducer.BufferTransducer;
+import prototype.stateArchitecture.transducer.Transducer;
 
 /* 
     This state traverses the value (subtree), puts it into the memory 

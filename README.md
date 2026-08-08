@@ -1,8 +1,6 @@
-# Diplomovka
-
 ## Overview
 
-This repository contains a Java-based prototype for JSON transformation and mapping, developed as part of a thesis implementation.
+This repository contains a Java-based prototype for JSON transformation and mapping.
 
 The project supports JSON transformation specifications for operations such as:
 - `identity`
@@ -49,6 +47,12 @@ It includes a prototype transformation engine, a measurement harness, JSON schem
 mvn clean compile
 ```
 
+## Test
+
+```powershell
+mvn test
+```
+
 ## Run
 
 For JSON transformation with input from user.
@@ -61,19 +65,6 @@ For the evaluation.
 
 ```powershell
 mvn exec:java@measurements
-```
-
-### Interactive Usage
-
-1. Start the application.
-2. Provide the path to a specification JSON file when prompted.
-3. Provide the path to an input JSON file.
-4. Output is written to `JsonExamples/outputINPUT.json`, with INPUT being the name of the input file.
-
-## Run Tests
-
-```powershell
-mvn test
 ```
 
 ## Evaluation / Measurements

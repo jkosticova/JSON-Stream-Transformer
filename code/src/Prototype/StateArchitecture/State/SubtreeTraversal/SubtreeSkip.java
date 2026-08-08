@@ -1,13 +1,9 @@
-package Prototype.StateArchitecture.State.SubtreeTraversal;
-
-import Prototype.StateArchitecture.State.State;
-import Prototype.StateArchitecture.Transducer.Transducer;
-
-import java.io.IOException;
-import java.util.Stack;
+package prototype.stateArchitecture.state.subtreeTraversal;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+
+import prototype.stateArchitecture.state.State;
+import prototype.stateArchitecture.transducer.Transducer;
 
 /*
   This state prunes current subtree, i.e., doesn't copy it to the output.

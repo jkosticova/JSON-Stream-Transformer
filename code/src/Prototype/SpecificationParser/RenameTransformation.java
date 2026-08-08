@@ -1,4 +1,4 @@
-package Prototype.SpecificationParser;
+package prototype.specificationParser;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 

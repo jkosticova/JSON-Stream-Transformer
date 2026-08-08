@@ -1,18 +1,19 @@
-package Prototype.StateArchitecture.State.Match;
+package prototype.stateArchitecture.state.match;
 
-import Prototype.SpecificationParser.AddTransformation;
-import Prototype.SpecificationParser.CopyTransformation;
-import Prototype.SpecificationParser.MoveTransformation;
-import Prototype.SpecificationParser.TransformationFormat;
-import Prototype.StateArchitecture.State.State;
-import Prototype.StateArchitecture.Transducer.BufferTransducer;
-import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 
-import java.io.IOException;
+import prototype.specificationParser.AddTransformation;
+import prototype.specificationParser.CopyTransformation;
+import prototype.specificationParser.MoveTransformation;
+import prototype.specificationParser.TransformationFormat;
+import prototype.stateArchitecture.state.State;
+import prototype.stateArchitecture.transducer.BufferTransducer;
+import prototype.stateArchitecture.transducer.Transducer;
 
-import static Prototype.Utils.Helper.writeJsonValue;
+import static prototype.utils.Helper.writeJsonValue;
+
+import java.io.IOException;
 
 /*
     This state captures behavior when an exact position for inserting a value is matched.

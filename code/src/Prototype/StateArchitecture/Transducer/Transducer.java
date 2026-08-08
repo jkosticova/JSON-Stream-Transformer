@@ -1,25 +1,25 @@
-package Prototype.StateArchitecture.Transducer;
-
-import Prototype.Mapper.SpecificationMapper;
-import Prototype.PathAutomaton.PathAutomaton;
-import Prototype.SpecificationParser.CopyTransformation;
-import Prototype.SpecificationParser.MoveTransformation;
-import Prototype.SpecificationParser.TransformationFormat;
-import Prototype.StateArchitecture.State.Memout;
-import Prototype.StateArchitecture.State.State;
-import Prototype.StateArchitecture.State.Eval.EvalPath;
-import Prototype.StateArchitecture.State.Eval.FindPos;
-import Prototype.StateArchitecture.State.FreeTraversal.Gen;
-import Prototype.StateArchitecture.State.FreeTraversal.MeminSkip;
-import Prototype.StateArchitecture.State.Match.MatchPath;
-import Prototype.StateArchitecture.State.Match.MatchPos;
-import Prototype.StateArchitecture.State.SubtreeTraversal.SubtreeGen;
-import Prototype.StateArchitecture.State.SubtreeTraversal.SubtreeMemin;
-import Prototype.StateArchitecture.State.SubtreeTraversal.SubtreeSkip;
-import Prototype.StateArchitecture.State.SubtreeTraversal.SubtreeSkipMemin;
+package prototype.stateArchitecture.transducer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+
+import prototype.mapper.SpecificationMapper;
+import prototype.specificationParser.CopyTransformation;
+import prototype.specificationParser.MoveTransformation;
+import prototype.specificationParser.TransformationFormat;
+import prototype.stateArchitecture.state.Memout;
+import prototype.stateArchitecture.state.State;
+import prototype.stateArchitecture.state.eval.EvalPath;
+import prototype.stateArchitecture.state.eval.FindPos;
+import prototype.stateArchitecture.state.freeTraversal.Gen;
+import prototype.stateArchitecture.state.freeTraversal.MeminSkip;
+import prototype.stateArchitecture.state.match.MatchPath;
+import prototype.stateArchitecture.state.match.MatchPos;
+import prototype.stateArchitecture.state.subtreeTraversal.SubtreeGen;
+import prototype.stateArchitecture.state.subtreeTraversal.SubtreeMemin;
+import prototype.stateArchitecture.state.subtreeTraversal.SubtreeSkip;
+import prototype.stateArchitecture.state.subtreeTraversal.SubtreeSkipMemin;
+import prototype.pathAutomaton.PathAutomaton;
 
 import java.util.Stack;
 
@@ -60,15 +60,15 @@ public abstract class Transducer {
 
 
     // resuable states (must be reused due to measuremennt nethod that counts all memory allocations)
-    protected EvalPath evalState;
-    protected MatchPath matchState;
+    protected EvalPath evalPathState;
+    protected MatchPath matchPathState;
     protected Gen genState;
-    protected SubtreeSkip skipSubtreeState;
-    protected SubtreeGen genSubtreeState;
+    protected SubtreeSkip subtreeSkipState;
+    protected SubtreeGen subtreeGenState;
     protected FindPos findPosState;
     protected MatchPos matchPosState;    
-    protected SubtreeMemin meminSubtreeState;    
-    protected SubtreeSkipMemin meminSkipSubtreeState;    
+    protected SubtreeMemin subtreeMeminState;    
+    protected SubtreeSkipMemin SubtreeSkipMeminState;    
     protected MeminSkip meminSkipState;    
     protected Memout memoutState;    
 
@@ -101,15 +101,15 @@ public abstract class Transducer {
 
     // states must be initalized outside constructor, because they need initialized fields from subclasses' constructors
     protected void initStates() {
-        evalState = new EvalPath(this);
-        matchState = new MatchPath(this);
-        skipSubtreeState = new SubtreeSkip(this);
-        genSubtreeState = new SubtreeGen(this);
+        evalPathState = new EvalPath(this);
+        matchPathState = new MatchPath(this);
+        subtreeSkipState = new SubtreeSkip(this);
+        subtreeGenState = new SubtreeGen(this);
         findPosState = new FindPos(this);
         matchPosState = new MatchPos(this);        
         genState = new Gen(this);
-        meminSubtreeState = new SubtreeMemin(this);
-        meminSkipSubtreeState = new SubtreeSkipMemin(this);
+        subtreeMeminState = new SubtreeMemin(this);
+        SubtreeSkipMeminState = new SubtreeSkipMemin(this);
         meminSkipState = new MeminSkip(this);
         memoutState = new Memout(this);
     }
@@ -145,24 +145,24 @@ public abstract class Transducer {
         this.generator = generator;
     }
     
-    public State getEvalState() {
-        return this.evalState;
+    public State getEvalPathState() {
+        return this.evalPathState;
     }
     
-    public State getMatchState() {
-        return this.matchState;
+    public State getMatchPathState() {
+        return this.matchPathState;
     }
         
     public State getGenState() {
         return this.genState;
     }
     
-    public State getSkipSubtreeState() {
-        return this.skipSubtreeState;
+    public State getSubtreeSkipState() {
+        return this.subtreeSkipState;
     }
 
-    public State getGenSubtreeState() {
-        return this.genSubtreeState;
+    public State getSubtreeGenState() {
+        return this.subtreeGenState;
     }
     
     public State getFindPosState() {
@@ -173,12 +173,12 @@ public abstract class Transducer {
         return this.matchPosState;
     }
     
-    public State getMeminSubtreeState() {
-        return this.meminSubtreeState;
+    public State getSubtreeMeminState() {
+        return this.subtreeMeminState;
     }
 
-    public State getMeminSkipSubtreeState() {
-        return this.meminSkipSubtreeState;
+    public State getSubtreeSkipMeminState() {
+        return this.SubtreeSkipMeminState;
     }
     
     public State getMeminSkipState() {

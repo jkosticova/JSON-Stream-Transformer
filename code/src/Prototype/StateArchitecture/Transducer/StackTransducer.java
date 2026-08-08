@@ -1,16 +1,12 @@
-package Prototype.StateArchitecture.Transducer;
+package prototype.stateArchitecture.transducer;
 
-import Prototype.Mapper.Mapper;
-import Prototype.Mapper.SpecificationMapper;
-import Prototype.PathAutomaton.*;
-import Prototype.SpecificationParser.CopyTransformation;
-import Prototype.SpecificationParser.MoveTransformation;
-import Prototype.SpecificationParser.TransformationFormat;
-import Prototype.StateArchitecture.State.*;
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.core.JsonToken;
+
+import prototype.mapper.SpecificationMapper;
+import prototype.pathAutomaton.*;
+import prototype.stateArchitecture.state.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +37,7 @@ public class StackTransducer extends Transducer {
         
         initStates();        
         
-        currentState = evalState;                
+        currentState = evalPathState;                
     }
 
     /* constructor for a single COPY or MOVE transformation */
@@ -61,7 +57,7 @@ public class StackTransducer extends Transducer {
 
         initStates();        
 
-        currentState = evalState;                
+        currentState = evalPathState;                
         
     }
 

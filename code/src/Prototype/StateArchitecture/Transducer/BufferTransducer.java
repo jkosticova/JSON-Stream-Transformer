@@ -1,18 +1,16 @@
-package Prototype.StateArchitecture.Transducer;
+package prototype.stateArchitecture.transducer;
 
-import Prototype.Mapper.SpecificationMapper;
-import Prototype.Utils.Helper;
-import Prototype.SpecificationParser.CopyTransformation;
-import Prototype.SpecificationParser.MoveTransformation;
-import Prototype.SpecificationParser.TransformationFormat;
-import Prototype.StateArchitecture.State.State;
-import Prototype.StateArchitecture.State.Sync;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
+
+import prototype.mapper.SpecificationMapper;
+import prototype.specificationParser.TransformationFormat;
+import prototype.stateArchitecture.state.State;
+import prototype.stateArchitecture.state.Sync;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,18 +1,19 @@
-package Prototype.StateArchitecture.State.Match;
+package prototype.stateArchitecture.state.match;
 
-import Prototype.SpecificationParser.RenameTransformation;
-import Prototype.SpecificationParser.ReplaceTransformation;
-import Prototype.SpecificationParser.TransformationFormat;
-import Prototype.StateArchitecture.State.State;
-import Prototype.StateArchitecture.Transducer.BufferTransducer;
-import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
-import java.io.IOException;
+import prototype.specificationParser.RenameTransformation;
+import prototype.specificationParser.ReplaceTransformation;
+import prototype.specificationParser.TransformationFormat;
+import prototype.stateArchitecture.state.State;
+import prototype.stateArchitecture.transducer.BufferTransducer;
+import prototype.stateArchitecture.transducer.Transducer;
 
-import static Prototype.Utils.Helper.writeJsonValue;
+import static prototype.utils.Helper.writeJsonValue;
+
+import java.io.IOException;
 
 /*
     This state captures behavior when a match of a path is found.
@@ -61,7 +62,7 @@ public class MatchPath implements State {
                 transducer.setPaused(false);
                 break;
             case "remove":
-                transducer.setState(transducer.getSkipSubtreeState());
+                transducer.setState(transducer.getSubtreeSkipState());
                 // do not generate current fieldname in case of object member match
                 // (default)
                 break;
@@ -82,7 +83,7 @@ public class MatchPath implements State {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                transducer.setState(transducer.getSkipSubtreeState());
+                transducer.setState(transducer.getSubtreeSkipState());
                 break;
             // add and copy yield the same code
             case "add":                       
@@ -93,7 +94,7 @@ public class MatchPath implements State {
             case "copy":
                 // source transducer goes to MeminSubtree
                 if (transducer.getTransducerRole() == Transducer.SRC_TRANSDUCER) {
-                    transducer.setState(transducer.getMeminSubtreeState());
+                    transducer.setState(transducer.getSubtreeMeminState());
                     if (transducer.getFirstMatch() == BufferTransducer.SRC_FIRST) {
                         generateCurrentFieldName(parser);                                         
                     }
@@ -109,10 +110,10 @@ public class MatchPath implements State {
                 // source transducer goes to MeminSubtree
                 if (transducer.getTransducerRole() == Transducer.SRC_TRANSDUCER) {
                     if (transducer.getFirstMatch() == BufferTransducer.SRC_FIRST) {
-                        transducer.setState(transducer.getMeminSkipSubtreeState());
+                        transducer.setState(transducer.getSubtreeSkipMeminState());
                     }
                     else if (transducer.getFirstMatch() == BufferTransducer.DEST_FIRST) {
-                        transducer.setState(transducer.getGenSubtreeState());
+                        transducer.setState(transducer.getSubtreeGenState());
                     }
                     // don't generate fieldname
                     // we wither remove key value pair (object member) or a value (array element)

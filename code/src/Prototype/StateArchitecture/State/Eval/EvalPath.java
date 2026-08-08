@@ -1,11 +1,12 @@
-package Prototype.StateArchitecture.State.Eval;
+package prototype.stateArchitecture.state.eval;
 
-import Prototype.PathAutomaton.PathAutomaton;
-import Prototype.StateArchitecture.State.State;
-import Prototype.StateArchitecture.Transducer.StackTransducer;
-import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+
+import prototype.stateArchitecture.state.State;
+import prototype.stateArchitecture.state.match.MatchPath;
+import prototype.stateArchitecture.transducer.Transducer;
+import prototype.pathAutomaton.PathAutomaton;
 
 import java.util.Stack;
 
@@ -118,7 +119,7 @@ public class EvalPath implements State {
      * Perform transducer transition to match state
      */
     private void transitionToMatch(byte matchType) {
-        transducer.setState(transducer.getMatchState());
+        transducer.setState(transducer.getMatchPathState());
         transducer.setPaused(true);
         transducer.setGenerating(false);
         transducer.matchType = matchType;

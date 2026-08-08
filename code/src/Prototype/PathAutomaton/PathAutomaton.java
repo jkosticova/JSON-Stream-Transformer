@@ -1,4 +1,4 @@
-package Prototype.PathAutomaton;
+package prototype.pathAutomaton;
 
 public interface PathAutomaton {
     public int transition(int currentState, String inputSegment);  

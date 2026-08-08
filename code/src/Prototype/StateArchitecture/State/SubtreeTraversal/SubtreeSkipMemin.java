@@ -1,9 +1,10 @@
-package Prototype.StateArchitecture.State.SubtreeTraversal;
+package prototype.stateArchitecture.state.subtreeTraversal;
 
-import Prototype.StateArchitecture.State.State;
-import Prototype.StateArchitecture.Transducer.BufferTransducer;
-import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonParser;
+
+import prototype.stateArchitecture.state.State;
+import prototype.stateArchitecture.transducer.BufferTransducer;
+import prototype.stateArchitecture.transducer.Transducer;
 
 /* 
     This state traverses the value (subtree) and puts it into the memory

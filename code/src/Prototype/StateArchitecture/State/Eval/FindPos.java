@@ -1,16 +1,17 @@
-package Prototype.StateArchitecture.State.Eval;
+package prototype.stateArchitecture.state.eval;
 
-import Prototype.PathAutomaton.PathAutomaton;
-import Prototype.SpecificationParser.AddTransformation;
-import Prototype.SpecificationParser.CopyTransformation;
-import Prototype.SpecificationParser.MoveTransformation;
-import Prototype.SpecificationParser.TransformationFormat;
-import Prototype.StateArchitecture.State.State;
-import Prototype.StateArchitecture.Transducer.StackTransducer;
-import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+
+import prototype.specificationParser.AddTransformation;
+import prototype.specificationParser.CopyTransformation;
+import prototype.specificationParser.MoveTransformation;
+import prototype.specificationParser.TransformationFormat;
+import prototype.stateArchitecture.state.State;
+import prototype.stateArchitecture.transducer.StackTransducer;
+import prototype.stateArchitecture.transducer.Transducer;
+import prototype.pathAutomaton.PathAutomaton;
 
 import java.io.IOException;
 import java.util.Stack;

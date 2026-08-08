@@ -1,10 +1,12 @@
-import Prototype.Mapper.Mapper;
-import Prototype.StateArchitecture.Transducer.BufferTransducer;
-import Prototype.StateArchitecture.Transducer.IdentityTransducer;
-import Prototype.StateArchitecture.Transducer.StackTransducer;
-import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import prototype.mapper.Mapper;
+import prototype.stateArchitecture.transducer.BufferTransducer;
+import prototype.stateArchitecture.transducer.IdentityTransducer;
+import prototype.stateArchitecture.transducer.StackTransducer;
+import prototype.stateArchitecture.transducer.Transducer;
+
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -16,9 +18,8 @@ import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-
-import static Prototype.Main.initializeMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static prototype.Main.initializeMapper;
 
 
 class TransformationTest {

@@ -1,13 +1,10 @@
-package Prototype.StateArchitecture.State.FreeTraversal;
+package prototype.stateArchitecture.state.freeTraversal;
 
-import Prototype.PathAutomaton.PathAutomaton;
-import Prototype.PathAutomaton.SimplePathAutomaton;
-import Prototype.StateArchitecture.State.State;
-import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 
-import java.util.Stack;
+
+import prototype.stateArchitecture.state.State;
+import prototype.stateArchitecture.transducer.Transducer;
 
 /*
     This state copies the input events to the memory.
