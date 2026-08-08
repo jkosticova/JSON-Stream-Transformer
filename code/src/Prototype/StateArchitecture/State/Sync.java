@@ -49,7 +49,7 @@ public class Sync implements State {
                 /* SOURCE MATCHED FIRST */
 
                 // handled in baseline state
-                
+
                 /* DESTINATION MATCHED FIRST */
 
                 // sprava sa podobne ako pri source first, ale tam bol source State gen
@@ -93,179 +93,28 @@ public class Sync implements State {
                     destinationState = destinationTransducer.getCurrentState();
                 }
             } else if (specification instanceof MoveTransformation) {
-                if ((sourceState instanceof Match) && (destinationState instanceof Eval)) {
-                    sourceTransducer.setState(new MeminSkip(sourceTransducer));
-                    sourceTransducer.setPaused(false);
-
-                    transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
-                } else if ((sourceState instanceof MeminSkip) && (destinationState instanceof Eval)) {
-                    try {
+                
+                
+                //       } else 
+                    {                    
+                    // fix paused state
+                    boolean srcPaused = sourceTransducer.getPaused();
+                    boolean destPaused = destinationTransducer.getPaused();
+                    if (!destPaused && !srcPaused) {
+                        // match ma side effect moveToNext!!!!
+                        sourceState.process(parser);
                         destinationState.process(parser);
 
-                        if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
-                            transducer.addToMemory();
-                            sourceTransducer.setState(new Gen(sourceTransducer));
-
-                            return;
+                    }
+                    // process the same token by the paused transducers only
+                    else {
+                        if (srcPaused) {
+                            sourceState.process(parser);
                         }
-
-                        Integer lastValue = sourceTransducer.getPaStack().pop();
-                        if (event.isStructEnd() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
-                            transducer.addToMemory();
-                            sourceTransducer.setState(new Gen(sourceTransducer));
-                            return;
+                        if (destPaused) {
+                            destinationState.process(parser);
                         }
-                        sourceTransducer.getPaStack().push(lastValue);
-                        sourceState.process(parser);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
                     }
-                } else if ((sourceState instanceof Gen) && (destinationState instanceof Match)) {
-
-                    if (((MoveTransformation) specification).getKey() != null) {
-                        destinationTransducer.setState(new FindPos(destinationTransducer));
-                    } else {
-                        destinationTransducer.setState(new FindPos(destinationTransducer));
-                    }
-                    generator.copyCurrentEvent(parser);
-                    destinationTransducer.setPaused(false);
-
-                } else if ((sourceState instanceof Gen) && (destinationState instanceof MatchPos)) {
-
-                    if (((MoveTransformation) specification).getKey() != null) {
-                        generator.writeFieldName(((MoveTransformation) specification).getKey());
-                    }
-
-                    destinationTransducer.setState(new Memout(destinationTransducer));
-                    destinationTransducer.setPaused(true);
-
-                } else if ((sourceState instanceof Eval) && (destinationState instanceof Match)) {
-
-                    if (((MoveTransformation) specification).getKey() != null) {
-                        destinationTransducer.setState(new FindPos(destinationTransducer));
-                    } else {
-                        destinationTransducer.setState(new FindPos(destinationTransducer));
-                    }
-                    generator.copyCurrentEvent(parser);
-
-                    destinationTransducer.setPaused(false);
-
-                } else if ((sourceState instanceof Eval) && (destinationState instanceof MatchPos)) {
-                    destinationTransducer.setState(new MeminSkip(destinationTransducer));
-                    // transducer.addToMemory();
-                    destinationTransducer.setPaused(true);
-
-                    transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
-                } else if ((sourceState instanceof Eval) && (destinationState instanceof MeminSkip)) {
-
-                    sourceState.process(parser);
-
-                    if (sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
-                        sourceTransducer.setState(new Match(sourceTransducer));
-                        destinationTransducer.setState(new Gen(destinationTransducer));
-
-                        sourceTransducer.setPaused(true);
-                        destinationTransducer.setPaused(false);
-                        return;
-                    }
-
-                    destinationState.process(parser);
-                    destinationTransducer.setPaused(false);
-
-                } else if ((sourceState instanceof Match) && (destinationState instanceof MeminSkip)) {
-
-                    if (((MoveTransformation) specification).getKey() == null) {
-                        generator.copyCurrentEvent(parser);
-                    } else {
-                        generator.writeFieldName(((MoveTransformation) specification).getKey());
-                    }
-
-                    sourceTransducer.setState(new Eval(sourceTransducer));
-                    destinationTransducer.setState(new Gen(destinationTransducer));
-
-                    sourceTransducer.setPaused(false);
-
-                } else if ((sourceState instanceof Match) && (destinationState instanceof Gen)) {
-
-                    if (((MoveTransformation) specification).getKey() != null) {
-                        generator.writeFieldName(((MoveTransformation) specification).getKey());
-                    }
-
-                    sourceTransducer.setState(new Eval(sourceTransducer));
-                    destinationTransducer.setState(new Gen(destinationTransducer));
-
-                    sourceTransducer.setPaused(false);
-
-                } else if ((sourceState instanceof Eval) && (destinationState instanceof Gen)) {
-
-                    if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
-                        sourceTransducer.setState(new Memout(sourceTransducer));
-                        sourceTransducer.setPaused(false);
-                        generator.copyCurrentEvent(parser);
-                        generator.flush();
-                        return;
-                    }
-
-                    Integer lastValue = sourceTransducer.getPaStack().pop();
-                    if (event.isStructEnd() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
-                        sourceTransducer.setState(new Memout(sourceTransducer));
-                        sourceTransducer.setPaused(false);
-
-                        transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
-
-                        generator.copyCurrentEvent(parser);
-                        generator.flush();
-                        return;
-                    }
-                    sourceTransducer.getPaStack().push(lastValue);
-
-                    Integer lastValueTmp = sourceTransducer.getPaStack().peek();
-                    sourceTransducer.getPaStack().push(lastValueTmp);
-                    sourceState.process(parser);
-                    Integer returnLastValue = sourceTransducer.getPaStack().pop();
-                    sourceTransducer.getPaStack().pop();
-                    sourceTransducer.getPaStack().push(returnLastValue);
-                    destinationState.process(parser);
-
-                } else if ((sourceState instanceof MeminSubtree) && (destinationState instanceof Gen)) {
-
-                    destinationState.process(parser);
-
-                    if (!event.isStructStart() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
-                        transducer.addToMemory();
-                        sourceTransducer.setState(new Memout(sourceTransducer));
-                        generator.copyCurrentEvent(parser);
-                        sourceTransducer.setPaused(false);
-
-                        generator.flush();
-
-                        transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
-
-                        return;
-                    }
-
-                    Integer lastValue = sourceTransducer.getPaStack().pop();
-                    if (event.isStructEnd() && sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
-                        transducer.addToMemory();
-                        sourceTransducer.setState(new Memout(sourceTransducer));
-                        generator.copyCurrentEvent(parser);
-                        sourceTransducer.setPaused(false);
-
-                        generator.flush();
-
-                        transducer.setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
-
-                        return;
-                    }
-                    sourceTransducer.getPaStack().push(lastValue);
-
-                    sourceState.process(parser);
-
-                    generator.flush();
-
-                } else {
-                    sourceState.process(parser);
-                    destinationState.process(parser);
                     sourceState = sourceTransducer.getCurrentState();
                     destinationState = destinationTransducer.getCurrentState();
                 }

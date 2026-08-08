@@ -2,6 +2,7 @@ package Prototype.StateArchitecture.State;
 
 import Prototype.SpecificationParser.AddTransformation;
 import Prototype.SpecificationParser.CopyTransformation;
+import Prototype.SpecificationParser.MoveTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -34,8 +35,7 @@ public class MatchPos implements State {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                transducer.setState(transducer.getGenState());                    
-                transducer.setPaused(true);
+                transducer.setState(transducer.getGenState());                                    
                 break;
             case "copy":
                 try {
@@ -47,11 +47,22 @@ public class MatchPos implements State {
                     e.printStackTrace();
                 }                
                 transducer.setState(transducer.getMemoutState());
-                transducer.setPaused(true);
                 break;
+            case "move":  
+                  try {
+                    if (((MoveTransformation) specification).getKey() != null) {
+                            generator.writeFieldName(((MoveTransformation) specification).getKey());
+                    }
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }                
+                transducer.setState(transducer.getMemoutState());                
+                break;              
             default:
                 break;
         }
+        transducer.setPaused(true);
     }
 
     @Override

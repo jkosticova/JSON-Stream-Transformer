@@ -84,12 +84,16 @@ public class Match implements State {
                 // source transducer goes to MeminSubtree
                 if (transducer.getTransducerRole() == Transducer.SRC_TRANSDUCER) {
                     transducer.setState(transducer.getMeminSkipSubtreeState());
+                    // don't generate fieldname
+                    // we wither remove key value pair (object member) or a value (array element)
                 }
                 // simple and dest transducer go to FindPos
                 else {
                     transducer.setState(transducer.getFindPosState());
+                    generateCurrentFieldName(parser);                
                 }    
-                generateCurrentFieldName(parser);                
+                
+                
                 break;            
             default:
                 break;        
