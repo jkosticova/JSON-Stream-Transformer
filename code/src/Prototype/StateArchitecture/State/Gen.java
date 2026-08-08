@@ -7,31 +7,20 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 
+/*
+    This state copies the input event to the output.
+    It does not manipulate the stack in case of stack transducer
+*/
 public class Gen implements State {
-    private final Transducer transducer;
-    private JsonGenerator generator;
+    private final Transducer transducer;    
 
     public Gen(Transducer transducer) {
-        this.transducer = transducer;
-        init();
-    }
-
-    private void init() {
-        this.generator = transducer.getGenerator();
+        this.transducer = transducer;    
     }
 
     @Override
     public void process(JsonParser parser) {
-        init();
-        transducer.setPaused(false);
-
-        /*try {
-            if (this.transducer.isGenerating()) {
-                generator.copyCurrentEvent(parser);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }*/
+        transducer.setPaused(false);    
     }
 
     @Override

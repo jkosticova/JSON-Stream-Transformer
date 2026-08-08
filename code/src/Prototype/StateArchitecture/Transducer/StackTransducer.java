@@ -55,15 +55,12 @@ public class StackTransducer extends Transducer {
         // stacks
         paStack = new Stack<>();        
         indexStack = new Stack<>();        
-        
-        
-        
                                                 
         pa = new SimplePathAutomaton(path);         
         paStack.push(INITIAL_PA_STATE);            
 
         initStates();        
-        
+
         currentState = evalState;                
     }
 

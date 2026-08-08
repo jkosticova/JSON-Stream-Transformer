@@ -85,6 +85,7 @@ public abstract class Transducer {
             }                    
     }
 
+    // states must be initalized outside constructor, because they need initialized fields from subclasses' constructors
     protected void initStates() {
         evalState = new Eval(this);
         matchState = new Match(this);
