@@ -103,7 +103,7 @@ Specifications are validated against the bundled JSON schema before execution.
 - `JsonExamples/SpecificationFiles/` contains sample specification files for each supported transformation type.
 
 ## AI usage
-Generated content is explicitly marked. It is mostly
+AI has been used for
 - exception handling
 - scripts for running benchmarks
 
