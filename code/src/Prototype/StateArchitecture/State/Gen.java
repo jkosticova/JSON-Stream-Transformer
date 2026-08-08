@@ -23,10 +23,6 @@ public class Gen implements State {
         transducer.setPaused(false);    
         transducer.setGenerating(true);
     }
-
-    @Override
-    public boolean isGenerating() {
-        return true;
-    }
+    
 
 }

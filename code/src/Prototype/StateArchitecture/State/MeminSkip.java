@@ -116,9 +116,5 @@ public class MeminSkip implements State {
 
         transducer.addToMemory();
     }
-
-    @Override
-    public boolean isGenerating() {
-        return false;
-    }
+   
 }

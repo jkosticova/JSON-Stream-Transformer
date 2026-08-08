@@ -20,9 +20,5 @@ public class Memout implements State {
         transducer.setState(transducer.getGenState());        
         transducer.setPaused(true);        
     }
-
-    @Override
-    public boolean isGenerating() {
-        return false;
-    }
+ 
 }

@@ -16,5 +16,4 @@ public interface State {
     byte VALUE_MATCH = 2;
 
     void process(JsonParser parser);    
-    boolean isGenerating();
 }

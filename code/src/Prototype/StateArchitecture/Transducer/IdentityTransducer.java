@@ -41,7 +41,7 @@ public class IdentityTransducer extends Transducer {
 
                 if (event == null) break;
                 currentState.process(parser);
-                if (this.getCurrentState().isGenerating()) {
+                if (this.getGenerating()) {
                     generator.copyCurrentEvent(parser);
                 }
             }

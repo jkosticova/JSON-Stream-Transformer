@@ -123,9 +123,5 @@ public class Sync implements State {
             e.printStackTrace();
         }
     }
-
-    @Override
-    public boolean isGenerating() {
-        return true;
-    }
+ 
 }

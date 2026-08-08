@@ -100,12 +100,7 @@ public class Match implements State {
         }
         transducer.processValueAfterMatch();                
     }
-
-    @Override
-    public boolean isGenerating() {
-        return false;
-    }
-
+    
     private void generateCurrentFieldName(JsonParser parser) {
         if (parser.currentToken().equals(JsonToken.FIELD_NAME)) {
             try {

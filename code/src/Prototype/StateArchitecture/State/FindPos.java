@@ -120,12 +120,7 @@ public class FindPos implements State {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public boolean isGenerating() {
-        return true;
-    }
+    }    
 
     private void transitionToMatchPos() {
         transducer.setState(transducer.getMatchPosState());

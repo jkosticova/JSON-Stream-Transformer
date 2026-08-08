@@ -52,13 +52,7 @@ public class SkipSubtree implements State {
                 throw new RuntimeException(e);
             }
         }        
-    }
+    }       
 
-    
-    @Override
-    public boolean isGenerating() {
-        return false;
-    }
 
-    
 }

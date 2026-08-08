@@ -65,9 +65,5 @@ public class MeminSubtree implements State {
         }        
         transducer.addToMemory();
     }        
-
-    @Override
-    public boolean isGenerating() {
-        return true;
-    }
+ 
 }
