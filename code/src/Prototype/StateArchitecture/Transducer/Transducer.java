@@ -10,6 +10,7 @@ import Prototype.StateArchitecture.State.FindPos;
 import Prototype.StateArchitecture.State.Gen;
 import Prototype.StateArchitecture.State.MatchPos;
 import Prototype.StateArchitecture.State.MeminSkip;
+import Prototype.StateArchitecture.State.MeminSkipSubtree;
 import Prototype.StateArchitecture.State.MeminSubtree;
 import Prototype.StateArchitecture.State.Memout;
 import Prototype.StateArchitecture.State.Match;
@@ -64,6 +65,7 @@ public abstract class Transducer {
     protected FindPos findPosState;
     protected MatchPos matchPosState;    
     protected MeminSubtree meminSubtreeState;    
+    protected MeminSkipSubtree meminSkipSubtreeState;    
     protected MeminSkip meminSkipState;    
     protected Memout memoutState;    
 
@@ -103,6 +105,7 @@ public abstract class Transducer {
         matchPosState = new MatchPos(this);        
         genState = new Gen(this);
         meminSubtreeState = new MeminSubtree(this);
+        meminSkipSubtreeState = new MeminSkipSubtree(this);
         meminSkipState = new MeminSkip(this);
         memoutState = new Memout(this);
     }
@@ -164,6 +167,10 @@ public abstract class Transducer {
     
     public State getMeminSubtreeState() {
         return this.meminSubtreeState;
+    }
+
+    public State getMeminSkipSubtreeState() {
+        return this.meminSkipSubtreeState;
     }
     
     public State getMeminSkipState() {

@@ -45,19 +45,14 @@ public class Sync implements State {
 
         try {
             if (specification instanceof CopyTransformation) {
-                /*
-                 * SOURCE MATCHED FIRST
-                 * SRC: eval -> match (sync) -> meminSubtree -> gen -> gen (sync) -> gen -> gen
-                 * DEST: eval -> eval -> eval -> eval -> match -> findPos -> matchPos -> memout
-                 * -> gen
-                 * -> gen
-                 */
-               /*  if ((sourceState instanceof Gen) && (destinationState instanceof MatchPos)) {
-                  */  
+                
+                /* SOURCE MATCHED FIRST */
 
-                    /* DESTINATION MATCHED FIRST */
+                // handled in baseline state
+                
+                /* DESTINATION MATCHED FIRST */
 
-                    // (Eval, MatchPos) -> (Eval, MeminDel)
+                // sprava sa podobne ako pri source first, ale tam bol source State gen
                 if ((sourceState instanceof Eval) && (destinationState instanceof MatchPos)) {
 
                     if (((CopyTransformation) specification).getKey() != null) {
@@ -65,109 +60,16 @@ public class Sync implements State {
                         generator.writeFieldName(key);
                     }
 
-                    destinationTransducer.setState(new MeminSkip(destinationTransducer));
-                    // transducer.addToMemory();
+                    destinationTransducer.setState(new MeminSkip(destinationTransducer));                    
                     destinationTransducer.setPaused(true);
-
-                    // (Eval, MeminDel) -> (Eval, MeminDel)
-                    // [fragment is in memory] -> (Match, Gen)
-                    /*
-                     * } else if ((sourceState instanceof Eval) && (destinationState instanceof
-                     * MeminSkip)) {
-                     * 
-                     * if (sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
-                     * sourceTransducer.setState(new Match(sourceTransducer));
-                     * destinationTransducer.setState(new Gen(destinationTransducer));
-                     * 
-                     * sourceTransducer.setPaused(true);
-                     * destinationTransducer.setPaused(false);
-                     * transducer.setPaused(sourceTransducer.getPaused() ||
-                     * destinationTransducer.getPaused());
-                     * return;
-                     * }
-                     * 
-                     * sourceState.process(parser);
-                     * destinationState.process(parser);
-                     * 
-                     * destinationTransducer.setPaused(false);
-                     * transducer.setPaused(sourceTransducer.getPaused() ||
-                     * destinationTransducer.getPaused());
-                     * 
-                     * generator.flush();
-                     */
-                    // (Match, Memindel)[fragment is in memory] -> (MeminSubtree, Gen)
+                
                 } else if ((sourceState instanceof Match) && (destinationState instanceof MeminSkip)) {
-                    sourceTransducer.setState(new MeminSubtree(sourceTransducer));
-                    destinationTransducer.setState(new Gen(destinationTransducer));
-
-                    // sme na matchi (fieldName) a potrebujeme ho este dat do pamate a posunut sa na
-                    // value
-                    // transducer.addToMemory();
-
-                    // posun sa na value a spracuj ju
+                    // !!! match vola move to value
+                    // fieldname musi dest transducer este dat do pamati cez meminSkip
+                    sourceState.process(parser);                    
+                    destinationTransducer.setState(destinationTransducer.getGenState());                    
                     sourceTransducer.setPaused(false);
-                    // posun sa na value a spracuj ju
                     destinationTransducer.setPaused(false);
-                    // (Match, Gen) -> (Memin, Gen)
-                    /*
-                     * } else if ((sourceState instanceof Match) && (destinationState instanceof
-                     * Gen)) {
-                     * sourceTransducer.setState(new MeminSubtree(sourceTransducer));
-                     * sourceTransducer.setPaused(false);
-                     * 
-                     * if (((CopyTransformation) specification).getKey() == null) {
-                     * transducer.addToMemory();
-                     * }
-                     * 
-                     * transducer.setPaused(sourceTransducer.getPaused() ||
-                     * destinationTransducer.getPaused());
-                     */
-                    // (Memin, Gen)
-                    /*
-                     * } else if ((sourceState instanceof MeminSubtree) && (destinationState
-                     * instanceof Gen)) {
-                     * 
-                     * destinationState.process(parser);
-                     * 
-                     * if (!event.isStructStart() &&
-                     * sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
-                     * transducer.addToMemory();
-                     * sourceTransducer.setState(new Memout(sourceTransducer));
-                     * generator.copyCurrentEvent(parser);
-                     * sourceTransducer.setPaused(false);
-                     * 
-                     * generator.flush();
-                     * 
-                     * transducer.setPaused(sourceTransducer.getPaused() ||
-                     * destinationTransducer.getPaused());
-                     * 
-                     * return;
-                     * }
-                     * 
-                     * Integer lastValue = sourceTransducer.getPaStack().pop();
-                     * if (event.isStructEnd() &&
-                     * sourcePa.isFinal(sourceTransducer.getPaStack().peek())) {
-                     * transducer.addToMemory();
-                     * sourceTransducer.setState(new Memout(sourceTransducer));
-                     * generator.copyCurrentEvent(parser);
-                     * sourceTransducer.setPaused(false);
-                     * 
-                     * generator.flush();
-                     * 
-                     * transducer.setPaused(sourceTransducer.getPaused() ||
-                     * destinationTransducer.getPaused());
-                     * 
-                     * return;
-                     * }
-                     * sourceTransducer.getPaStack().push(lastValue);
-                     * 
-                     * sourceState.process(parser);
-                     * 
-                     * transducer.setPaused(sourceTransducer.getPaused() ||
-                     * destinationTransducer.getPaused());
-                     * 
-                     * generator.flush();
-                     */
                 } else {                    
                     // fix paused state
                     boolean srcPaused = sourceTransducer.getPaused();

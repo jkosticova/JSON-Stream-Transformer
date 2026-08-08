@@ -65,10 +65,11 @@ public class Match implements State {
                 break;
             // add and copy yield the same code
             case "add":                       
-            case "copy":
+                transducer.setState(transducer.getFindPosState());
                 // generate current fieldname in case of object member match
-                generateCurrentFieldName(parser);
-                transducer.setPaused(false);
+                generateCurrentFieldName(parser);                
+                break;
+            case "copy":
                 // source transducer goes to MeminSubtree
                 if (transducer.getTransducerRole() == Transducer.SRC_TRANSDUCER) {
                     transducer.setState(transducer.getMeminSubtreeState());
@@ -77,9 +78,21 @@ public class Match implements State {
                 else {
                     transducer.setState(transducer.getFindPosState());
                 }    
+                generateCurrentFieldName(parser);                
                 break;
+            case "move":    
+                // source transducer goes to MeminSubtree
+                if (transducer.getTransducerRole() == Transducer.SRC_TRANSDUCER) {
+                    transducer.setState(transducer.getMeminSkipSubtreeState());
+                }
+                // simple and dest transducer go to FindPos
+                else {
+                    transducer.setState(transducer.getFindPosState());
+                }    
+                generateCurrentFieldName(parser);                
+                break;            
             default:
-                break;
+                break;        
         }
         transducer.processValueAfterMatch();                
     }

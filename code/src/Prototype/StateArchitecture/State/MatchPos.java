@@ -45,7 +45,7 @@ public class MatchPos implements State {
                 }
                 catch (IOException e) {
                     e.printStackTrace();
-                }
+                }                
                 transducer.setState(transducer.getMemoutState());
                 transducer.setPaused(true);
                 break;
