@@ -1,4 +1,4 @@
-package Prototype.StateArchitecture.State.SubtreeState;
+package Prototype.StateArchitecture.State.SubtreeTraversal;
 
 import Prototype.StateArchitecture.State.State;
 import Prototype.StateArchitecture.Transducer.BufferTransducer;
@@ -12,11 +12,11 @@ import com.fasterxml.jackson.core.JsonParser;
 */
 public class SubtreeSkipMemin implements State {
     private final Transducer transducer;    
-    private SubtreeProcess processSubtreeState;
+    private SubtreeProcess subtreeProcessState;
 
     public SubtreeSkipMemin(Transducer transducer) {
         this.transducer = transducer;
-        this.processSubtreeState = new SubtreeProcess();        
+        this.subtreeProcessState = new SubtreeProcess();        
     }
 
     @Override
@@ -24,12 +24,12 @@ public class SubtreeSkipMemin implements State {
         transducer.setPaused(false);                       
         transducer.setGenerating(false);
 
-        processSubtreeState.process(parser);
+        subtreeProcessState.process(parser);
         
         transducer.addToMemory();                
 
         // current token is last token of given subtree
-        if (processSubtreeState.isSubtreeEnd()) {
+        if (subtreeProcessState.isSubtreeEnd()) {
             try {                                
                 if (transducer.getFirstMatch() == BufferTransducer.SRC_FIRST) {
                     transducer.setState(transducer.getGenState());

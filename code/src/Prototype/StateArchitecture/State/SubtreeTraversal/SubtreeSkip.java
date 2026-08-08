@@ -1,4 +1,4 @@
-package Prototype.StateArchitecture.State.SubtreeState;
+package Prototype.StateArchitecture.State.SubtreeTraversal;
 
 import Prototype.StateArchitecture.State.State;
 import Prototype.StateArchitecture.Transducer.Transducer;

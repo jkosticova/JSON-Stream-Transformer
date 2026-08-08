@@ -1,4 +1,4 @@
-package Prototype.StateArchitecture.State.FreeTraversalState;
+package Prototype.StateArchitecture.State.FreeTraversal;
 
 import Prototype.PathAutomaton.PathAutomaton;
 import Prototype.PathAutomaton.SimplePathAutomaton;

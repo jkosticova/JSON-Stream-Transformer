@@ -1,4 +1,4 @@
-package Prototype.StateArchitecture.State.SubtreeState;
+package Prototype.StateArchitecture.State.SubtreeTraversal;
 
 import Prototype.PathAutomaton.PathAutomaton;
 import Prototype.PathAutomaton.SimplePathAutomaton;
@@ -21,41 +21,27 @@ import java.util.Stack;
 */
 public class SubtreeMemin implements State {
     private final Transducer transducer;    
-    private Stack<Integer> paStack;
-    private Stack<Integer> indexStack;        
-    private int depth;
-
+    private SubtreeProcess subtreeProcessState;
+    
     public SubtreeMemin(Transducer transducer) {
         this.transducer = transducer;
-        init();
+        this.subtreeProcessState = new SubtreeProcess();
+    
     }
 
-    private void init() {        
-        this.paStack = this.transducer.getPaStack();
-        this.indexStack = this.transducer.getIndexStack();        
-        this.depth = 0;
-    }
+    
 
     @Override
     public void process(JsonParser parser) {        
         transducer.setPaused(false);                       
         transducer.setGenerating(true);
+
+        subtreeProcessState.process(parser);
         
-        switch (parser.currentToken()) {
-            case START_OBJECT:
-            case START_ARRAY:
-                depth++;
-                break;
-            case END_OBJECT:
-            case END_ARRAY:
-                depth--;
-                break;
-            default:
-                break;
-        }
+        transducer.addToMemory();
 
         // current token is last token of given subtree
-        if (depth == 0) {
+        if (subtreeProcessState.isSubtreeEnd()) {
             try {
                 // also last token of given subtree must be added to the memory
                 //transducer.addToMemory();                
@@ -67,14 +53,11 @@ public class SubtreeMemin implements State {
                 }
                 else {
                     //TODO handle error
-                }
-                //transducer.setPaused(false);                
-                //return;
+                }               
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }        
-        transducer.addToMemory();
+        }                
     }        
  
 }

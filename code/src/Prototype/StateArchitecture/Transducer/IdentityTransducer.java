@@ -3,7 +3,7 @@ package Prototype.StateArchitecture.Transducer;
 import Prototype.Mapper.SpecificationMapper;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.State.State;
-import Prototype.StateArchitecture.State.FreeTraversalState.Gen;
+import Prototype.StateArchitecture.State.FreeTraversal.Gen;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;

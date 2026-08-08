@@ -1,4 +1,4 @@
-package Prototype.StateArchitecture.State.FreeTraversalState;
+package Prototype.StateArchitecture.State.FreeTraversal;
 
 import Prototype.StateArchitecture.State.State;
 import Prototype.StateArchitecture.Transducer.Transducer;

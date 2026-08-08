@@ -11,12 +11,12 @@ import Prototype.StateArchitecture.State.MatchPos;
 import Prototype.StateArchitecture.State.Memout;
 import Prototype.StateArchitecture.State.Match;
 import Prototype.StateArchitecture.State.State;
-import Prototype.StateArchitecture.State.FreeTraversalState.Gen;
-import Prototype.StateArchitecture.State.FreeTraversalState.MeminSkip;
-import Prototype.StateArchitecture.State.SubtreeState.SubtreeGen;
-import Prototype.StateArchitecture.State.SubtreeState.SubtreeSkipMemin;
-import Prototype.StateArchitecture.State.SubtreeState.SubtreeMemin;
-import Prototype.StateArchitecture.State.SubtreeState.SubtreeSkip;
+import Prototype.StateArchitecture.State.FreeTraversal.Gen;
+import Prototype.StateArchitecture.State.FreeTraversal.MeminSkip;
+import Prototype.StateArchitecture.State.SubtreeTraversal.SubtreeGen;
+import Prototype.StateArchitecture.State.SubtreeTraversal.SubtreeMemin;
+import Prototype.StateArchitecture.State.SubtreeTraversal.SubtreeSkip;
+import Prototype.StateArchitecture.State.SubtreeTraversal.SubtreeSkipMemin;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
