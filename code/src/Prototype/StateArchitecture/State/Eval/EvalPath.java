@@ -6,8 +6,10 @@ import com.fasterxml.jackson.core.JsonToken;
 import prototype.stateArchitecture.state.State;
 import prototype.stateArchitecture.state.match.MatchPath;
 import prototype.stateArchitecture.transducer.Transducer;
+import prototype.stateArchitecture.transducer.TransducerException;
 import prototype.pathAutomaton.PathAutomaton;
 
+import java.io.IOException;
 import java.util.Stack;
 
 public class EvalPath implements State {
@@ -28,90 +30,100 @@ public class EvalPath implements State {
         transducer.setGenerating(true);
         transducer.setPaused(false);
         int paState;
-        try {
-            JsonToken event = parser.currentToken();
-            switch (event) {
-                case START_ARRAY:
-                    if (paStack.peek().equals(ARR_MARKER)) {
-                        handleArrayElement();
-                    }
-                    if (pa.isFinal(paStack.peek())) {
-                        transitionToMatch(VALUE_MATCH);
-                        indexStack.push(0);
-                        paStack.push(ARR_MARKER);
-                        return;
-                    }
+
+        JsonToken event = parser.currentToken();
+        switch (event) {
+            case START_ARRAY:
+                if (paStack.peek().equals(ARR_MARKER)) {
+                    handleArrayElement();
+                }
+                if (pa.isFinal(paStack.peek())) {
+                    transitionToMatch(VALUE_MATCH);
                     indexStack.push(0);
                     paStack.push(ARR_MARKER);
-                    break;
-                case END_ARRAY:
-                    indexStack.pop();
-                    paStack.pop();
-                    paStack.pop();
+                    return;
+                }
+                indexStack.push(0);
+                paStack.push(ARR_MARKER);
+                break;
+            case END_ARRAY:
+                indexStack.pop();
+                paStack.pop();
+                paStack.pop();
 
-                    break;
-                case START_OBJECT:
-                    if (paStack.peek().equals(ARR_MARKER)) {
-                        handleArrayElement();
-                    }
-                    if (pa.isFinal(paStack.peek())) {
-                        transitionToMatch(VALUE_MATCH);
-                        paStack.push(OBJ_MARKER);
-                        return;
-                    }
+                break;
+            case START_OBJECT:
+                if (paStack.peek().equals(ARR_MARKER)) {
+                    handleArrayElement();
+                }
+                if (pa.isFinal(paStack.peek())) {
+                    transitionToMatch(VALUE_MATCH);
                     paStack.push(OBJ_MARKER);
+                    return;
+                }
+                paStack.push(OBJ_MARKER);
 
-                    break;
-                case END_OBJECT:
-                    if (!paStack.peek().equals(ARR_MARKER)) {
-                        paStack.pop();
-                    }
-                    if (!paStack.peek().equals(ARR_MARKER)) {
-                        paStack.pop();
-                    }
+                break;
+            case END_OBJECT:
+                if (!paStack.peek().equals(ARR_MARKER)) {
+                    paStack.pop();
+                }
+                if (!paStack.peek().equals(ARR_MARKER)) {
+                    paStack.pop();
+                }
 
-                    break;
-                case FIELD_NAME:
-                    // field name after start object or start array
-                    if (paStack.peek() < 0) {
-                        int marker = paStack.pop(); // pop OBJ_MARKER
-                        paState = paStack.peek();
-                        paStack.push(marker); // push OBJ_MARKER back
-                    }
-                    // field name within object
-                    else {
-                        paState = paStack.peek();
-                    }
-                    paStack.push(pa.transition(paState, parser.getText()));
+                break;
+            case FIELD_NAME:
+                // field name after start object or start array
+                if (paStack.peek() < 0) {
+                    int marker = paStack.pop(); // pop OBJ_MARKER
+                    paState = paStack.peek();
+                    paStack.push(marker); // push OBJ_MARKER back
+                }
+                // field name within object
+                else {
+                    paState = paStack.peek();
+                }
 
-                    // fieldname match
-                    if (pa.isFinal(paStack.peek())) {
-                        transitionToMatch(FIELDNAME_MATCH);
-                        return;
-                    }
+                // getText() is the only call in this method that declares a
+                // checked exception (IOException, from the underlying
+                // stream) - scoped narrowly here so a genuine I/O failure
+                // is reported clearly, without a broad try/catch hiding
+                // unrelated bugs (e.g. stack underflow) elsewhere in the
+                // switch under a generic RuntimeException.
+                String fieldName;
+                try {
+                    fieldName = parser.getText();
+                } catch (IOException e) {
+                    throw new TransducerException("Failed to read field name during path evaluation", e);
+                }
 
-                    break;
-                case VALUE_FALSE:
-                case VALUE_NULL:
-                case VALUE_TRUE:
-                case VALUE_STRING:
-                case VALUE_NUMBER_INT:
-                case VALUE_NUMBER_FLOAT:
-                    if (paStack.peek().equals(ARR_MARKER)) {
-                        handleArrayElement();
-                    }
-                    if (pa.isFinal(paStack.peek())) {
-                        transitionToMatch(VALUE_MATCH);
+                paStack.push(pa.transition(paState, fieldName));
 
-                        return;
-                    }
+                // fieldname match
+                if (pa.isFinal(paStack.peek())) {
+                    transitionToMatch(FIELDNAME_MATCH);
+                    return;
+                }
 
-                    paStack.pop(); // pop new state in case of array or fieldname
-                    break;
-            }
+                break;
+            case VALUE_FALSE:
+            case VALUE_NULL:
+            case VALUE_TRUE:
+            case VALUE_STRING:
+            case VALUE_NUMBER_INT:
+            case VALUE_NUMBER_FLOAT:
+                if (paStack.peek().equals(ARR_MARKER)) {
+                    handleArrayElement();
+                }
+                if (pa.isFinal(paStack.peek())) {
+                    transitionToMatch(VALUE_MATCH);
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+                    return;
+                }
+
+                paStack.pop(); // pop new state in case of array or fieldname
+                break;
         }
     }
 
