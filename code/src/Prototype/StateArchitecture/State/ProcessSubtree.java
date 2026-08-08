@@ -2,8 +2,11 @@ package Prototype.StateArchitecture.State;
 
 import com.fasterxml.jackson.core.JsonParser;
 
-import Prototype.StateArchitecture.Transducer.Transducer;
 
+/*
+ We use a simple counter for traversing the subtree.
+ Alternatively, the stack could be used (this would align with the formal algorithm).
+*/
 public class ProcessSubtree implements State {    
     private int depth;
 
@@ -25,13 +28,7 @@ public class ProcessSubtree implements State {
                 break;
             default:
                 break;
-        }
-        // current token is last token of given subtree
-        //if (depth == 0) {
-        //    return;
-        //}
-            
-                
+        }                                    
     }   
     
     public boolean isSubtreeEnd() {

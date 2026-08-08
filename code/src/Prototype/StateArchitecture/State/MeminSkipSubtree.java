@@ -12,23 +12,20 @@ import com.fasterxml.jackson.core.JsonParser;
 */
 public class MeminSkipSubtree implements State {
     private final Transducer transducer;    
-    private int depth;
+    private ProcessSubtree processSubtreeState;
 
     public MeminSkipSubtree(Transducer transducer) {
         this.transducer = transducer;
-        init();
+        this.processSubtreeState = new ProcessSubtree();        
     }
 
-    private void init() {        
-        this.depth = 0;
-    }
 
     @Override
     public void process(JsonParser parser) {        
         transducer.setPaused(false);                       
         transducer.setGenerating(false);
-        
-        switch (parser.currentToken()) {
+        processSubtreeState.process(parser);
+        /*switch (parser.currentToken()) {
             case START_OBJECT:
             case START_ARRAY:
                 depth++;
@@ -39,13 +36,11 @@ public class MeminSkipSubtree implements State {
                 break;
             default:
                 break;
-        }
-
+        }*/
+        transducer.addToMemory();                
         // current token is last token of given subtree
-        if (depth == 0) {
-            try {
-                // also last token of given subtree must be added to the memory
-                transducer.addToMemory();                
+        if (processSubtreeState.isSubtreeEnd()) {
+            try {                                
                 if (transducer.getFirstMatch() == BufferTransducer.SRC_FIRST) {
                     transducer.setState(transducer.getGenState());
                 }
@@ -55,13 +50,13 @@ public class MeminSkipSubtree implements State {
                 else {
                     //TODO handle error
                 }
-                transducer.setPaused(false);                
-                return;
+                //transducer.setPaused(false);                
+                
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }        
-        transducer.addToMemory();
+        //transducer.addToMemory();
     }        
     
 }
