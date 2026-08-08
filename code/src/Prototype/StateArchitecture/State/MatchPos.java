@@ -67,7 +67,15 @@ public class MatchPos implements State {
                 catch (IOException e) {
                     e.printStackTrace();
                 }                
-                transducer.setState(transducer.getMemoutState());                
+                 if (transducer.getFirstMatch() == BufferTransducer.SRC_FIRST) {
+                    transducer.setState(transducer.getMemoutState());
+                }
+                else if (transducer.getFirstMatch() == BufferTransducer.DEST_FIRST) {
+                    transducer.setState(transducer.getMeminSkipState());
+                }
+                else {
+                    // TODO report error
+                }              
                 break;              
             default:
                 break;

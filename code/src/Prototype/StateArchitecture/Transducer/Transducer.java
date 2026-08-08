@@ -8,6 +8,7 @@ import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.State.Eval;
 import Prototype.StateArchitecture.State.FindPos;
 import Prototype.StateArchitecture.State.Gen;
+import Prototype.StateArchitecture.State.GenSubtree;
 import Prototype.StateArchitecture.State.MatchPos;
 import Prototype.StateArchitecture.State.MeminSkip;
 import Prototype.StateArchitecture.State.MeminSkipSubtree;
@@ -61,7 +62,8 @@ public abstract class Transducer {
     protected Eval evalState;
     protected Match matchState;
     protected Gen genState;
-    protected SkipSubtree skipSubtree;
+    protected SkipSubtree skipSubtreeState;
+    protected GenSubtree genSubtreeState;
     protected FindPos findPosState;
     protected MatchPos matchPosState;    
     protected MeminSubtree meminSubtreeState;    
@@ -100,7 +102,8 @@ public abstract class Transducer {
     protected void initStates() {
         evalState = new Eval(this);
         matchState = new Match(this);
-        skipSubtree = new SkipSubtree(this);
+        skipSubtreeState = new SkipSubtree(this);
+        genSubtreeState = new GenSubtree(this);
         findPosState = new FindPos(this);
         matchPosState = new MatchPos(this);        
         genState = new Gen(this);
@@ -154,7 +157,11 @@ public abstract class Transducer {
     }
     
     public State getSkipSubtreeState() {
-        return this.skipSubtree;
+        return this.skipSubtreeState;
+    }
+
+    public State getGenSubtreeState() {
+        return this.genSubtreeState;
     }
     
     public State getFindPosState() {

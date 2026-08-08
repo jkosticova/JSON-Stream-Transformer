@@ -93,7 +93,12 @@ public class Match implements State {
             case "move":    
                 // source transducer goes to MeminSubtree
                 if (transducer.getTransducerRole() == Transducer.SRC_TRANSDUCER) {
-                    transducer.setState(transducer.getMeminSkipSubtreeState());
+                    if (transducer.getFirstMatch() == BufferTransducer.SRC_FIRST) {
+                        transducer.setState(transducer.getMeminSkipSubtreeState());
+                    }
+                    else if (transducer.getFirstMatch() == BufferTransducer.DEST_FIRST) {
+                        transducer.setState(transducer.getGenSubtreeState());
+                    }
                     // don't generate fieldname
                     // we wither remove key value pair (object member) or a value (array element)
                 }
