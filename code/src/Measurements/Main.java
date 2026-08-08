@@ -5,130 +5,106 @@ import Prototype.StateArchitecture.Transducer.BufferTransducer;
 import Prototype.StateArchitecture.Transducer.IdentityTransducer;
 import Prototype.StateArchitecture.Transducer.StackTransducer;
 import Prototype.StateArchitecture.Transducer.Transducer;
-//import jdk.jfr.*;
-//import jdk.jfr.consumer.RecordedEvent;
-//import jdk.jfr.consumer.RecordingFile;
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
 import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-import java.time.Duration;
-import java.util.Scanner;
-
 import java.nio.file.Path;
-
-import java.lang.management.ManagementFactory;
+import java.nio.file.StandardOpenOption;
 
 public class Main {
-    private static final com.sun.management.ThreadMXBean bean = (com.sun.management.ThreadMXBean) ManagementFactory
-            .getThreadMXBean();
+
+    private static final com.sun.management.ThreadMXBean bean =
+            (com.sun.management.ThreadMXBean) ManagementFactory.getThreadMXBean();
 
     public static void main(String[] args) throws Exception {
         int runRounds = 1;
         int setupRounds = 500;
-        int evaluationRounds = 500;        
+        int evaluationRounds = 500;
+
         String transfType;
         String input;
-        String output;
-        Path result;
         String specificationName = null;
         String inputName;
         Mapper mapper = null;
+
         Path csv = Path.of("JsonExamples/Evaluation/results.csv");
+
         initCsv(csv);
+
         System.gc();
         Thread.sleep(100);
 
         if (args.length == 2) {
             mapper = initializeMapper(args[0]);
             input = args[1];
+
             transfType = mapper.getTransformationFormat().getType();
-            specificationName = args[0].substring(args[0].lastIndexOf("\\") + 1, args[0].lastIndexOf("."));
-            inputName = input.substring(input.lastIndexOf("\\") + 1, input.lastIndexOf("."));
-      
-        } else {// {if (args.length == 1) {
+
+            specificationName = args[0].substring(
+                    args[0].lastIndexOf("\\") + 1,
+                    args[0].lastIndexOf(".")
+            );
+
+            inputName = input.substring(
+                    input.lastIndexOf("\\") + 1,
+                    input.lastIndexOf(".")
+            );
+        } else {
             transfType = "baseline";
             input = args[0];
-            inputName = input.substring(input.lastIndexOf("\\") + 1, input.lastIndexOf("."));
-            
+
+            inputName = input.substring(
+                    input.lastIndexOf("\\") + 1,
+                    input.lastIndexOf(".")
+            );
         }
-        
 
         for (int rr = 0; rr < runRounds; rr++) {
-            //Files.writeString(result, "Run " + (rr + 1) + " of " + runRounds + "\n", StandardOpenOption.APPEND);
+
+            long bytes;
 
             if (transfType.equals("copy") || transfType.equals("move")) {
-                // runBufferTransducerWithOutput(input, mapper, output);
-
-                long bytes = evaluateBufferTransducerRuns(setupRounds, evaluationRounds, mapper, input);
-
-                appendCsv(csv,
-                        rr,
-                        specificationName,
-                        transfType,
-                        input,
+                bytes = evaluateBufferTransducerRuns(
                         setupRounds,
                         evaluationRounds,
-                        bytes);
-                continue;
-
-                // outputTotalBytes(transfType, evaluationRounds, result);
-            }
-            if (transfType.equals("baseline")) {
-                long bytes = evaluateJacksonBaselineRuns(setupRounds, evaluationRounds, input);
-                
-                appendCsv(csv,
-                        rr,
-                        specificationName,
-                        transfType,
-                        input,
+                        mapper,
+                        input
+                );
+            } else if (transfType.equals("baseline")) {
+                bytes = evaluateJacksonBaselineRuns(
                         setupRounds,
                         evaluationRounds,
-                        bytes);
-                continue;
+                        input
+                );
+            } else {
+                bytes = evaluateTransducerRuns(
+                        setupRounds,
+                        evaluationRounds,
+                        mapper,
+                        input
+                );
             }
-            // runTransducerWithOutput(input, mapper, output);
 
-            long bytes = evaluateTransducerRuns(setupRounds, evaluationRounds, mapper, input);
-
-            appendCsv(csv,
+            appendCsv(
+                    csv,
                     rr,
                     specificationName,
                     transfType,
                     input,
                     setupRounds,
                     evaluationRounds,
-                    bytes);
+                    bytes
+            );
         }
-    }
-
-    private static void runBufferTransducerWithOutput(String input, Mapper mapper, String output) throws IOException {
-        InputStream inputStream = new FileInputStream(input);
-        OutputStream outputStream = new FileOutputStream(output);
-
-        BufferTransducer bufferTransducer = new BufferTransducer(mapper, inputStream, outputStream);
-
-        bufferTransducer.process();
-
-        inputStream.close();
-        outputStream.close();
-    }
-
-    private static void runTransducerWithOutput(String input, Mapper mapper, String output) throws IOException {
-        InputStream inputStream = new FileInputStream(input);
-        OutputStream outputStream = new FileOutputStream(output);
-
-        Transducer transducer = getTransducerFromType(mapper, inputStream, outputStream);
-
-        transducer.process();
-
-        inputStream.close();
-        outputStream.close();
     }
 
     private static long evaluateTransducerRuns(
@@ -137,31 +113,29 @@ public class Main {
             Mapper mapper,
             String input) throws IOException {
 
-        // -------------------------
-        // WARMUP (no measurement)
-        // -------------------------
         for (int i = 0; i < setupRounds; i++) {
             try (InputStream inputStream = new FileInputStream(input);
                     OutputStream outputStream = OutputStream.nullOutputStream()) {
 
-                Transducer transducer = getTransducerFromType(mapper, inputStream, outputStream);
+                Transducer transducer =
+                        getTransducerFromType(mapper, inputStream, outputStream);
+
                 transducer.process();
             }
         }
 
         long totalBytes = 0;
 
-        // -------------------------
-        // MEASUREMENT PHASE
-        // -------------------------
         for (int i = 0; i < evaluationRuns; i++) {
-
             long bytes = measureAllocatedBytes(() -> {
                 try (InputStream inputStream = new FileInputStream(input);
                         OutputStream outputStream = OutputStream.nullOutputStream()) {
 
-                    Transducer transducer = getTransducerFromType(mapper, inputStream, outputStream);
+                    Transducer transducer =
+                            getTransducerFromType(mapper, inputStream, outputStream);
+
                     transducer.process();
+
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -183,21 +157,25 @@ public class Main {
             try (InputStream inputStream = new FileInputStream(input);
                     OutputStream outputStream = OutputStream.nullOutputStream()) {
 
-                BufferTransducer t = new BufferTransducer(mapper, inputStream, outputStream);
-                t.process();
+                BufferTransducer transducer =
+                        new BufferTransducer(mapper, inputStream, outputStream);
+
+                transducer.process();
             }
         }
 
         long totalBytes = 0;
 
         for (int i = 0; i < evaluationRuns; i++) {
-
             long bytes = measureAllocatedBytes(() -> {
                 try (InputStream inputStream = new FileInputStream(input);
                         OutputStream outputStream = OutputStream.nullOutputStream()) {
 
-                    BufferTransducer t = new BufferTransducer(mapper, inputStream, outputStream);
-                    t.process();
+                    BufferTransducer transducer =
+                            new BufferTransducer(mapper, inputStream, outputStream);
+
+                    transducer.process();
+
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -209,15 +187,16 @@ public class Main {
         return totalBytes;
     }
 
-    private static Transducer getTransducerFromType(Mapper mapper, InputStream inputStream, OutputStream outputStream) {
-        Transducer transducer;
+    private static Transducer getTransducerFromType(
+            Mapper mapper,
+            InputStream inputStream,
+            OutputStream outputStream) {
+
         if (mapper.getTransformationFormat().getType().equals("identity")) {
-            transducer = new IdentityTransducer(mapper, inputStream, outputStream);
-        } else {
-            transducer = new StackTransducer(mapper, inputStream, outputStream);
+            return new IdentityTransducer(mapper, inputStream, outputStream);
         }
 
-        return transducer;
+        return new StackTransducer(mapper, inputStream, outputStream);
     }
 
     public static Mapper initializeMapper(String specificationFileName) {
@@ -235,7 +214,8 @@ public class Main {
         for (int i = 0; i < setupRounds; i++) {
             try (InputStream inputStream = new FileInputStream(input);
                     JsonParser parser = factory.createParser(inputStream);
-                    JsonGenerator generator = factory.createGenerator(OutputStream.nullOutputStream())) {
+                    JsonGenerator generator =
+                            factory.createGenerator(OutputStream.nullOutputStream())) {
 
                 while (parser.nextToken() != null) {
                     generator.copyCurrentEvent(parser);
@@ -246,11 +226,11 @@ public class Main {
         long totalBytes = 0;
 
         for (int i = 0; i < evaluationRuns; i++) {
-
             long bytes = measureAllocatedBytes(() -> {
                 try (InputStream inputStream = new FileInputStream(input);
                         JsonParser parser = factory.createParser(inputStream);
-                        JsonGenerator generator = factory.createGenerator(OutputStream.nullOutputStream())) {
+                        JsonGenerator generator =
+                                factory.createGenerator(OutputStream.nullOutputStream())) {
 
                     while (parser.nextToken() != null) {
                         generator.copyCurrentEvent(parser);
@@ -268,16 +248,18 @@ public class Main {
     }
 
     private static void initCsv(Path csv) throws IOException {
-        File file = new File("file.txt");
-        if (!file.exists()) {
-            Files.writeString(csv,
-                    "run,algorithm,specification,input,setupRounds,evaluationRounds,allocationBytes,bytesPerRun\n",
+        if (!Files.exists(csv)) {
+            Files.writeString(
+                    csv,
+                    "run,algorithm,specification,input,setupRounds,"
+                            + "evaluationRounds,allocationBytes,bytesPerRun\n",
                     StandardOpenOption.CREATE
-                    );
+            );
         }
     }
 
-    private static void appendCsv(Path csv,
+    private static void appendCsv(
+            Path csv,
             int run,
             String spec,
             String algorithm,
@@ -286,31 +268,34 @@ public class Main {
             int evaluationRounds,
             long bytes) throws IOException {
 
-        long perRun = (long) bytes / evaluationRounds;        
-        String line = run + "," +
-                algorithm + "," +
-                spec + "," +
-                input + "," +
-                setupRounds + "," +
-                evaluationRounds + "," +
-                bytes + "," +
-                perRun + "\n";
+        long perRun = bytes / evaluationRounds;
 
-        Files.writeString(csv, line,
+        String line = run + ","
+                + algorithm + ","
+                + spec + ","
+                + input + ","
+                + setupRounds + ","
+                + evaluationRounds + ","
+                + bytes + ","
+                + perRun + "\n";
+
+        Files.writeString(
+                csv,
+                line,
                 StandardOpenOption.CREATE,
-                StandardOpenOption.APPEND);
+                StandardOpenOption.APPEND
+        );
     }
 
     private static long measureAllocatedBytes(Runnable task) {
-        long tid = Thread.currentThread().threadId();
+        long threadId = Thread.currentThread().threadId();
 
-        long before = bean.getThreadAllocatedBytes(tid);
+        long before = bean.getThreadAllocatedBytes(threadId);
 
         task.run();
 
-        long after = bean.getThreadAllocatedBytes(tid);
+        long after = bean.getThreadAllocatedBytes(threadId);
 
         return after - before;
     }
-
 }
