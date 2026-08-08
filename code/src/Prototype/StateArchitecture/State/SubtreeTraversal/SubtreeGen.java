@@ -10,7 +10,9 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 /*
-This state generates the current subtree to the output
+  This state generates the current subtree to the output
+  Entering token: the start of given value (START_ARRAY, START_OBJECT, literal value)
+  Leaving token: one token after the end of given value
 */
 public class SubtreeGen implements State {
     private final Transducer transducer;

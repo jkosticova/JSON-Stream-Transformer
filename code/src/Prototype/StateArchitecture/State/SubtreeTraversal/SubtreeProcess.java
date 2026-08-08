@@ -6,6 +6,7 @@ import Prototype.StateArchitecture.State.State;
 
 
 /*
+ Helper state for all subtree traversal states - traverser the subtree.
  We use a simple counter for traversing the subtree.
  Alternatively, the stack could be used (this would align with the formal algorithm).
 */
