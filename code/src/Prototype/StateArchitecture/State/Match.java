@@ -64,8 +64,7 @@ public class Match implements State {
                 transducer.setState(transducer.getSkipSubtreeState());
                 break;
             // add and copy yield the same code
-            case "add":           
-            // this applies only on destination match, source match is handled in Sync state
+            case "add":                       
             case "copy":
                 // generate current fieldname in case of object member match
                 generateCurrentFieldName(parser);

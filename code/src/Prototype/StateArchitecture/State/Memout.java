@@ -15,10 +15,10 @@ public class Memout implements State {
     }
 
     @Override
-    public void process(JsonParser parser) {
-        transducer.setPaused(false);        
+    public void process(JsonParser parser) {        
         transducer.getFromMemory();            
         transducer.setState(transducer.getGenState());        
+        transducer.setPaused(true);        
     }
 
     @Override

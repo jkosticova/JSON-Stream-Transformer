@@ -114,4 +114,20 @@ public class BufferTransducer {
         return true;
     }
 
+     public void moveToValue(byte transducerRole) {                
+        // process current token by the other transducer if not paused
+        if (transducerRole == Transducer.SRC_TRANSDUCER && !destinationTransducer.getPaused()) {
+            destinationTransducer.getCurrentState().process(parser);            
+        }
+        else if (transducerRole == Transducer.DEST_TRANSDUCER && !sourceTransducer.getPaused()) {
+            sourceTransducer.getCurrentState().process(parser);
+        }
+        try {
+            parser.nextToken();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+     }   
+
 }

@@ -190,20 +190,22 @@ public class Sync implements State {
                      * 
                      * generator.flush();
                      */
-                } else {
-                    // process next token
-                    if (!destinationTransducer.getPaused() && !sourceTransducer.getPaused()) {
-                        // dest urobi moveToNext pri meminSubtree
-                        destinationState.process(parser);
+                } else {                    
+                    // fix paused state
+                    boolean srcPaused = sourceTransducer.getPaused();
+                    boolean destPaused = destinationTransducer.getPaused();
+                    if (!destPaused && !srcPaused) {
+                        // match ma side effect moveToNext!!!!
                         sourceState.process(parser);
+                        destinationState.process(parser);
 
                     }
                     // process the same token by the paused transducers only
                     else {
-                        if (sourceTransducer.getPaused()) {
+                        if (srcPaused) {
                             sourceState.process(parser);
                         }
-                        if (destinationTransducer.getPaused()) {
+                        if (destPaused) {
                             destinationState.process(parser);
                         }
                     }
