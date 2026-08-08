@@ -27,11 +27,7 @@ public class SkipSubtree implements State {
     @Override
     public void process(JsonParser parser) {        
         transducer.setPaused(false);        
-        
-        // explicit move to value in case of fieldname match
-        if (this.depth == 0 && parser.getCurrentToken() == JsonToken.FIELD_NAME) {
-            moveToValue(parser);
-        }
+        transducer.setGenerating(false);                
         
         switch (parser.currentToken()) {
             case START_OBJECT:
@@ -48,11 +44,9 @@ public class SkipSubtree implements State {
 
         // current token is last token of given subtree
         if (depth == 0) {
-            try {
-                // last token of given subtree must be skipped
-                parser.nextToken(); 
+            try {                
                 transducer.setState(transducer.getGenState());
-                transducer.setPaused(false);                
+                transducer.setPaused(false);                                
                 return;
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -66,18 +60,5 @@ public class SkipSubtree implements State {
         return false;
     }
 
-    private void moveToValue(JsonParser parser) {
-           try {
-            parser.nextToken(); // move to value and if it is a structure, process opening token
-            if (parser.currentToken() == JsonToken.START_ARRAY) {
-                paStack.push(ARR_MARKER);
-                indexStack.push(0);
-            }
-            else if (parser.currentToken() == JsonToken.START_OBJECT) {
-                paStack.push(OBJ_MARKER);
-            }
-           } catch (IOException e) {            
-            e.printStackTrace();
-           } 
-    }
+    
 }

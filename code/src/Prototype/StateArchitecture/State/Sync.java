@@ -109,12 +109,12 @@ public class Sync implements State {
                     sourceTransducer.setState(new MeminSubtree(sourceTransducer));
                     destinationTransducer.setState(new Gen(destinationTransducer));
                     
-                    // sme na matchi (fieldName) a potrebujeme ho este dat do pamate a posunut sa na valu
-                    transducer.addToMemory();
-                    parser.nextToken();
+                    // sme na matchi (fieldName) a potrebujeme ho este dat do pamate a posunut sa na value
+                    //transducer.addToMemory();                    
                     
-                    
+                    // posun sa na value a spracuj ju
                     sourceTransducer.setPaused(false);
+                    // posun sa na value a spracuj ju
                     destinationTransducer.setPaused(false);                    
                     // (Match, Gen) -> (Memin, Gen)
                 /* } else if ((sourceState instanceof Match) && (destinationState instanceof Gen)) {
@@ -169,8 +169,10 @@ public class Sync implements State {
                 } else {
                     // process next token
                     if (!destinationTransducer.getPaused() && !sourceTransducer.getPaused()) {
-                        sourceState.process(parser);
+                        // dest urobi moveToNext pri meminSubtree
                         destinationState.process(parser);
+                        sourceState.process(parser);
+                        
                     }
                     // process the same token by the paused transducers only
                     else {

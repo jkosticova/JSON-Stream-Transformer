@@ -21,6 +21,7 @@ public class Gen implements State {
     @Override
     public void process(JsonParser parser) {
         transducer.setPaused(false);    
+        transducer.setGenerating(true);
     }
 
     @Override

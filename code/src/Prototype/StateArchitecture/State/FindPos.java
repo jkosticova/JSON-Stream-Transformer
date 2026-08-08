@@ -61,6 +61,7 @@ public class FindPos implements State {
     @Override
     public void process(JsonParser parser) {
         init();                
+        transducer.setGenerating(true);
         // move from fieldname to the corresponding value
         if (this.depth == 0 && parser.getCurrentToken() == JsonToken.FIELD_NAME) {
             moveToValue(parser);
@@ -129,6 +130,7 @@ public class FindPos implements State {
     private void transitionToMatchPos() {
         transducer.setState(transducer.getMatchPosState());
         transducer.setPaused(true);    
+        transducer.setGenerating(false);
     }
 
     

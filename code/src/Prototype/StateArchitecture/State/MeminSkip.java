@@ -33,6 +33,7 @@ public class MeminSkip implements State {
     @Override
     public void process(JsonParser parser) {
         transducer.setPaused(false);        
+        transducer.setGenerating(false);
         /*init();    
         Integer paState;
         transducer.setPaused(false);

@@ -11,6 +11,7 @@ public class Memout implements State {
 
     public Memout(Transducer transducer) {
         this.transducer = transducer;
+        transducer.setGenerating(false);
     }
 
     @Override

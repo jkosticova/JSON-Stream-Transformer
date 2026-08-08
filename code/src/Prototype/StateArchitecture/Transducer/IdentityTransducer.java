@@ -55,5 +55,9 @@ public class IdentityTransducer extends Transducer {
         return true;
     }
 
+    public void moveToValue() {
+        return;
+    }
+
 
 }

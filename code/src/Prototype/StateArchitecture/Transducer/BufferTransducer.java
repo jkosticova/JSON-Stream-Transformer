@@ -96,8 +96,8 @@ public class BufferTransducer {
                 }
                 if (event == null) break;
                 currentState.process(parser);
-                if (sourceTransducer.getCurrentState().isGenerating() &&
-                    destinationTransducer.getCurrentState().isGenerating()) {
+                if (sourceTransducer.getGenerating() &&
+                    destinationTransducer.getGenerating()) {
                     generator.copyCurrentEvent(parser);                    
                 }                
                 generator.flush();

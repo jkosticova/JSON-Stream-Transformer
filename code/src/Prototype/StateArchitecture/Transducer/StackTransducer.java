@@ -62,6 +62,7 @@ public class StackTransducer extends Transducer {
         initStates();        
 
         currentState = evalState;                
+        
     }
 
     // used only for stack transformations
@@ -79,14 +80,15 @@ public class StackTransducer extends Transducer {
                 if (event == null || paStack.isEmpty()) {
                     break;
                 }
-                currentState.process(parser);                
+                this.getCurrentState().process(parser);                                
+                // generovanie
                 try {
-                    if (this.getCurrentState().isGenerating())
+                    if (this.generating)
                         generator.copyCurrentEvent(parser);
                     }
                 catch (IOException e) {
                     e.printStackTrace();
-                }
+                }                                
                 generator.flush();
             }
             generator.flush();
@@ -100,7 +102,20 @@ public class StackTransducer extends Transducer {
         return true;
     }
 
-    
+    public void moveToValue() {
+           try {
+            parser.nextToken(); // move to value and if it is a structure, process opening token
+            if (parser.currentToken() == JsonToken.START_ARRAY) {
+                paStack.push(State.ARR_MARKER);
+                indexStack.push(0);
+            }
+            else if (parser.currentToken() == JsonToken.START_OBJECT) {
+                paStack.push(State.OBJ_MARKER);
+            }
+           } catch (IOException e) {            
+            e.printStackTrace();
+           } 
+    }    
 
     
 

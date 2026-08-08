@@ -33,7 +33,7 @@ public class MatchPos implements State {
                         writeJsonValue(generator, ((AddTransformation) specification).getValue());                                                
                     }                    
                     transducer.setState(transducer.getGenState());                    
-                    transducer.setPaused(false);
+                    transducer.setPaused(true);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

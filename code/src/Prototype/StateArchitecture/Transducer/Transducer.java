@@ -32,6 +32,7 @@ public abstract class Transducer {
     // transducer state
     protected State currentState;
     protected boolean paused;        
+    protected boolean generating;        
 
     // other properties - axctually final, but are created in child classes
     protected byte transducerRole;
@@ -45,6 +46,8 @@ public abstract class Transducer {
         
     PathAutomaton pa;    
     String path;       
+    public Byte matchType = State.NO_MATCH;
+    public boolean moveToValue = false;
 
     // I/O
     JsonGenerator generator;
@@ -65,6 +68,7 @@ public abstract class Transducer {
     public Transducer(SpecificationMapper mapper, boolean source) {
         
         paused = false;
+        generating = true;
 
         this.specification = mapper.getTransformationFormat();       
         this.transformationType = specification.getType();
@@ -170,6 +174,18 @@ public abstract class Transducer {
     public Stack<Integer> getPaStack() {
         return this.paStack;
     }
+
+    public abstract void moveToValue();
+
+    public void setGenerating(boolean generating) {
+        this.generating = generating;
+    }
+
+    public boolean getGenerating() {
+        return this.generating;
+    }
+
+    
 
     
     public PathAutomaton getPa() {

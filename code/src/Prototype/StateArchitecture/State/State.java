@@ -10,6 +10,11 @@ public interface State {
     int ARR_MARKER = -1;
     int OBJ_MARKER = -2;
 
+    // match type
+    byte NO_MATCH = 0;
+    byte FIELDNAME_MATCH = 1;
+    byte VALUE_MATCH = 2;
+
     void process(JsonParser parser);    
     boolean isGenerating();
 }

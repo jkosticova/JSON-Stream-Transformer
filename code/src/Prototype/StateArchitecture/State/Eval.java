@@ -27,7 +27,8 @@ public class Eval implements State {
 
     @Override
     public void process(JsonParser parser) {
-        int paState;                        
+        int paState;                                
+        transducer.setGenerating(true);
         try {
             init();
             JsonToken event = parser.currentToken();
@@ -37,7 +38,7 @@ public class Eval implements State {
                         handleArrayElement();
                     }
                     if (pa.isFinal(paStack.peek())) {
-                        transitionToMatch();                       
+                        transitionToMatch(VALUE_MATCH);                             
                         indexStack.push(0);
                         paStack.push(ARR_MARKER);
                         return;
@@ -56,8 +57,8 @@ public class Eval implements State {
                         handleArrayElement();
                     }
                     if (pa.isFinal(paStack.peek())) {
-                        transitionToMatch();                        
-                        paStack.push(OBJ_MARKER);
+                        transitionToMatch(VALUE_MATCH);                                                
+                        paStack.push(OBJ_MARKER);                        
                         return;
                     }
                     paStack.push(OBJ_MARKER);
@@ -83,10 +84,11 @@ public class Eval implements State {
                     else {
                         paState = paStack.peek();
                     }
-                    paStack.push(pa.transition(paState, parser.getParsingContext().getCurrentName()));
+                    paStack.push(pa.transition(paState, parser.getText()));
 
+                    // fieldname match
                     if (pa.isFinal(paStack.peek())) {
-                        transitionToMatch();                     
+                        transitionToMatch(FIELDNAME_MATCH);                                             
                         return;
                     }
 
@@ -101,7 +103,8 @@ public class Eval implements State {
                         handleArrayElement();
                     }
                     if (pa.isFinal(paStack.peek())) {
-                        transitionToMatch();
+                        transitionToMatch(VALUE_MATCH);
+                        
                         return;
                     }
 
@@ -121,9 +124,11 @@ public class Eval implements State {
     /*
         Perform transducer transition to match state
     */
-    private void transitionToMatch() {
+    private void transitionToMatch(byte matchType) {
         transducer.setState(transducer.getMatchState());
         transducer.setPaused(true);   
+        transducer.setGenerating(false);
+        transducer.matchType = matchType;
     }
     
     /*
