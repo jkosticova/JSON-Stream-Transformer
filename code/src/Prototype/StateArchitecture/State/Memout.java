@@ -7,8 +7,10 @@ import java.nio.Buffer;
 
 import com.fasterxml.jackson.core.JsonParser;
 
-/* This state generates the content of the buffer to the output AT ONCE.
+/* 
+   This state generates the content of the buffer to the output AT ONCE.
    It uses "buffer.serialize(generator)".      
+   Entering token = leaving token.
 */
 public class Memout implements State {
     private final Transducer transducer;

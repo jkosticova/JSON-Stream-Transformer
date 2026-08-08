@@ -10,22 +10,30 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
-import java.nio.Buffer;
 
 import static Prototype.Utils.Helper.writeJsonValue;
 
+/*
+    This state captures behavior when an exact position for inserting a value is matched.
+    It always 
+    - transitions to another state
+    - keeps transducer paused
+    It applies on add, copy and move transformations.
+    It uses generator and specificiation to be able to perform specific operations on matching the path.
+*/
 public class MatchPos implements State {
     private final Transducer transducer;    
+    private final TransformationFormat specification;
+    private final JsonGenerator generator;
 
     public MatchPos(Transducer transducer) {
         this.transducer = transducer;
-        
+        this.specification = transducer.getSpecification();
+        this.generator = transducer.getGenerator();          
     }
 
     @Override
-    public void process(JsonParser parser) {  
-        TransformationFormat specification = transducer.getSpecification();
-        JsonGenerator generator = transducer.getGenerator();
+    public void process(JsonParser parser) {          
         switch (specification.getType()) {
             case "add":
                 // current token is either a fieldname or a value

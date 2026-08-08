@@ -12,6 +12,12 @@ import com.fasterxml.jackson.core.JsonToken;
 import java.io.IOException;
 import java.util.Stack;
 
+/* 
+    This state traverses the value (subtree), puts it into the memory 
+    and at the same time generates it to the output.
+    Entering token: the start of given value (START_ARRAY, START_OBJECT, literal value)
+    Leaving token: one token after the end of given value
+*/
 public class MeminSubtree implements State {
     private final Transducer transducer;    
     private Stack<Integer> paStack;
@@ -51,7 +57,7 @@ public class MeminSubtree implements State {
         if (depth == 0) {
             try {
                 // also last token of given subtree must be added to the memory
-                transducer.addToMemory();                
+                //transducer.addToMemory();                
                 if (transducer.getFirstMatch() == BufferTransducer.SRC_FIRST) {
                     transducer.setState(transducer.getGenState());
                 }
@@ -61,8 +67,8 @@ public class MeminSubtree implements State {
                 else {
                     //TODO handle error
                 }
-                transducer.setPaused(false);                
-                return;
+                //transducer.setPaused(false);                
+                //return;
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

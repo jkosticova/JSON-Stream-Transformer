@@ -1,21 +1,17 @@
 package Prototype.StateArchitecture.State;
 
-import Prototype.PathAutomaton.PathAutomaton;
-import Prototype.PathAutomaton.SimplePathAutomaton;
-import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.BufferTransducer;
 import Prototype.StateArchitecture.Transducer.Transducer;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 
-import java.io.IOException;
-import java.util.Stack;
 
+/* 
+    This state traverses the value (subtree) and put it into the memory
+    Entering token: the start of given value (START_ARRAY, START_OBJECT, literal value)
+    Leaving token: one token after the end of given value
+*/
 public class MeminSkipSubtree implements State {
     private final Transducer transducer;    
-    private Stack<Integer> paStack;
-    private Stack<Integer> indexStack;        
     private int depth;
 
     public MeminSkipSubtree(Transducer transducer) {
@@ -24,8 +20,6 @@ public class MeminSkipSubtree implements State {
     }
 
     private void init() {        
-        this.paStack = this.transducer.getPaStack();
-        this.indexStack = this.transducer.getIndexStack();        
         this.depth = 0;
     }
 

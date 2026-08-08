@@ -13,6 +13,11 @@ import java.io.IOException;
 
 import static Prototype.Utils.Helper.writeJsonValue;
 
+/*
+    This state captures behavior when a match of a path is found.
+    It always transitions to another state.
+    It applies on all path-evaluating transformations.
+*/
 public class Match implements State {
     private final Transducer transducer;
     private final TransformationFormat specification;
