@@ -1,16 +1,18 @@
 package prototype.stateArchitecture.transducer;
 
+import prototype.mapper.SpecificationMapper;
+import prototype.utils.Helper;
+
+import prototype.specificationParser.*;
+
+import prototype.stateArchitecture.state.State;
+import prototype.stateArchitecture.state.Sync;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
-
-import prototype.mapper.SpecificationMapper;
-import prototype.specificationParser.TransformationFormat;
-import prototype.stateArchitecture.state.State;
-import prototype.stateArchitecture.state.Sync;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,31 +34,41 @@ public class BufferTransducer {
     TokenBuffer buffer;
     TransformationFormat specification;
     public boolean generateFromSource;
-    
-    public BufferTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {        
-            specification = mapper.getTransformationFormat();
-            paused = false;
 
-            JsonFactory factory = new JsonFactory();
-            try {
-                parser = factory.createParser(inputStream);
-                generator = factory.createGenerator(outputStream).useDefaultPrettyPrinter();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            buffer = new TokenBuffer((ObjectCodec) null, false);            
-            sourceTransducer = new StackTransducer(mapper, this, Transducer.SRC_TRANSDUCER);            
-            destinationTransducer = new StackTransducer(mapper, this, Transducer.DEST_TRANSDUCER);
-            
-            
-            currentState = new Sync(this);        
+    public BufferTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {
+        specification = mapper.getTransformationFormat();
+        paused = false;
+
+        JsonFactory factory = new JsonFactory();
+
+        // Created separately (rather than in one try) so that if the parser
+        // is created successfully but the generator fails, we still close
+        // the parser instead of leaking the open InputStream.
+        try {
+            parser = factory.createParser(inputStream);
+        } catch (IOException e) {
+            throw new TransducerException("Could not open input stream for parsing", e);
+        }
+
+        try {
+            generator = factory.createGenerator(outputStream).useDefaultPrettyPrinter();
+        } catch (IOException e) {
+            closeQuietly(parser);
+            throw new TransducerException("Could not open output stream for generation", e);
+        }
+
+        buffer = new TokenBuffer((ObjectCodec) null, false);
+        sourceTransducer = new StackTransducer(mapper, this, Transducer.SRC_TRANSDUCER);
+        destinationTransducer = new StackTransducer(mapper, this, Transducer.DEST_TRANSDUCER);
+
+        currentState = new Sync(this);
     }
 
     public void getFromMemory() {
         try {
             buffer.serialize(generator);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new TransducerException("Failed to write buffered tokens to output", e);
         }
     }
 
@@ -65,7 +77,7 @@ public class BufferTransducer {
             buffer.copyCurrentEvent(parser);
             //recordBufferMemory();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new TransducerException("Failed to buffer current token from input", e);
         }
     }
 
@@ -97,12 +109,23 @@ public class BufferTransducer {
         return this.destinationTransducer;
     }
 
+    /**
+     * Runs the transducer to completion.
+     *
+     * @return true if processing completed and the input was fully consumed;
+     *         false if a stream-level I/O error was encountered. Any error
+     *         indicating a bug in the transducer logic itself (a
+     *         RuntimeException that isn't a TransducerException) is NOT
+     *         swallowed here and instead propagates to the caller, since
+     *         returning false for it would hide the real problem.
+     */
     public boolean process() {
+        boolean success = true;
         try {
             JsonToken event = null;
 
             while (!parser.isClosed()) {
-                setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused()); 
+                setPaused(sourceTransducer.getPaused() || destinationTransducer.getPaused());
                 if (!paused) {
                     event = parser.nextToken();
                 }
@@ -110,37 +133,58 @@ public class BufferTransducer {
                 currentState.process(parser);
                 if (sourceTransducer.getGenerating() &&
                     destinationTransducer.getGenerating()) {
-                    generator.copyCurrentEvent(parser);                    
-                }                
+                    generator.copyCurrentEvent(parser);
+                }
                 generator.flush();
             }
             generator.flush();
-            parser.close();
-            generator.close();
-        } catch (Exception e) {
-            System.out.println("Issue while processing BufferTransducer: " + e.getMessage());
-            e.printStackTrace();
-
-            return false;
+        } catch (IOException e) {
+            System.err.println("Issue while processing BufferTransducer: " + e.getMessage());
+            success = false;
+        } finally {
+            // Always attempt to release both streams, whether processing
+            // succeeded or failed, so a failure here doesn't leak file
+            // handles on top of the original problem.
+            closeQuietly(parser);
+            closeQuietly(generator);
         }
-        return true;
+        return success;
     }
 
-     public void moveToValue(byte transducerRole) {                
-       
+    public void moveToValue(byte transducerRole) {
         try {
             parser.nextToken();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // Previously this printed a stack trace and continued, which let
+            // execution fall through to process a token from a parser that
+            // had just failed to advance - i.e. it operated on stale/unknown
+            // state after a swallowed error. Failing fast here instead.
+            throw new TransducerException("Failed to advance parser while moving to value", e);
         }
-         // process value by the other transducer if not paused
+
+        // process value by the other transducer if not paused
         if (transducerRole == Transducer.SRC_TRANSDUCER && !destinationTransducer.getPaused()) {
-            destinationTransducer.getCurrentState().process(parser);            
+            destinationTransducer.getCurrentState().process(parser);
         }
         else if (transducerRole == Transducer.DEST_TRANSDUCER && !sourceTransducer.getPaused()) {
             sourceTransducer.getCurrentState().process(parser);
         }
-     }   
+    }
+
+    /**
+     * Closes a Closeable, logging any failure instead of throwing, so that
+     * cleanup of one resource can't mask an already-in-flight exception or
+     * prevent cleanup of the other resource.
+     */
+    private static void closeQuietly(AutoCloseable closeable) {
+        if (closeable == null) {
+            return;
+        }
+        try {
+            closeable.close();
+        } catch (Exception e) {
+            System.err.println("Warning: failed to close resource cleanly: " + e.getMessage());
+        }
+    }
 
 }

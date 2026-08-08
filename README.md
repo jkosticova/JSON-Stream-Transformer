@@ -102,3 +102,8 @@ Specifications are validated against the bundled JSON schema before execution.
 - `copy` and `move` transformations use a buffer-based transducer, while other transformations use stack-based or identity transducers.
 - `JsonExamples/SpecificationFiles/` contains sample specification files for each supported transformation type.
 
+## AI usage
+Generated content is explicitly marked. It is mostly
+- exception handling
+- scripts for running benchmarks
+

@@ -1,6 +1,7 @@
 package prototype.mapper;
 
 /**
+ * (Generated file - Sonnet 5)
  * Thrown when a transformation specification file cannot be read, parsed,
  * or does not conform to the expected JSON schema.
  *
