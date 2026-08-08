@@ -59,5 +59,9 @@ public class IdentityTransducer extends Transducer {
         return;
     }
 
+    public void processValueAfterMatch() {
+        return;
+    }
+
 
 }

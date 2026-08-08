@@ -55,7 +55,7 @@ public class Sync implements State {
                 // (paused, not paused)
                 if ((sourceState instanceof Match) && (destinationState instanceof Eval)) {                    
                     sourceTransducer.setState(new MeminSubtree(sourceTransducer));                    
-                    sourceTransducer.setPaused(false);
+                    sourceTransducer.processValueAfterMatch();
                     
                     // (gen, matchPos) -> (gen, memout)
                 

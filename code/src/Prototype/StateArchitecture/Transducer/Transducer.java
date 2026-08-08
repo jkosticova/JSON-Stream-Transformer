@@ -185,6 +185,8 @@ public abstract class Transducer {
         return this.generating;
     }
 
+    public abstract void processValueAfterMatch();
+
     
 
     

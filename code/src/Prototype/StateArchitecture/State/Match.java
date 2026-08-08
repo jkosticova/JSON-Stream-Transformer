@@ -65,29 +65,17 @@ public class Match implements State {
                 break;
             // add and copy yield the same code
             case "add":
+           
+            case "copy":
                 // generate current fieldname in case of object member match
                 generateCurrentFieldName(parser);
-            case "copy":
                 transducer.setPaused(false);
                 transducer.setState(transducer.getFindPosState());
                 break;
             default:
                 break;
         }
-        // in case of a fieldname match, we move to the corresponding value
-        if (event.equals(JsonToken.FIELD_NAME)) {
-            transducer.moveToValue();
-        }                
-        transducer.setPaused(true);
-        transducer.setGenerating(false);
-        
-        // we process the current value again (not fieldname!!!)
-        // Rename -> Gen (fieldname NOT generated)
-        // Remove -> SkipSubtree (fieldname NOT generated)
-        // Replace -> SkipSubtree (fieldname NOT generated)
-        // Add -> FindPos (fieldname generated in CASE)
-        // Copy -> FindPos (generated ???)
-        
+        transducer.processValueAfterMatch();                
     }
 
     @Override

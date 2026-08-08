@@ -103,7 +103,8 @@ public class StackTransducer extends Transducer {
     }
 
     public void moveToValue() {
-           try {
+        if (parser.currentToken() == JsonToken.FIELD_NAME) {
+        try {
             parser.nextToken(); // move to value and if it is a structure, process opening token
             if (parser.currentToken() == JsonToken.START_ARRAY) {
                 paStack.push(State.ARR_MARKER);
@@ -115,7 +116,17 @@ public class StackTransducer extends Transducer {
            } catch (IOException e) {            
             e.printStackTrace();
            } 
-    }    
+        }
+    }   
+    
+    public void processValueAfterMatch() {
+        // in case of a fieldname match, we move to the corresponding value
+        moveToValue();
+        // we process the start of current value with next state
+        paused = true;
+        // we do not generate the start of the current value
+        generating = false;
+    }
 
     
 

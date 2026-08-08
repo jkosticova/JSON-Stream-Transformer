@@ -30,12 +30,8 @@ public class MeminSubtree implements State {
 
     @Override
     public void process(JsonParser parser) {        
-        transducer.setPaused(false);        
-        
-        // explicit move to value in case of fieldname match
-        if (this.depth == 0 && parser.getCurrentToken() == JsonToken.FIELD_NAME) {
-            moveToValue(parser);
-        }
+        transducer.setPaused(false);                       
+        transducer.setGenerating(true);
         
         switch (parser.currentToken()) {
             case START_OBJECT:
@@ -68,25 +64,7 @@ public class MeminSubtree implements State {
             }
         }        
         transducer.addToMemory();
-    }
-
-    
-    
-
-    private void moveToValue(JsonParser parser) {
-           try {
-            parser.nextToken(); // move to value and if it is a structure, process opening token
-            if (parser.currentToken() == JsonToken.START_ARRAY) {
-                paStack.push(ARR_MARKER);
-                indexStack.push(0);
-            }
-            else if (parser.currentToken() == JsonToken.START_OBJECT) {
-                paStack.push(OBJ_MARKER);
-            }
-           } catch (IOException e) {            
-            e.printStackTrace();
-           } 
-    }
+    }        
 
     @Override
     public boolean isGenerating() {
