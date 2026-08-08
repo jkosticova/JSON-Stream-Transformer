@@ -8,6 +8,13 @@ import Prototype.StateArchitecture.Transducer.StackTransducer;
 
 import com.fasterxml.jackson.core.JsonParser;
 
+/* 
+   This is a synchronization state of BufferTransducer. It provides 
+   - explicit synchronization if the action depends on both transducer states
+   - synchronization of individual runs if the action of a single transducer 
+     depends only on its own state and transducerRole / firstMatch indicators
+*/
+
 public class Sync implements State {
     private final StackTransducer sourceTransducer;
     private final StackTransducer destinationTransducer;
@@ -25,60 +32,59 @@ public class Sync implements State {
         State sourceState = sourceTransducer.getCurrentState();
         State destinationState = destinationTransducer.getCurrentState();
 
-        try {
-            if (specification instanceof CopyTransformation) {
+        if (specification instanceof CopyTransformation) {
 
-                /* SOURCE MATCHED FIRST */
+            // explicit synchronization
+            // DEST matched first, end of MeminSkip
+            if ((sourceState instanceof Match) && (destinationState instanceof MeminSkip)) {
 
-                // handled in baseline state
+                destinationTransducer.setState(destinationTransducer.getGenState());
+                // !!! performs move to value and value shouldn't be place into memory by
+                // MeminSkip
+                // therefore we move dest transducer to gen before
+                sourceState.process(parser);
 
-                /* DESTINATION MATCHED FIRST */
-
-                if ((sourceState instanceof Match) && (destinationState instanceof MeminSkip)) {
-
-                    destinationTransducer.setState(destinationTransducer.getGenState());
-                    // !!! performs move to value and value shouldn't be place into memory by
-                    // MeminSkip
-                    // therefore we move dest transducer to gen before
+                // sourceTransducer.setPaused(false);
+                destinationTransducer.setPaused(false);
+            } else {
+                // fix paused state
+                boolean srcPaused = sourceTransducer.getPaused();
+                boolean destPaused = destinationTransducer.getPaused();
+                if (!destPaused && !srcPaused) {
+                    // match ma side effect moveToNext!!!!
                     sourceState.process(parser);
+                    destinationState.process(parser);
 
-                    // sourceTransducer.setPaused(false);
-                    destinationTransducer.setPaused(false);
-                } else {
-                    // fix paused state
-                    boolean srcPaused = sourceTransducer.getPaused();
-                    boolean destPaused = destinationTransducer.getPaused();
-                    if (!destPaused && !srcPaused) {
-                        // match ma side effect moveToNext!!!!
-                        sourceState.process(parser);
-                        destinationState.process(parser);
-
-                    }
-                    // process the same token by the paused transducers only
-                    else {
-                       synchronizeIndividualRuns(parser);
-                    }
                 }
-            } else if (specification instanceof MoveTransformation) {
-
-                if ((sourceState instanceof Eval) && (destinationState instanceof MeminSkip)) {
-                    sourceState.process(parser);
-                    if (sourceTransducer.getCurrentState() instanceof Match) {
-                        destinationTransducer.setState(destinationTransducer.getGenState());
-                        sourceState.process(parser);
-                    } else {
-                        destinationState.process(parser);
-                    }
-                } else {
+                // process the same token by the paused transducers only
+                else {
                     synchronizeIndividualRuns(parser);
                 }
-
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+        } else if (specification instanceof MoveTransformation) {
+            // explicit synchronization
+            // DEST matched first, end of MeminSkip
+            // synchronization must happen one step before match, otherwise
+            // also matched symbol would be put into memory (we don't want this for move
+            // transf.)
+            if ((sourceState instanceof Eval) && (destinationState instanceof MeminSkip)) {
+                sourceState.process(parser);
+                if (sourceTransducer.getCurrentState() instanceof Match) {
+                    destinationTransducer.setState(destinationTransducer.getGenState());
+                    sourceState.process(parser);
+                } else {
+                    destinationState.process(parser);
+                }
+            } else {
+                synchronizeIndividualRuns(parser);
+            }
 
+        }
+
+    }
+    /*
+      Synchronization of individual runs
+    */
     private void synchronizeIndividualRuns(JsonParser parser) {
         // fix paused state
         boolean srcPaused = sourceTransducer.getPaused();
