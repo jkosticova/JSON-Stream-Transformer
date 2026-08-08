@@ -75,7 +75,7 @@ public class BufferTransducer {
     public void addToMemory() {
         try {
             buffer.copyCurrentEvent(parser);
-            //recordBufferMemory();
+            // recordBufferMemory();
         } catch (IOException e) {
             throw new TransducerException("Failed to buffer current token from input", e);
         }
@@ -129,17 +129,18 @@ public class BufferTransducer {
                 if (!paused) {
                     event = parser.nextToken();
                 }
-                if (event == null) break;
+                if (event == null)
+                    break;
                 currentState.process(parser);
                 if (sourceTransducer.getGenerating() &&
-                    destinationTransducer.getGenerating()) {
+                        destinationTransducer.getGenerating()) {
                     generator.copyCurrentEvent(parser);
                 }
                 generator.flush();
             }
             generator.flush();
         } catch (IOException e) {
-            System.err.println("Issue while processing BufferTransducer: " + e.getMessage());
+            System.err.println("Issue while processing BufferTransducer: " + e);
             success = false;
         } finally {
             // Always attempt to release both streams, whether processing
@@ -155,18 +156,13 @@ public class BufferTransducer {
         try {
             parser.nextToken();
         } catch (IOException e) {
-            // Previously this printed a stack trace and continued, which let
-            // execution fall through to process a token from a parser that
-            // had just failed to advance - i.e. it operated on stale/unknown
-            // state after a swallowed error. Failing fast here instead.
             throw new TransducerException("Failed to advance parser while moving to value", e);
         }
 
         // process value by the other transducer if not paused
         if (transducerRole == Transducer.SRC_TRANSDUCER && !destinationTransducer.getPaused()) {
             destinationTransducer.getCurrentState().process(parser);
-        }
-        else if (transducerRole == Transducer.DEST_TRANSDUCER && !sourceTransducer.getPaused()) {
+        } else if (transducerRole == Transducer.DEST_TRANSDUCER && !sourceTransducer.getPaused()) {
             sourceTransducer.getCurrentState().process(parser);
         }
     }
