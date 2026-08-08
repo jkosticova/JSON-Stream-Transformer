@@ -113,6 +113,7 @@ public class Sync implements State {
                     transducer.addToMemory();
                     parser.nextToken();
                     
+                    
                     sourceTransducer.setPaused(false);
                     destinationTransducer.setPaused(false);                    
                     // (Match, Gen) -> (Memin, Gen)
@@ -166,8 +167,20 @@ public class Sync implements State {
                     generator.flush();
                     */
                 } else {
-                    sourceState.process(parser);
-                    destinationState.process(parser);
+                    // process next token
+                    if (!destinationTransducer.getPaused() && !sourceTransducer.getPaused()) {
+                        sourceState.process(parser);
+                        destinationState.process(parser);
+                    }
+                    // process the same token by the paused transducers only
+                    else {
+                        if (sourceTransducer.getPaused()) {
+                            sourceState.process(parser);
+                        }
+                        if (destinationTransducer.getPaused()) {
+                            destinationState.process(parser);
+                        }
+                    }
                     sourceState = sourceTransducer.getCurrentState();
                     destinationState = destinationTransducer.getCurrentState();            
                 }

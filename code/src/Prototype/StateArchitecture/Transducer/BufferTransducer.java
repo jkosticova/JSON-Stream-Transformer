@@ -107,6 +107,8 @@ public class BufferTransducer {
             generator.close();
         } catch (Exception e) {
             System.out.println("Issue while processing BufferTransducer: " + e.getMessage());
+            e.printStackTrace();
+
             return false;
         }
         return true;

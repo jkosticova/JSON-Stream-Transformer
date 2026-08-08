@@ -27,7 +27,7 @@ public class Eval implements State {
 
     @Override
     public void process(JsonParser parser) {
-        int paState;                
+        int paState;                        
         try {
             init();
             JsonToken event = parser.currentToken();
