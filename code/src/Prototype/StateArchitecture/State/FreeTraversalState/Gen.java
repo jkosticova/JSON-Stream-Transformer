@@ -1,5 +1,6 @@
-package Prototype.StateArchitecture.State;
+package Prototype.StateArchitecture.State.FreeTraversalState;
 
+import Prototype.StateArchitecture.State.State;
 import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
