@@ -14,10 +14,10 @@ import java.util.Stack;
     It does not manipulate the stack in case of stack transducer
 */
 public class MeminSkip implements State {
-    Transducer transducer;
-    private Stack<Integer> paStack;
+    private final Transducer transducer;
+    /*private Stack<Integer> paStack;
     private Stack<Integer> indexStack;
-    private PathAutomaton pa;
+    private PathAutomaton pa;*/
 
     public MeminSkip(Transducer transducer) {
         this.transducer = transducer;
@@ -30,7 +30,9 @@ public class MeminSkip implements State {
         this.pa = transducer.getPa();
     }*/
 
+    @Override
     public void process(JsonParser parser) {
+        transducer.setPaused(false);        
         /*init();    
         Integer paState;
         transducer.setPaused(false);

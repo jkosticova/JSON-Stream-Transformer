@@ -5,6 +5,7 @@ import Prototype.SpecificationParser.AddTransformation;
 import Prototype.SpecificationParser.CopyTransformation;
 import Prototype.SpecificationParser.MoveTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
+import Prototype.StateArchitecture.Transducer.StackTransducer;
 import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -27,7 +28,7 @@ If the previous match was entered at key, it is necessary to move to the corresp
 value and possibly align the content of the stacks.
 */
 public class FindPos implements State {
-    Transducer transducer;        
+    private final Transducer transducer;        
     private Stack<Integer> paStack;
     private Stack<Integer> indexStack;
     private TransformationFormat specification;    
@@ -57,6 +58,7 @@ public class FindPos implements State {
         };                                    
     }
 
+    @Override
     public void process(JsonParser parser) {
         init();                
         // move from fieldname to the corresponding value

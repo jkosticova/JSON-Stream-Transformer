@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.JsonToken;
 This state prunes current subtree, i.e., doesn't copy it to the output.
 */
 public class SkipSubtree implements State {
-    Transducer transducer;
+    private final Transducer transducer;
     private int depth;
     private Stack<Integer> paStack;
     private Stack<Integer> indexStack;
@@ -24,6 +24,7 @@ public class SkipSubtree implements State {
         this.indexStack = this.transducer.getIndexStack();        
     }
 
+    @Override
     public void process(JsonParser parser) {        
         transducer.setPaused(false);        
         

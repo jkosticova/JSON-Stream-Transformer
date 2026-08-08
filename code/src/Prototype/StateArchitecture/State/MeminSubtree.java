@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Stack;
 
 public class MeminSubtree implements State {
-    Transducer transducer;    
+    private final Transducer transducer;    
     private Stack<Integer> paStack;
     private Stack<Integer> indexStack;        
     private int depth;
@@ -28,7 +28,7 @@ public class MeminSubtree implements State {
         this.depth = 0;
     }
 
-
+    @Override
     public void process(JsonParser parser) {        
         transducer.setPaused(false);        
         

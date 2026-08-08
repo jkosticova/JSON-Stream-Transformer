@@ -18,8 +18,10 @@ import Prototype.StateArchitecture.State.State;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 
-import java.util.Objects;
 import java.util.Stack;
+
+/* Abstract class for StackTransducer and IdentityTransducer
+ */
 
 public abstract class Transducer {
     public static final int INITIAL_PA_STATE = 0;

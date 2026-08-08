@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
-import java.io.IOException;
+
 
 /*
     This state copies the input event to the output.
