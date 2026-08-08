@@ -1,5 +1,6 @@
-package Prototype.StateArchitecture.State;
+package Prototype.StateArchitecture.State.SubtreeState;
 
+import Prototype.StateArchitecture.State.State;
 import Prototype.StateArchitecture.Transducer.Transducer;
 
 import java.io.IOException;
@@ -11,13 +12,13 @@ import com.fasterxml.jackson.core.JsonToken;
 /*
 This state prunes current subtree, i.e., doesn't copy it to the output.
 */
-public class SkipSubtree implements State {
+public class SubtreeSkip implements State {
     private final Transducer transducer;
     private int depth;
     private Stack<Integer> paStack;
     private Stack<Integer> indexStack;
 
-    public SkipSubtree(Transducer transducer) {
+    public SubtreeSkip(Transducer transducer) {
         this.transducer = transducer;
         this.depth = 0;
         this.paStack = this.transducer.getPaStack();

@@ -1,5 +1,6 @@
-package Prototype.StateArchitecture.State;
+package Prototype.StateArchitecture.State.SubtreeState;
 
+import Prototype.StateArchitecture.State.State;
 import Prototype.StateArchitecture.Transducer.Transducer;
 
 import java.io.IOException;
@@ -11,13 +12,13 @@ import com.fasterxml.jackson.core.JsonToken;
 /*
 This state generates the current subtree to the output
 */
-public class GenSubtree implements State {
+public class SubtreeGen implements State {
     private final Transducer transducer;
-    private ProcessSubtree processSubtreeState;
+    private SubtreeProcess processSubtreeState;
 
-    public GenSubtree(Transducer transducer) {
+    public SubtreeGen(Transducer transducer) {
         this.transducer = transducer;
-        this.processSubtreeState = new ProcessSubtree();
+        this.processSubtreeState = new SubtreeProcess();
     }
 
     @Override

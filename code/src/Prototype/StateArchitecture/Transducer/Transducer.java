@@ -8,15 +8,16 @@ import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.State.Eval;
 import Prototype.StateArchitecture.State.FindPos;
 import Prototype.StateArchitecture.State.Gen;
-import Prototype.StateArchitecture.State.GenSubtree;
 import Prototype.StateArchitecture.State.MatchPos;
 import Prototype.StateArchitecture.State.MeminSkip;
-import Prototype.StateArchitecture.State.MeminSkipSubtree;
-import Prototype.StateArchitecture.State.MeminSubtree;
 import Prototype.StateArchitecture.State.Memout;
 import Prototype.StateArchitecture.State.Match;
-import Prototype.StateArchitecture.State.SkipSubtree;
 import Prototype.StateArchitecture.State.State;
+import Prototype.StateArchitecture.State.SubtreeState.SubtreeGen;
+import Prototype.StateArchitecture.State.SubtreeState.SubtreeSkipMemin;
+import Prototype.StateArchitecture.State.SubtreeState.SubtreeMemin;
+import Prototype.StateArchitecture.State.SubtreeState.SubtreeSkip;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 
@@ -62,12 +63,12 @@ public abstract class Transducer {
     protected Eval evalState;
     protected Match matchState;
     protected Gen genState;
-    protected SkipSubtree skipSubtreeState;
-    protected GenSubtree genSubtreeState;
+    protected SubtreeSkip skipSubtreeState;
+    protected SubtreeGen genSubtreeState;
     protected FindPos findPosState;
     protected MatchPos matchPosState;    
-    protected MeminSubtree meminSubtreeState;    
-    protected MeminSkipSubtree meminSkipSubtreeState;    
+    protected SubtreeMemin meminSubtreeState;    
+    protected SubtreeSkipMemin meminSkipSubtreeState;    
     protected MeminSkip meminSkipState;    
     protected Memout memoutState;    
 
@@ -102,13 +103,13 @@ public abstract class Transducer {
     protected void initStates() {
         evalState = new Eval(this);
         matchState = new Match(this);
-        skipSubtreeState = new SkipSubtree(this);
-        genSubtreeState = new GenSubtree(this);
+        skipSubtreeState = new SubtreeSkip(this);
+        genSubtreeState = new SubtreeGen(this);
         findPosState = new FindPos(this);
         matchPosState = new MatchPos(this);        
         genState = new Gen(this);
-        meminSubtreeState = new MeminSubtree(this);
-        meminSkipSubtreeState = new MeminSkipSubtree(this);
+        meminSubtreeState = new SubtreeMemin(this);
+        meminSkipSubtreeState = new SubtreeSkipMemin(this);
         meminSkipState = new MeminSkip(this);
         memoutState = new Memout(this);
     }

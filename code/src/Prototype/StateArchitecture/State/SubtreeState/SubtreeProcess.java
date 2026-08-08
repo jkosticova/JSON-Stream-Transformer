@@ -1,16 +1,18 @@
-package Prototype.StateArchitecture.State;
+package Prototype.StateArchitecture.State.SubtreeState;
 
 import com.fasterxml.jackson.core.JsonParser;
+
+import Prototype.StateArchitecture.State.State;
 
 
 /*
  We use a simple counter for traversing the subtree.
  Alternatively, the stack could be used (this would align with the formal algorithm).
 */
-public class ProcessSubtree implements State {    
+public class SubtreeProcess implements State {    
     private int depth;
 
-    public ProcessSubtree() {        
+    public SubtreeProcess() {        
         this.depth = 0;
     }
 
