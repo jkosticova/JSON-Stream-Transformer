@@ -4,11 +4,13 @@ import Prototype.SpecificationParser.AddTransformation;
 import Prototype.SpecificationParser.CopyTransformation;
 import Prototype.SpecificationParser.MoveTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
+import Prototype.StateArchitecture.Transducer.BufferTransducer;
 import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
+import java.nio.Buffer;
 
 import static Prototype.Utils.Helper.writeJsonValue;
 
@@ -46,7 +48,15 @@ public class MatchPos implements State {
                 catch (IOException e) {
                     e.printStackTrace();
                 }                
-                transducer.setState(transducer.getMemoutState());
+                if (transducer.getFirstMatch() == BufferTransducer.SRC_FIRST) {
+                    transducer.setState(transducer.getMemoutState());
+                }
+                else if (transducer.getFirstMatch() == BufferTransducer.DEST_FIRST) {
+                    transducer.setState(transducer.getMeminSkipState());
+                }
+                else {
+                    // TODO report error
+                }
                 break;
             case "move":  
                   try {

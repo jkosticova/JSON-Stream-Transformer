@@ -53,7 +53,7 @@ public class Sync implements State {
                 /* DESTINATION MATCHED FIRST */
 
                 // sprava sa podobne ako pri source first, ale tam bol source State gen
-                if ((sourceState instanceof Eval) && (destinationState instanceof MatchPos)) {
+                /*if ((sourceState instanceof Eval) && (destinationState instanceof MatchPos)) {
 
                     if (((CopyTransformation) specification).getKey() != null) {
                         String key = ((CopyTransformation) specification).getKey();
@@ -63,12 +63,15 @@ public class Sync implements State {
                     destinationTransducer.setState(new MeminSkip(destinationTransducer));                    
                     destinationTransducer.setPaused(true);
                 
-                } else if ((sourceState instanceof Match) && (destinationState instanceof MeminSkip)) {
-                    // !!! match vola move to value
-                    // fieldname musi dest transducer este dat do pamati cez meminSkip
-                    sourceState.process(parser);                    
+                } else*/ if ((sourceState instanceof Match) && (destinationState instanceof MeminSkip)) {
+                    
+                    
                     destinationTransducer.setState(destinationTransducer.getGenState());                    
-                    sourceTransducer.setPaused(false);
+                    // !!!  performs move to value and value shouldn't be place into memory by MeminSkip
+                    // therefore we move dest transducer to gen before
+                    sourceState.process(parser);                    
+                    
+                    //sourceTransducer.setPaused(false);
                     destinationTransducer.setPaused(false);
                 } else {                    
                     // fix paused state

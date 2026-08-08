@@ -1,6 +1,10 @@
 package Prototype.StateArchitecture.State;
 
+import Prototype.StateArchitecture.Transducer.BufferTransducer;
 import Prototype.StateArchitecture.Transducer.Transducer;
+
+import java.nio.Buffer;
+
 import com.fasterxml.jackson.core.JsonParser;
 
 /* This state generates the content of the buffer to the output AT ONCE.
@@ -16,6 +20,7 @@ public class Memout implements State {
 
     @Override
     public void process(JsonParser parser) {        
+        transducer.setGenerating(false);
         transducer.getFromMemory();            
         transducer.setState(transducer.getGenState());        
         transducer.setPaused(true);        

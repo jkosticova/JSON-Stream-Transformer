@@ -187,6 +187,19 @@ public abstract class Transducer {
 
     public abstract void moveToValue();
 
+    public void setFirstMatch(byte firstMatch) {
+        if (this.parentTransducer != null) {
+            this.parentTransducer.setFirstMatch(firstMatch);
+        }
+    }
+
+    public byte getFirstMatch() {
+        if (parentTransducer != null) {
+            return parentTransducer.getFirstMatch();
+        }
+        else return BufferTransducer.NONE;
+    }
+
     public void setGenerating(boolean generating) {
         this.generating = generating;
     }

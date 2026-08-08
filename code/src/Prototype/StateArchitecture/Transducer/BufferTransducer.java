@@ -22,6 +22,11 @@ public class BufferTransducer {
     private final State currentState;
     private final StackTransducer sourceTransducer;
     private final StackTransducer destinationTransducer;
+    private byte firstMatch = NONE;
+
+    public static final byte NONE = 0;
+    public static final byte SRC_FIRST = 1;
+    public static final byte DEST_FIRST = 2;
 
     private boolean paused;
     JsonGenerator generator;
@@ -67,6 +72,14 @@ public class BufferTransducer {
 
     public void setPaused(boolean paused) {
         this.paused = paused;
+    }
+
+    public void setFirstMatch(byte firstMatch) {
+        this.firstMatch = firstMatch;
+    }
+
+    public byte getFirstMatch() {
+        return this.firstMatch;
     }
 
     public JsonGenerator getGenerator() {
@@ -115,18 +128,19 @@ public class BufferTransducer {
     }
 
      public void moveToValue(byte transducerRole) {                
-        // process current token by the other transducer if not paused
-        if (transducerRole == Transducer.SRC_TRANSDUCER && !destinationTransducer.getPaused()) {
-            destinationTransducer.getCurrentState().process(parser);            
-        }
-        else if (transducerRole == Transducer.DEST_TRANSDUCER && !sourceTransducer.getPaused()) {
-            sourceTransducer.getCurrentState().process(parser);
-        }
+       
         try {
             parser.nextToken();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        }
+         // process value by the other transducer if not paused
+        if (transducerRole == Transducer.SRC_TRANSDUCER && !destinationTransducer.getPaused()) {
+            destinationTransducer.getCurrentState().process(parser);            
+        }
+        else if (transducerRole == Transducer.DEST_TRANSDUCER && !sourceTransducer.getPaused()) {
+            sourceTransducer.getCurrentState().process(parser);
         }
      }   
 

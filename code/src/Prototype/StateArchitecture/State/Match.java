@@ -3,6 +3,7 @@ package Prototype.StateArchitecture.State;
 import Prototype.SpecificationParser.RenameTransformation;
 import Prototype.SpecificationParser.ReplaceTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
+import Prototype.StateArchitecture.Transducer.BufferTransducer;
 import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -26,6 +27,15 @@ public class Match implements State {
     @Override
     public void process(JsonParser parser) {
         JsonToken event = parser.currentToken();        
+        // set first match 
+        if (transducer.getFirstMatch() == BufferTransducer.NONE ) {
+            if (transducer.getTransducerRole() == Transducer.SRC_TRANSDUCER) {
+                transducer.setFirstMatch(BufferTransducer.SRC_FIRST);
+            }
+            else if (transducer.getTransducerRole() == Transducer.DEST_TRANSDUCER) {
+                transducer.setFirstMatch(BufferTransducer.DEST_FIRST);
+            }
+        }
         // parser is positioned at a match - either a fieldname or a value
         switch (transducer.getTransformationType()) {
             case "rename":

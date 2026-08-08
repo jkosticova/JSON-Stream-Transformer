@@ -3,6 +3,7 @@ package Prototype.StateArchitecture.State;
 import Prototype.PathAutomaton.PathAutomaton;
 import Prototype.PathAutomaton.SimplePathAutomaton;
 import Prototype.SpecificationParser.TransformationFormat;
+import Prototype.StateArchitecture.Transducer.BufferTransducer;
 import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -51,11 +52,14 @@ public class MeminSubtree implements State {
             try {
                 // also last token of given subtree must be added to the memory
                 transducer.addToMemory();                
-                if (transducer.getTransducerRole() == Transducer.SRC_TRANSDUCER) {
+                if (transducer.getFirstMatch() == BufferTransducer.SRC_FIRST) {
                     transducer.setState(transducer.getGenState());
                 }
-                else {
+                else if (transducer.getFirstMatch() == BufferTransducer.DEST_FIRST) {
                     transducer.setState(transducer.getMemoutState());
+                }
+                else {
+                    //TODO handle error
                 }
                 transducer.setPaused(false);                
                 return;
