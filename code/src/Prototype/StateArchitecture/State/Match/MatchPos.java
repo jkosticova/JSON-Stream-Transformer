@@ -1,9 +1,10 @@
-package Prototype.StateArchitecture.State;
+package Prototype.StateArchitecture.State.Match;
 
 import Prototype.SpecificationParser.AddTransformation;
 import Prototype.SpecificationParser.CopyTransformation;
 import Prototype.SpecificationParser.MoveTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
+import Prototype.StateArchitecture.State.State;
 import Prototype.StateArchitecture.Transducer.BufferTransducer;
 import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonGenerator;

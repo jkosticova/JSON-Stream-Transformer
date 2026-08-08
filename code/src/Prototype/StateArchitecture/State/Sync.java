@@ -3,7 +3,9 @@ package Prototype.StateArchitecture.State;
 import Prototype.SpecificationParser.CopyTransformation;
 import Prototype.SpecificationParser.MoveTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
+import Prototype.StateArchitecture.State.Eval.EvalPath;
 import Prototype.StateArchitecture.State.FreeTraversal.MeminSkip;
+import Prototype.StateArchitecture.State.Match.MatchPath;
 import Prototype.StateArchitecture.Transducer.BufferTransducer;
 import Prototype.StateArchitecture.Transducer.StackTransducer;
 
@@ -37,7 +39,7 @@ public class Sync implements State {
 
             // explicit synchronization
             // DEST matched first, end of MeminSkip
-            if ((sourceState instanceof Match) && (destinationState instanceof MeminSkip)) {
+            if ((sourceState instanceof MatchPath) && (destinationState instanceof MeminSkip)) {
 
                 destinationTransducer.setState(destinationTransducer.getGenState());
                 // !!! performs move to value and value shouldn't be place into memory by
@@ -68,9 +70,9 @@ public class Sync implements State {
             // synchronization must happen one step before match, otherwise
             // also matched symbol would be put into memory (we don't want this for move
             // transf.)
-            if ((sourceState instanceof Eval) && (destinationState instanceof MeminSkip)) {
+            if ((sourceState instanceof EvalPath) && (destinationState instanceof MeminSkip)) {
                 sourceState.process(parser);
-                if (sourceTransducer.getCurrentState() instanceof Match) {
+                if (sourceTransducer.getCurrentState() instanceof MatchPath) {
                     destinationTransducer.setState(destinationTransducer.getGenState());
                     sourceState.process(parser);
                 } else {

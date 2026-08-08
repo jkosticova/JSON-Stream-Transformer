@@ -1,8 +1,9 @@
-package Prototype.StateArchitecture.State;
+package Prototype.StateArchitecture.State.Match;
 
 import Prototype.SpecificationParser.RenameTransformation;
 import Prototype.SpecificationParser.ReplaceTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
+import Prototype.StateArchitecture.State.State;
 import Prototype.StateArchitecture.Transducer.BufferTransducer;
 import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -23,12 +24,12 @@ import static Prototype.Utils.Helper.writeJsonValue;
     
 */
 
-public class Match implements State {
+public class MatchPath implements State {
     private final Transducer transducer;
     private final TransformationFormat specification;
     private final JsonGenerator generator;
 
-    public Match(Transducer transducer) {
+    public MatchPath(Transducer transducer) {
         this.transducer = transducer;
         this.specification = transducer.getSpecification();
         this.generator = transducer.getGenerator();

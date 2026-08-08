@@ -5,14 +5,14 @@ import Prototype.PathAutomaton.PathAutomaton;
 import Prototype.SpecificationParser.CopyTransformation;
 import Prototype.SpecificationParser.MoveTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
-import Prototype.StateArchitecture.State.Eval;
-import Prototype.StateArchitecture.State.FindPos;
-import Prototype.StateArchitecture.State.MatchPos;
 import Prototype.StateArchitecture.State.Memout;
-import Prototype.StateArchitecture.State.Match;
 import Prototype.StateArchitecture.State.State;
+import Prototype.StateArchitecture.State.Eval.EvalPath;
+import Prototype.StateArchitecture.State.Eval.FindPos;
 import Prototype.StateArchitecture.State.FreeTraversal.Gen;
 import Prototype.StateArchitecture.State.FreeTraversal.MeminSkip;
+import Prototype.StateArchitecture.State.Match.MatchPath;
+import Prototype.StateArchitecture.State.Match.MatchPos;
 import Prototype.StateArchitecture.State.SubtreeTraversal.SubtreeGen;
 import Prototype.StateArchitecture.State.SubtreeTraversal.SubtreeMemin;
 import Prototype.StateArchitecture.State.SubtreeTraversal.SubtreeSkip;
@@ -60,8 +60,8 @@ public abstract class Transducer {
 
 
     // resuable states (must be reused due to measuremennt nethod that counts all memory allocations)
-    protected Eval evalState;
-    protected Match matchState;
+    protected EvalPath evalState;
+    protected MatchPath matchState;
     protected Gen genState;
     protected SubtreeSkip skipSubtreeState;
     protected SubtreeGen genSubtreeState;
@@ -101,8 +101,8 @@ public abstract class Transducer {
 
     // states must be initalized outside constructor, because they need initialized fields from subclasses' constructors
     protected void initStates() {
-        evalState = new Eval(this);
-        matchState = new Match(this);
+        evalState = new EvalPath(this);
+        matchState = new MatchPath(this);
         skipSubtreeState = new SubtreeSkip(this);
         genSubtreeState = new SubtreeGen(this);
         findPosState = new FindPos(this);
