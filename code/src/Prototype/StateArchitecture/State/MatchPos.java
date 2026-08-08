@@ -1,6 +1,7 @@
 package Prototype.StateArchitecture.State;
 
 import Prototype.SpecificationParser.AddTransformation;
+import Prototype.SpecificationParser.CopyTransformation;
 import Prototype.SpecificationParser.TransformationFormat;
 import Prototype.StateArchitecture.Transducer.Transducer;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -28,15 +29,25 @@ public class MatchPos implements State {
                 try {
                     if (((AddTransformation) specification).getKey() != null) {
                         generator.writeFieldName(((AddTransformation) specification).getKey());
-                        writeJsonValue(generator, ((AddTransformation) specification).getValue());                                             
-                    } else {
-                        writeJsonValue(generator, ((AddTransformation) specification).getValue());                                                
-                    }                    
-                    transducer.setState(transducer.getGenState());                    
-                    transducer.setPaused(true);
+                    }
+                    writeJsonValue(generator, ((AddTransformation) specification).getValue());                                                                                        
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+                transducer.setState(transducer.getGenState());                    
+                transducer.setPaused(true);
+                break;
+            case "copy":
+                try {
+                    if (((CopyTransformation) specification).getKey() != null) {
+                            generator.writeFieldName(((CopyTransformation) specification).getKey());
+                    }
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+                transducer.setState(transducer.getMemoutState());
+                transducer.setPaused(true);
                 break;
             default:
                 break;

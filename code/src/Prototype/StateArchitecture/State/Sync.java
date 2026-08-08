@@ -52,35 +52,13 @@ public class Sync implements State {
                  * -> gen
                  * -> gen
                  */
-                // source Match handled
-            /*    if ((sourceState instanceof Match) && (destinationState instanceof Eval)) {
-                    // generate current fieldname in case of object member match
-                    if (parser.currentToken().equals(JsonToken.FIELD_NAME)) {
-                        try {
-                            generator.copyCurrentEvent(parser);
-                        } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                    }
-
-                    sourceTransducer.setState(sourceTransducer.getMeminSubtreeState());
-                    sourceTransducer.processValueAfterMatch();
-                    destinationTransducer.setPaused(false);
-                    // (gen, matchPos) -> (gen, memout)
-
-                    // destination MatchPos handled
-                } else */ if ((sourceState instanceof Gen) && (destinationState instanceof MatchPos)) {
-                    if (((CopyTransformation) specification).getKey() != null) {
-                        generator.writeFieldName(((CopyTransformation) specification).getKey());
-                    }
-                    destinationTransducer.setState(new Memout(destinationTransducer));
-                    destinationTransducer.setPaused(true);
+               /*  if ((sourceState instanceof Gen) && (destinationState instanceof MatchPos)) {
+                  */  
 
                     /* DESTINATION MATCHED FIRST */
 
                     // (Eval, MatchPos) -> (Eval, MeminDel)
-                } else if ((sourceState instanceof Eval) && (destinationState instanceof MatchPos)) {
+                if ((sourceState instanceof Eval) && (destinationState instanceof MatchPos)) {
 
                     if (((CopyTransformation) specification).getKey() != null) {
                         String key = ((CopyTransformation) specification).getKey();
