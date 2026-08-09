@@ -1,3 +1,10 @@
 run,algorithm,specification,input,setupRounds,evaluationRounds,allocationBytes,bytesPerRun
 0,baseline,null,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,7499128128,14998256
+0,move,specMoveDestFirst_elements22400,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,16871603304,33743206
 0,baseline,null,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,7499128128,14998256
+0,copy,specCopyDestFirst_elements22400,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,16871643568,33743287
+0,move,specMoveDestFirst_elements130,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,7558139472,15116278
+0,move,specMoveDestFirst_elements1400,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,8089187400,16178374
+0,move,specMoveDestFirst_elements2800,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,8674839304,17349678
+0,move,specMoveDestFirst_elements5600,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,9845859568,19691719
+0,move,specMoveDestFirst_elements11200,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,12187763472,24375526

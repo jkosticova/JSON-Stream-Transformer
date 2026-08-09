@@ -1,0 +1,13 @@
+run,algorithm,specification,input,setupRounds,evaluationRounds,allocationBytes,bytesPerRun
+0,baseline,null,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,7499128128,14998256
+0,baseline,null,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,7499128128,14998256
+0,copy,specCopyDestFirst_elements7,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,7506867304,15013734
+0,copy,specCopyDestFirst_elements130,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,7558175472,15116350
+0,copy,specCopyDestFirst_elements2800,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,8695743304,17391486
+0,copy,specCopyDestFirst_elements11400,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,12271391304,24542782
+0,copy,specCopyDestFirst_elements28400,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,19380775304,38761550
+0,move,specMoveDestFirst_elements7,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,7506831472,15013662
+0,move,specMoveDestFirst_elements130,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,7558139304,15116278
+0,move,specMoveDestFirst_elements2800,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,8674839472,17349678
+0,move,specMoveDestFirst_elements11400,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,12271359472,24542718
+0,move,specMoveDestFirst_elements28400,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,19380743304,38761486

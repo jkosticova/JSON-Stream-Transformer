@@ -6,17 +6,19 @@
 # specification and input file combinations in the JSON transformation prototype.
 $input = "evaluationInput_5_24666543"  
 
-$specs = @(    
-    "specCopyDestFirst_elements7",
-    "specCopyDestFirst_elements130",
-    "specCopyDestFirst_elements2800",
-    "specCopyDestFirst_elements11400",
-    "specCopyDestFirst_elements28400",
-    "specMoveDestFirst_elements7",
+$specs = @(        
+ #   "specCopyDestFirst_elements130",
+ #   "specCopyDestFirst_elements1400",
+ #   "specCopyDestFirst_elements2800",
+ #   "specCopyDestFirst_elements5600",
+ #   "specCopyDestFirst_elements11200",
+    "specCopyDestFirst_elements22400",
     "specMoveDestFirst_elements130",
+    "specMoveDestFirst_elements1400",
     "specMoveDestFirst_elements2800",
-    "specMoveDestFirst_elements11400",
-    "specMoveDestFirst_elements28400"
+    "specMoveDestFirst_elements5600",
+    "specMoveDestFirst_elements11200"
+ #   "specMoveDestFirst_elements22400"
 )
 
 setx JAVA_HOME "c:\Users\kosticova\.jdks\openjdk-21.0.2"

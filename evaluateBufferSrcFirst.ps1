@@ -8,10 +8,18 @@
 $tests = @(    
 @{ Spec = "specCopySrcFirst";    Input = "evaluationInput_elements0130" },
 @{ Spec = "specCopySrcFirst";    Input = "evaluationInput_elements1000" },
+@{ Spec = "specCopySrcFirst";    Input = "evaluationInput_elements2500" },
+@{ Spec = "specCopySrcFirst";    Input = "evaluationInput_elements5000" },
 @{ Spec = "specCopySrcFirst";    Input = "evaluationInput_elements7500" },
+@{ Spec = "specCopySrcFirst";    Input = "evaluationInput_elements10000" },
+@{ Spec = "specCopySrcFirst";    Input = "evaluationInput_elements15000" },
 @{ Spec = "specMoveSrcFirst";    Input = "evaluationInput_elements0130" },
 @{ Spec = "specMoveSrcFirst";    Input = "evaluationInput_elements1000" },
-@{ Spec = "specMoveSrcFirst";    Input = "evaluationInput_elements7500" }
+@{ Spec = "specMoveSrcFirst";    Input = "evaluationInput_elements2500" },
+@{ Spec = "specMoveSrcFirst";    Input = "evaluationInput_elements5000" },
+@{ Spec = "specMoveSrcFirst";    Input = "evaluationInput_elements7500" },
+@{ Spec = "specMoveSrcFirst";    Input = "evaluationInput_elements10000" },
+@{ Spec = "specMoveSrcFirst";    Input = "evaluationInput_elements15000" }
 )
 
 setx JAVA_HOME "c:\Users\kosticova\.jdks\openjdk-21.0.2"
