@@ -45,9 +45,7 @@ public class EvalPath implements State {
                     transducer.handleArrayElement();
                 }
                 if (transducer.isFinal()) {
-                    transitionToMatch();
-                    transducer.pushArray();                    
-                    return;
+                    transitionToMatch();                    
                 }
                 transducer.pushArray();                    
                 break;
@@ -62,9 +60,7 @@ public class EvalPath implements State {
                     transducer.handleArrayElement();
                 }
                 if (transducer.isFinal()) {
-                    transitionToMatch();
-                    transducer.pushObject();
-                    return;
+                    transitionToMatch();                    
                 }
                 transducer.pushObject();
 
@@ -107,8 +103,7 @@ public class EvalPath implements State {
 
                 // fieldname match
                 if (transducer.isFinal()) {
-                    transitionToMatch();
-                    return;
+                    transitionToMatch();                    
                 }
 
                 break;
@@ -122,13 +117,14 @@ public class EvalPath implements State {
                     transducer.handleArrayElement();
                 }
                 if (transducer.isFinal()) {
-                    transitionToMatch();
-
-                    return;
+                    transitionToMatch();                 
                 }
-
-                paStack.pop(); // pop new state in case of array or fieldname
+                else {
+                    paStack.pop(); // pop new state in case of array or fieldname
+                }
                 break;
+            default:
+                break;    
         }
     }
 
