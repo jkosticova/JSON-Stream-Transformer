@@ -32,7 +32,7 @@ public class FindPos implements State {
     private TransformationFormat specification;    
     // we use depth integer instead of using stack to remember current nesting level
     private int depth;
-    private Integer searchedIndex = null;
+    private int searchedIndex = -1;
     
     public FindPos(Transducer transducer){
         if (!(transducer instanceof StackTransducer)) {
@@ -48,15 +48,22 @@ public class FindPos implements State {
 
     private void init() {                
         this.specification = transducer.getSpecification();
+        Integer searchedIndexInteger = null;
         if (specification instanceof AddTransformation) {
-            this.searchedIndex = ((AddTransformation) specification).getIndex();
+            searchedIndexInteger = ((AddTransformation) specification).getIndex();
         }
         else if (specification instanceof CopyTransformation) {
-            this.searchedIndex = ((CopyTransformation) specification).getIndex();
+            searchedIndexInteger = ((CopyTransformation) specification).getIndex();
         }
         else if (specification instanceof MoveTransformation) {
-            this.searchedIndex = ((MoveTransformation) specification).getIndex();
+            searchedIndexInteger = ((MoveTransformation) specification).getIndex();
         };                                    
+        if (searchedIndexInteger == null) {
+            this.searchedIndex = -1;
+        }
+        else {
+            this.searchedIndex = searchedIndexInteger;
+        }
     }
 
     @Override

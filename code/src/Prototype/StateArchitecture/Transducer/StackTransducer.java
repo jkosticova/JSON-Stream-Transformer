@@ -1,38 +1,34 @@
 package prototype.stateArchitecture.transducer;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import prototype.mapper.SpecificationMapper;
 import prototype.pathAutomaton.*;
-import prototype.specificationParser.CopyTransformation;
-import prototype.specificationParser.MoveTransformation;
 import prototype.stateArchitecture.state.*;
 import prototype.stateArchitecture.state.eval.EvalPath;
 import prototype.stateArchitecture.state.eval.FindPos;
-import prototype.stateArchitecture.state.freeTraversal.Gen;
-import prototype.stateArchitecture.state.freeTraversal.MeminSkip;
 import prototype.stateArchitecture.state.match.MatchPath;
 import prototype.stateArchitecture.state.match.MatchPos;
 import prototype.stateArchitecture.state.subtreeTraversal.SubtreeGen;
-import prototype.stateArchitecture.state.subtreeTraversal.SubtreeMemin;
 import prototype.stateArchitecture.state.subtreeTraversal.SubtreeSkip;
-import prototype.stateArchitecture.state.subtreeTraversal.SubtreeSkipMemin;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Stack;
 
 public class StackTransducer extends Transducer {
     public static final int INITIAL_PA_STATE = 0;
     public static final int OBJECT_ARR_INDEX = -1;
 
-    // stacks
-    private Stack<Integer> paStack;
-    private Stack<Integer> indexStack;
+    // primitive stacks
+    private int[] paStack = new int[32];
+    private int paStackSize = 0;
+    private int[] indexStack = new int[32];
+    private int indexStackSize = 0;
+    
+
 
     // reusable states
     protected EvalPath evalPathState;
@@ -69,15 +65,13 @@ public class StackTransducer extends Transducer {
             throw new TransducerException("Could not open output stream for generation", e);
         }*/
 
-        // stacks
-        this.paStack = new Stack<>();
-        this.indexStack = new Stack<>();
+        // stacks        
         this.path = specification.getPath();
 
         
         
-        this.pa = new SimplePathAutomaton(path);
-        paStack.push(INITIAL_PA_STATE);
+        this.pa = new SimplePathAutomaton(path);        
+        pushPaStack(INITIAL_PA_STATE);
                 
         initStates();
         currentState = evalPathState;
@@ -113,7 +107,7 @@ public class StackTransducer extends Transducer {
                     event = parser.nextToken();
                 }
                 // EOF && empty stack
-                if (event == null || paStack.isEmpty()) {
+                if (event == null || paStackSize == 0) {
                     break;
                 }
                 this.getCurrentState().process(parser);
@@ -137,69 +131,127 @@ public class StackTransducer extends Transducer {
         return success;
     }
 
+    private void ensurePaStackCapacity() {
+        if (paStackSize < paStack.length) {
+            return;
+        }
+        paStack = Arrays.copyOf(paStack, paStack.length * 2);
+    }
+
+    private void ensureIndexStackCapacity() {
+        if (indexStackSize < indexStack.length) {
+            return;
+        }
+
+        indexStack = Arrays.copyOf(indexStack, indexStack.length * 2);
+    }
+    
+    private void pushPaStack(int val) {
+         ensurePaStackCapacity();
+         paStack[paStackSize++] = val;
+    }
+    public void pushIndexStack(int index) {
+    ensureIndexStackCapacity();
+    indexStack[indexStackSize++] = index;
+}
+
+public int popIndexStack() {
+    if (indexStackSize == 0) {
+        throw new IllegalStateException("Array index stack is empty");
+    }
+
+    return indexStack[--indexStackSize];
+}
+
+public int popPaStack() {
+    if (paStackSize == 0) {
+        throw new IllegalStateException("Array index stack is empty");
+    }
+
+    return paStack[--paStackSize];
+}
+
+
+public int indexStackPeek() {
+    if (indexStackSize == 0) {
+        throw new IllegalStateException("Array index stack is empty");
+    }
+
+    return indexStack[indexStackSize - 1];
+}
+
+public int paStackPeek() {
+    if (paStackSize == 0) {
+        throw new IllegalStateException("Array index stack is empty");
+    }
+
+    return paStack[paStackSize - 1];
+}
+
     public void pushArray() {
-        paStack.push(State.ARR_MARKER);
-        indexStack.push(0);
+        pushPaStack(State.ARR_MARKER);
+        pushIndexStack(0);
     }
 
     public void pushObject() {
-        paStack.push(State.OBJ_MARKER);        
+        pushPaStack(State.OBJ_MARKER);        
     }
     
     public boolean inArray() {
-        return paStack.peek().equals(State.ARR_MARKER);
+        return paStackPeek() == State.ARR_MARKER;
     }
 
     public boolean isFinal() {
-        return pa.isFinal(paStack.peek());
+        return pa.isFinal(paStackPeek());
     }
 
     private int getCurrentPaState() {
         int paState;
         // field name after start object or start array
-        if (paStack.peek() < 0) {
-            int marker = paStack.pop(); // pop OBJ_MARKER
-            paState = paStack.peek();
-            paStack.push(marker); // push OBJ_MARKER back
+        if (paStackPeek() < 0) {
+            int marker = popPaStack(); // pop OBJ_MARKER
+            paState = paStackPeek();
+            pushPaStack(marker); // push OBJ_MARKER back
         }
         // field name within object
         else {
-            paState = paStack.peek();
+            paState = paStackPeek();
         }
         return paState;
     }
 
     public void transitionOnKey(String key) {
         int paState = this.getCurrentPaState();
-        paStack.push(pa.transition(paState, key));   
+        pushPaStack(pa.transition(paState, key));   
     }
 
     public void popArray() {
-        indexStack.pop();
-        paStack.pop();
-        paStack.pop();
+        popIndexStack();
+        popPaStack();
+        popPaStack();        
 
     }
 
     public void popObject() {
-        if (!paStack.peek().equals(State.ARR_MARKER)) {
-            paStack.pop();
+        if (paStackPeek() != State.ARR_MARKER) {
+            popPaStack();
         }
-        if (!paStack.peek().equals(State.ARR_MARKER)) {
-            paStack.pop();
+        if (paStackPeek() != State.ARR_MARKER) {
+            popPaStack();
         }
     }
 
     public void popPrimitive() {    
-        paStack.pop();
+        popPaStack();
     }
 
-    public boolean atArrayIndex(Integer searchedIndex) {
-        return inArray() && searchedIndex.equals(indexStack.peek());
+    // !!!!
+    public boolean atArrayIndex(int searchedIndex) {
+        return inArray() && searchedIndex == indexStackPeek();
     }
     public void increaseArraySize() {
-        int i = indexStack.pop();
-        indexStack.push(i+1);
+        int i = popIndexStack();
+        pushIndexStack(i+1);
     }
             
     /*
@@ -208,12 +260,13 @@ public class StackTransducer extends Transducer {
      */
 
     public void handleArrayElement() {
-        Integer i = indexStack.pop();
-        paStack.pop(); // pop ARR_MARKER
-        int paState = paStack.peek();
-        paStack.push(State.ARR_MARKER); // push ARR_MARKER back
-        paStack.push(pa.transition(paState, i.toString()));
-        indexStack.push(i + 1);
+        int i = popIndexStack();
+        popPaStack(); // pop ARR_MARKER
+        int paState = paStackPeek();
+        pushPaStack(State.ARR_MARKER); // push ARR_MARKER back
+        // converting integer to string !!!!
+        pushPaStack(pa.transition(paState, Integer.toString(i)));
+        pushIndexStack(i + 1);
     }
 
     // move to value and if it is a structure, process opening token
@@ -225,24 +278,15 @@ public class StackTransducer extends Transducer {
         }
 
         if (parser.currentToken() == JsonToken.START_ARRAY) {
-            paStack.push(State.ARR_MARKER);
-            indexStack.push(0);
+            pushPaStack(State.ARR_MARKER);
+            pushIndexStack(0);
         }
         else if (parser.currentToken() == JsonToken.START_OBJECT) {
-            paStack.push(State.OBJ_MARKER);
+            pushPaStack(State.OBJ_MARKER);
         }
-    }
+    }                
 
-
-            
-    protected Stack<Integer> getPaStack() {
-        return this.paStack;
-    }
-
-    protected Stack<Integer> getIndexStack() {
-        return this.indexStack;
-    }
-
+    /* Destination BufferStackTransducer needs to redefine pa according to destPath*/
     protected PathAutomaton getPa() {
         return this.pa;
     }
