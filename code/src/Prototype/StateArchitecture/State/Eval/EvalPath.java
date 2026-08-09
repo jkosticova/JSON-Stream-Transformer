@@ -74,17 +74,7 @@ public class EvalPath implements State {
                 }
 
                 break;
-            case FIELD_NAME:
-                // field name after start object or start array
-                if (paStack.peek() < 0) {
-                    int marker = paStack.pop(); // pop OBJ_MARKER
-                    paState = paStack.peek();
-                    paStack.push(marker); // push OBJ_MARKER back
-                }
-                // field name within object
-                else {
-                    paState = paStack.peek();
-                }
+            case FIELD_NAME:                
 
                 // getText() is the only call in this method that declares a
                 // checked exception (IOException, from the underlying
@@ -99,7 +89,7 @@ public class EvalPath implements State {
                     throw new TransducerException("Failed to read field name during path evaluation", e);
                 }
 
-                paStack.push(pa.transition(paState, fieldName));
+                transducer.transitionOnKey(fieldName);                
 
                 // fieldname match
                 if (transducer.isFinal()) {

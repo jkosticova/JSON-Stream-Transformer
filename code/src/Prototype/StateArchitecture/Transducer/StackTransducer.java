@@ -145,17 +145,33 @@ public class StackTransducer extends Transducer {
     public void pushObject() {
         paStack.push(State.OBJ_MARKER);        
     }
-
-    public int getPaStackPeek() {
-        return paStack.peek();
-    }
-
+    
     public boolean inArray() {
         return paStack.peek().equals(State.ARR_MARKER);
     }
 
     public boolean isFinal() {
         return pa.isFinal(paStack.peek());
+    }
+
+    private int getCurrentPaState() {
+        int paState;
+        // field name after start object or start array
+        if (paStack.peek() < 0) {
+            int marker = paStack.pop(); // pop OBJ_MARKER
+            paState = paStack.peek();
+            paStack.push(marker); // push OBJ_MARKER back
+        }
+        // field name within object
+        else {
+            paState = paStack.peek();
+        }
+        return paState;
+    }
+
+    public void transitionOnKey(String key) {
+        int paState = this.getCurrentPaState();
+        paStack.push(pa.transition(paState, key));   
     }
 
     /*
