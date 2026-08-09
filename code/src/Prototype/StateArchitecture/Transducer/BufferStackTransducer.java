@@ -4,6 +4,10 @@ package prototype.stateArchitecture.transducer;
 import com.fasterxml.jackson.core.JsonToken;
 
 import prototype.mapper.SpecificationMapper;
+import prototype.pathAutomaton.PathAutomaton;
+import prototype.pathAutomaton.SimplePathAutomaton;
+import prototype.specificationParser.CopyTransformation;
+import prototype.specificationParser.MoveTransformation;
 import prototype.stateArchitecture.state.Memout;
 import prototype.stateArchitecture.state.State;
 import prototype.stateArchitecture.state.freeTraversal.MeminSkip;
@@ -31,6 +35,20 @@ public class BufferStackTransducer extends StackTransducer {
 
         this.parentTransducer = parentTransducer;                        
         this.transducerRole = role;
+                
+        // overwrite path and PA for destination transducer
+        if (transducerRole == DEST_TRANSDUCER) {                
+            if (transformationType.equals("copy")) {
+                this.path = ((CopyTransformation) specification).getDestPath();
+            }
+            else if (transformationType.equals("move")) {
+                this.path = ((MoveTransformation) specification).getDestPath();
+            }
+        }    
+        
+        PathAutomaton newPa = new SimplePathAutomaton(path);
+        this.setPa(newPa);        
+        //this.getPaStack().push(INITIAL_PA_STATE);
         
         initStates();
         currentState = evalPathState;

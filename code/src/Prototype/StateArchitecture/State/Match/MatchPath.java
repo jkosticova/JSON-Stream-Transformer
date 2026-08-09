@@ -118,7 +118,7 @@ public class MatchPath implements State {
                         generateCurrentFieldName(parser);
                     }
                 }
-                // simple and dest transducer go to FindPos
+                // dest transducer go to FindPos
                 else {
                     transducer.setState(transducer.getFindPosState());
                     generateCurrentFieldName(parser);
@@ -130,7 +130,7 @@ public class MatchPath implements State {
                     throw new IllegalArgumentException(
                             "Move transformation requires a BufferStackTransducer");
                 }
-                // source transducer goes to MeminSubtree
+                // source transducer goes to MeminSubtreeSkip
                 if (bTransducer.getTransducerRole() == BufferStackTransducer.SRC_TRANSDUCER) {
                     if (bTransducer.getFirstMatch() == BufferSyncTransducer.SRC_FIRST) {
                         bTransducer.setState(bTransducer.getSubtreeSkipMeminState());
@@ -140,7 +140,7 @@ public class MatchPath implements State {
                     // don't generate fieldname
                     // we wither remove key value pair (object member) or a value (array element)
                 }
-                // simple and dest transducer go to FindPos
+                // dest transducer go to FindPos
                 else {
                     transducer.setState(transducer.getFindPosState());
                     generateCurrentFieldName(parser);

@@ -72,28 +72,9 @@ public class StackTransducer extends Transducer {
         // stacks
         this.paStack = new Stack<>();
         this.indexStack = new Stack<>();
+        this.path = specification.getPath();
 
-        if (this instanceof BufferStackTransducer) {
-            BufferStackTransducer bTransducer = (BufferStackTransducer)this;
-            // source transducer
-            if (bTransducer.getTransducerRole() != BufferStackTransducer.DEST_TRANSDUCER) {
-                this.path = specification.getPath();
-            }
-            // destination transducer
-            else if (transformationType.equals("copy")) {
-                this.path = ((CopyTransformation) specification).getDestPath();
-            }
-            else if (transformationType.equals("move")) {
-                this.path = ((MoveTransformation) specification).getDestPath();
-            }
-            else {            
-                throw new IllegalStateException(
-                        "DEST_TRANSDUCER is only valid for copy/move transformations, got type: " + transformationType);
-            }    
-        }
-        else {
-            this.path = specification.getPath();
-        }
+        
         
         this.pa = new SimplePathAutomaton(path);
         paStack.push(INITIAL_PA_STATE);
@@ -166,6 +147,10 @@ public class StackTransducer extends Transducer {
 
     public PathAutomaton getPa() {
         return this.pa;
+    }
+
+    public void setPa(PathAutomaton pa) {
+        this.pa = pa;
     }
     
     public void moveToValue() {
