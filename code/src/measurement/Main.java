@@ -1,4 +1,4 @@
-package measurements;
+package measurement;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;

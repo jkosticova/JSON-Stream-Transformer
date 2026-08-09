@@ -1,8 +1,9 @@
 ## Overview
 
 This repository contains a Java-based prototype for JSON transformation and mapping.
+It is build upon a Master Thesis project of Michelle Gavlák.
 
-The project supports JSON transformation specifications for operations such as:
+The project supports JSON transformation specifications for the operations:
 - `identity`
 - `add`
 - `copy`
@@ -17,15 +18,15 @@ It includes a prototype transformation engine, a measurement harness, JSON schem
 
 - `code/`
   - `src/` - Java source files
-    - `Prototype/` - main transformation engine, mapper, state architecture, and parser
-    - `Measurements/` - performance measurement harness using JDK Flight Recorder
+    - `prototype/` - main transformation engine, path automaton, mapper, state architecture, and specification parser
+    - `measurement/` - performance measurement harness using com.sun.management.ThreadMXBean for counting total heap allocations
   - `test/` - JUnit tests for transformation correctness
-- `JsonExamples/`
-  - `SpecificationFiles/` - example transformation specifications
-  - `InputData/` - sample JSON input files
-  - `Evaluation/` - measurement and evaluation specs, expected outputs, results
+- `measurements/`
+  - `specification/` - sample transformation specifications
+  - `inputs/` - sample JSON input files
 - `evaluateAll.ps1` - PowerShell script to run full evaluation workload
-- `evaluateCopyAndMove.ps1` - PowerShell script for copy/move workload evaluation
+- `evaluateBufferSrcFirst.ps1` - PowerShell script for evaluation of copy/move src-first scenario
+- `evaluateBufferDestFirst.ps1` - PowerShell script for evaluation of copy/move dest-first scenario
 - `pom.xml` - Maven build configuration
 
 ## Dependencies
