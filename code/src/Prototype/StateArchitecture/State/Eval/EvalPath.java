@@ -42,10 +42,10 @@ public class EvalPath implements State {
         switch (event) {
             case START_ARRAY:
                 if (transducer.inArray()) {
-                    handleArrayElement();
+                    transducer.handleArrayElement();
                 }
                 if (transducer.isFinal()) {
-                    transitionToMatch(VALUE_MATCH);
+                    transitionToMatch();
                     transducer.pushArray();                    
                     return;
                 }
@@ -59,10 +59,10 @@ public class EvalPath implements State {
                 break;
             case START_OBJECT:
                  if (transducer.inArray()) {
-                    handleArrayElement();
+                    transducer.handleArrayElement();
                 }
                 if (transducer.isFinal()) {
-                    transitionToMatch(VALUE_MATCH);
+                    transitionToMatch();
                     transducer.pushObject();
                     return;
                 }
@@ -107,7 +107,7 @@ public class EvalPath implements State {
 
                 // fieldname match
                 if (transducer.isFinal()) {
-                    transitionToMatch(FIELDNAME_MATCH);
+                    transitionToMatch();
                     return;
                 }
 
@@ -119,10 +119,10 @@ public class EvalPath implements State {
             case VALUE_NUMBER_INT:
             case VALUE_NUMBER_FLOAT:
                 if (transducer.inArray()) {
-                    handleArrayElement();
+                    transducer.handleArrayElement();
                 }
                 if (transducer.isFinal()) {
-                    transitionToMatch(VALUE_MATCH);
+                    transitionToMatch();
 
                     return;
                 }
@@ -135,19 +135,12 @@ public class EvalPath implements State {
     /*
      * Perform transducer transition to match state
      */
-    private void transitionToMatch(byte matchType) {
+    private void transitionToMatch() {
         transducer.setState(transducer.getMatchPathState());
         transducer.setPaused(true);
         transducer.setGenerating(false);        
     }
 
-    private void handleArrayElement() {
-        Integer i = indexStack.pop();
-        paStack.pop(); // pop ARR_MARKER
-        int paState = paStack.peek();
-        paStack.push(ARR_MARKER); // push ARR_MARKER back
-        paStack.push(pa.transition(paState, i.toString()));
-        indexStack.push(i + 1);
-    }
+
 
 }
