@@ -50,8 +50,8 @@ public class Main {
             if (type.equals("copy") || type.equals("move")) {
                 BufferSyncTransducer transducer =  new BufferSyncTransducer(
                         mapper,
-                        inputStream,
-                        outputStream
+                        parser,
+                        generator
                 );
                 transducer.process();
             }

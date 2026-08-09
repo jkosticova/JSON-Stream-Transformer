@@ -59,22 +59,24 @@ class TransformationTest {
 
         InputStream inputStream = new FileInputStream(inputFileName);
         OutputStream outputStream = new FileOutputStream(outputFileName);
+        
+        JsonFactory factory = new JsonFactory();
+        JsonParser parser = IoHandler.createParser(factory, inputStream);
+        
+        // TODO - close parse if generator creation fails
+        JsonGenerator generator = IoHandler.createGenerator(factory, outputStream);
 
         if (mapper.getTransformationFormat().getType().equals("move")) {
-            BufferSyncTransducer bufferTransducer = new BufferSyncTransducer(mapper, inputStream, outputStream);
+            BufferSyncTransducer bufferTransducer = new BufferSyncTransducer(mapper, parser, generator);
             bufferTransducer.process();
         }
         else if (mapper.getTransformationFormat().getType().equals("copy") 
     ) {
-            BufferSyncTransducer bufferTransducer = new BufferSyncTransducer(mapper, inputStream, outputStream);
+            BufferSyncTransducer bufferTransducer = new BufferSyncTransducer(mapper, parser, generator);
             bufferTransducer.process();
         } else {
             Transducer transducer = null;
-            JsonFactory factory = new JsonFactory();
-            JsonParser parser = IoHandler.createParser(factory, inputStream);
-        
-            // TODO - close parse if generator creation fails
-            JsonGenerator generator = IoHandler.createGenerator(factory, outputStream);
+            
             if (mapper.getTransformationFormat().getType().equals("identity")) {
                 transducer = new Transducer(mapper, parser, generator);
             } else {

@@ -32,8 +32,8 @@ public class Main {
 
         String transfType;
         String input;
-        String specificationName = null;
         String inputName;
+        String specificationName = null;        
         Mapper mapper = null;
 
         Path csv = Path.of("JsonExamples/Evaluation/results.csv");
@@ -153,12 +153,14 @@ public class Main {
             Mapper mapper,
             String input) throws IOException {
 
+        JsonFactory factory = new JsonFactory();        
+        
         for (int i = 0; i < setupRounds; i++) {
             try (InputStream inputStream = new FileInputStream(input);
                     OutputStream outputStream = OutputStream.nullOutputStream()) {
 
                 BufferSyncTransducer transducer =
-                        new BufferSyncTransducer(mapper, inputStream, outputStream);
+                        new BufferSyncTransducer(mapper, IoHandler.createParser(factory, inputStream), IoHandler.createGenerator(factory, outputStream));
 
                 transducer.process();
             }
@@ -172,7 +174,7 @@ public class Main {
                         OutputStream outputStream = OutputStream.nullOutputStream()) {
 
                     BufferSyncTransducer transducer =
-                            new BufferSyncTransducer(mapper, inputStream, outputStream);
+                            new BufferSyncTransducer(mapper, IoHandler.createParser(factory, inputStream), IoHandler.createGenerator(factory, outputStream));
 
                     transducer.process();
 

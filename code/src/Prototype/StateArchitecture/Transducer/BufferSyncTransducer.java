@@ -34,16 +34,12 @@ public class BufferSyncTransducer {
     TransformationFormat specification;
     public boolean generateFromSource;
 
-    public BufferSyncTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {
+    public BufferSyncTransducer(SpecificationMapper mapper, JsonParser parser, JsonGenerator generator) {
         specification = mapper.getTransformationFormat();
         paused = false;
-
-        JsonFactory factory = new JsonFactory();
-        parser = IoHandler.createParser(factory, inputStream);
+        this.parser = parser;
+        this.generator = generator;
         
-        // TODO - close parse if generator creation fails
-        generator = IoHandler.createGenerator(factory, outputStream);
-
         buffer = new TokenBuffer((ObjectCodec) null, false);
         sourceTransducer = new BufferStackTransducer(mapper, this, BufferStackTransducer.SRC_TRANSDUCER);
         destinationTransducer = new BufferStackTransducer(mapper, this, BufferStackTransducer.DEST_TRANSDUCER);
