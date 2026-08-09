@@ -1,7 +1,6 @@
 package prototype.stateArchitecture.transducer;
 
 import prototype.mapper.SpecificationMapper;
-import prototype.utils.Helper;
 
 import prototype.specificationParser.*;
 
@@ -18,11 +17,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class BufferTransducer {
+public class BufferSyncTransducer {
     private final State currentState;
     private final StackTransducer sourceTransducer;
     private final StackTransducer destinationTransducer;
-    private byte firstMatch = NONE;
+    private byte firstMatch;
 
     public static final byte NONE = 0;
     public static final byte SRC_FIRST = 1;
@@ -35,31 +34,20 @@ public class BufferTransducer {
     TransformationFormat specification;
     public boolean generateFromSource;
 
-    public BufferTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {
+    public BufferSyncTransducer(SpecificationMapper mapper, InputStream inputStream, OutputStream outputStream) {
         specification = mapper.getTransformationFormat();
         paused = false;
 
         JsonFactory factory = new JsonFactory();
-
-        // Created separately (rather than in one try) so that if the parser
-        // is created successfully but the generator fails, we still close
-        // the parser instead of leaking the open InputStream.
-        try {
-            parser = factory.createParser(inputStream);
-        } catch (IOException e) {
-            throw new TransducerException("Could not open input stream for parsing", e);
-        }
-
-        try {
-            generator = factory.createGenerator(outputStream).useDefaultPrettyPrinter();
-        } catch (IOException e) {
-            closeQuietly(parser);
-            throw new TransducerException("Could not open output stream for generation", e);
-        }
+        parser = IoHandler.createParser(factory, inputStream);
+        
+        // TODO - close parse if generator creation fails
+        generator = IoHandler.createGenerator(factory, outputStream);
 
         buffer = new TokenBuffer((ObjectCodec) null, false);
-        sourceTransducer = new StackTransducer(mapper, this, Transducer.SRC_TRANSDUCER);
-        destinationTransducer = new StackTransducer(mapper, this, Transducer.DEST_TRANSDUCER);
+        sourceTransducer = new BufferStackTransducer(mapper, this, BufferStackTransducer.SRC_TRANSDUCER);
+        destinationTransducer = new BufferStackTransducer(mapper, this, BufferStackTransducer.DEST_TRANSDUCER);
+        this.firstMatch = NONE;
 
         currentState = new Sync(this);
     }
@@ -74,8 +62,7 @@ public class BufferTransducer {
 
     public void addToMemory() {
         try {
-            buffer.copyCurrentEvent(parser);
-            // recordBufferMemory();
+            buffer.copyCurrentEvent(parser);            
         } catch (IOException e) {
             throw new TransducerException("Failed to buffer current token from input", e);
         }
@@ -146,8 +133,8 @@ public class BufferTransducer {
             // Always attempt to release both streams, whether processing
             // succeeded or failed, so a failure here doesn't leak file
             // handles on top of the original problem.
-            closeQuietly(parser);
-            closeQuietly(generator);
+            IoHandler.closeQuietly(parser);
+            IoHandler.closeQuietly(generator);
         }
         return success;
     }
@@ -160,27 +147,13 @@ public class BufferTransducer {
         }
 
         // process value by the other transducer if not paused
-        if (transducerRole == Transducer.SRC_TRANSDUCER && !destinationTransducer.getPaused()) {
+        if (transducerRole == BufferStackTransducer.SRC_TRANSDUCER && !destinationTransducer.getPaused()) {
             destinationTransducer.getCurrentState().process(parser);
-        } else if (transducerRole == Transducer.DEST_TRANSDUCER && !sourceTransducer.getPaused()) {
+        } else if (transducerRole == BufferStackTransducer.DEST_TRANSDUCER && !sourceTransducer.getPaused()) {
             sourceTransducer.getCurrentState().process(parser);
         }
     }
 
-    /**
-     * Closes a Closeable, logging any failure instead of throwing, so that
-     * cleanup of one resource can't mask an already-in-flight exception or
-     * prevent cleanup of the other resource.
-     */
-    private static void closeQuietly(AutoCloseable closeable) {
-        if (closeable == null) {
-            return;
-        }
-        try {
-            closeable.close();
-        } catch (Exception e) {
-            System.err.println("Warning: failed to close resource cleanly: " + e.getMessage());
-        }
-    }
+    
 
 }

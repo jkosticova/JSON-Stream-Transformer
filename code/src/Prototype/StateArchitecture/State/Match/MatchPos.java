@@ -8,7 +8,9 @@ import prototype.specificationParser.CopyTransformation;
 import prototype.specificationParser.MoveTransformation;
 import prototype.specificationParser.TransformationFormat;
 import prototype.stateArchitecture.state.State;
-import prototype.stateArchitecture.transducer.BufferTransducer;
+import prototype.stateArchitecture.transducer.BufferStackTransducer;
+import prototype.stateArchitecture.transducer.BufferSyncTransducer;
+import prototype.stateArchitecture.transducer.StackTransducer;
 import prototype.stateArchitecture.transducer.Transducer;
 
 import static prototype.utils.Helper.writeJsonValue;
@@ -25,13 +27,22 @@ import java.io.IOException;
 */
 public class MatchPos implements State {
     private final Transducer transducer;    
+    private final BufferStackTransducer bTransducer;    
     private final TransformationFormat specification;
     private final JsonGenerator generator;
 
     public MatchPos(Transducer transducer) {
+        
         this.transducer = transducer;
+
+        if (transducer instanceof BufferStackTransducer bufferStackTransducer) {
+            this.bTransducer = bufferStackTransducer;
+        } else {
+            this.bTransducer = null;
+        }
+
         this.specification = transducer.getSpecification();
-        this.generator = transducer.getGenerator();          
+        this.generator = transducer.getGenerator();
     }
 
     @Override
@@ -50,6 +61,11 @@ public class MatchPos implements State {
                 transducer.setState(transducer.getGenState());                                    
                 break;
             case "copy":
+                if (bTransducer == null) {
+                    throw new IllegalArgumentException(
+                    "Copy transformation requires a BufferStackTransducer"
+                    );
+                }
                 try {
                     if (((CopyTransformation) specification).getKey() != null) {
                             generator.writeFieldName(((CopyTransformation) specification).getKey());
@@ -58,18 +74,25 @@ public class MatchPos implements State {
                 catch (IOException e) {
                     e.printStackTrace();
                 }                
-                if (transducer.getFirstMatch() == BufferTransducer.SRC_FIRST) {
-                    transducer.setState(transducer.getMemoutState());
+                if (bTransducer.getFirstMatch() == BufferSyncTransducer.SRC_FIRST) {
+                    bTransducer.setState(bTransducer.getMemoutState());
                 }
-                else if (transducer.getFirstMatch() == BufferTransducer.DEST_FIRST) {
-                    transducer.setState(transducer.getMeminSkipState());
+                else if (bTransducer.getFirstMatch() == BufferSyncTransducer.DEST_FIRST) {
+                    bTransducer.setState(bTransducer.getMeminSkipState());
                 }
                 else {
-                    // TODO report error
-                }
+                    throw new IllegalArgumentException(
+                    "Copy: In MatchPos state, the first match must be recorded for BufferStackTransducer"
+                    );
+                }              
                 break;
             case "move":  
-                  try {
+                if (bTransducer == null) {
+                    throw new IllegalArgumentException(
+                    "Move transformation requires a BufferStackTransducer"
+                    );
+                }
+                try {
                     if (((MoveTransformation) specification).getKey() != null) {
                             generator.writeFieldName(((MoveTransformation) specification).getKey());
                     }
@@ -77,14 +100,16 @@ public class MatchPos implements State {
                 catch (IOException e) {
                     e.printStackTrace();
                 }                
-                 if (transducer.getFirstMatch() == BufferTransducer.SRC_FIRST) {
-                    transducer.setState(transducer.getMemoutState());
+                if (bTransducer.getFirstMatch() == BufferSyncTransducer.SRC_FIRST) {
+                    bTransducer.setState(bTransducer.getMemoutState());
                 }
-                else if (transducer.getFirstMatch() == BufferTransducer.DEST_FIRST) {
-                    transducer.setState(transducer.getMeminSkipState());
+                else if (bTransducer.getFirstMatch() == BufferSyncTransducer.DEST_FIRST) {
+                    bTransducer.setState(bTransducer.getMeminSkipState());
                 }
                 else {
-                    // TODO report error
+                    throw new IllegalArgumentException(
+                    "Move: In MatchPos state, the first match must be recorded for BufferStackTransducer"
+                    );
                 }              
                 break;              
             default:

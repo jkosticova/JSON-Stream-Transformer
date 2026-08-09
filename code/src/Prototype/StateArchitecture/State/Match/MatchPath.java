@@ -8,7 +8,9 @@ import prototype.specificationParser.RenameTransformation;
 import prototype.specificationParser.ReplaceTransformation;
 import prototype.specificationParser.TransformationFormat;
 import prototype.stateArchitecture.state.State;
-import prototype.stateArchitecture.transducer.BufferTransducer;
+import prototype.stateArchitecture.transducer.BufferStackTransducer;
+import prototype.stateArchitecture.transducer.BufferSyncTransducer;
+import prototype.stateArchitecture.transducer.StackTransducer;
 import prototype.stateArchitecture.transducer.Transducer;
 
 import static prototype.utils.Helper.writeJsonValue;
@@ -26,26 +28,39 @@ import java.io.IOException;
 */
 
 public class MatchPath implements State {
-    private final Transducer transducer;
+    private final StackTransducer transducer;
+    private final BufferStackTransducer bTransducer;
     private final TransformationFormat specification;
     private final JsonGenerator generator;
 
     public MatchPath(Transducer transducer) {
-        this.transducer = transducer;
+        if (!(transducer instanceof StackTransducer stackTransducer)) {
+            throw new IllegalArgumentException(
+                    "MatchPath requires a StackTransducer");
+        }
+
+        this.transducer = stackTransducer;
+
+        if (stackTransducer instanceof BufferStackTransducer bufferStackTransducer) {
+            this.bTransducer = bufferStackTransducer;
+        } else {
+            this.bTransducer = null;
+        }
+
         this.specification = transducer.getSpecification();
         this.generator = transducer.getGenerator();
     }
 
     @Override
     public void process(JsonParser parser) {
-        JsonToken event = parser.currentToken();        
-        // set first match 
-        if (transducer.getFirstMatch() == BufferTransducer.NONE ) {
-            if (transducer.getTransducerRole() == Transducer.SRC_TRANSDUCER) {
-                transducer.setFirstMatch(BufferTransducer.SRC_FIRST);
-            }
-            else if (transducer.getTransducerRole() == Transducer.DEST_TRANSDUCER) {
-                transducer.setFirstMatch(BufferTransducer.DEST_FIRST);
+        JsonToken event = parser.currentToken();
+
+        // set first match
+        if (bTransducer != null && bTransducer.getFirstMatch() == BufferSyncTransducer.NONE) {
+            if (bTransducer.getTransducerRole() == BufferStackTransducer.SRC_TRANSDUCER) {
+                bTransducer.setFirstMatch(BufferSyncTransducer.SRC_FIRST);
+            } else if (bTransducer.getTransducerRole() == BufferStackTransducer.DEST_TRANSDUCER) {
+                bTransducer.setFirstMatch(BufferSyncTransducer.DEST_FIRST);
             }
         }
         // parser is positioned at a match - either a fieldname or a value
@@ -86,33 +101,40 @@ public class MatchPath implements State {
                 transducer.setState(transducer.getSubtreeSkipState());
                 break;
             // add and copy yield the same code
-            case "add":                       
+            case "add":
                 transducer.setState(transducer.getFindPosState());
                 // generate current fieldname in case of object member match
-                generateCurrentFieldName(parser);                
+                generateCurrentFieldName(parser);
                 break;
             case "copy":
+                if (bTransducer == null) {
+                    throw new IllegalArgumentException(
+                            "Copy transformation requires a BufferStackTransducer");
+                }
                 // source transducer goes to MeminSubtree
-                if (transducer.getTransducerRole() == Transducer.SRC_TRANSDUCER) {
-                    transducer.setState(transducer.getSubtreeMeminState());
-                    if (transducer.getFirstMatch() == BufferTransducer.SRC_FIRST) {
-                        generateCurrentFieldName(parser);                                         
+                if (bTransducer.getTransducerRole() == BufferStackTransducer.SRC_TRANSDUCER) {
+                    bTransducer.setState(bTransducer.getSubtreeMeminState());
+                    if (bTransducer.getFirstMatch() == BufferSyncTransducer.SRC_FIRST) {
+                        generateCurrentFieldName(parser);
                     }
                 }
                 // simple and dest transducer go to FindPos
                 else {
-                    transducer.setState(transducer.getFindPosState());                    
-                    generateCurrentFieldName(parser);                                     
-                }   
-                
+                    transducer.setState(transducer.getFindPosState());
+                    generateCurrentFieldName(parser);
+                }
+
                 break;
-            case "move":    
+            case "move":
+                if (bTransducer == null) {
+                    throw new IllegalArgumentException(
+                            "Move transformation requires a BufferStackTransducer");
+                }
                 // source transducer goes to MeminSubtree
-                if (transducer.getTransducerRole() == Transducer.SRC_TRANSDUCER) {
-                    if (transducer.getFirstMatch() == BufferTransducer.SRC_FIRST) {
-                        transducer.setState(transducer.getSubtreeSkipMeminState());
-                    }
-                    else if (transducer.getFirstMatch() == BufferTransducer.DEST_FIRST) {
+                if (bTransducer.getTransducerRole() == BufferStackTransducer.SRC_TRANSDUCER) {
+                    if (bTransducer.getFirstMatch() == BufferSyncTransducer.SRC_FIRST) {
+                        bTransducer.setState(bTransducer.getSubtreeSkipMeminState());
+                    } else if (bTransducer.getFirstMatch() == BufferSyncTransducer.DEST_FIRST) {
                         transducer.setState(transducer.getSubtreeGenState());
                     }
                     // don't generate fieldname
@@ -121,17 +143,16 @@ public class MatchPath implements State {
                 // simple and dest transducer go to FindPos
                 else {
                     transducer.setState(transducer.getFindPosState());
-                    generateCurrentFieldName(parser);                
-                }    
-                
-                
-                break;            
+                    generateCurrentFieldName(parser);
+                }
+
+                break;
             default:
-                break;        
+                break;
         }
-        transducer.processValueAfterMatch();                
+        transducer.processValueAfterMatch();
     }
-    
+
     private void generateCurrentFieldName(JsonParser parser) {
         if (parser.currentToken().equals(JsonToken.FIELD_NAME)) {
             try {

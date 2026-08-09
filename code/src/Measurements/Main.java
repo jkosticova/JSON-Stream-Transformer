@@ -5,8 +5,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 
 import prototype.mapper.Mapper;
-import prototype.stateArchitecture.transducer.BufferTransducer;
-import prototype.stateArchitecture.transducer.IdentityTransducer;
+import prototype.stateArchitecture.transducer.BufferSyncTransducer;
+import prototype.stateArchitecture.transducer.IoHandler;
 import prototype.stateArchitecture.transducer.StackTransducer;
 import prototype.stateArchitecture.transducer.Transducer;
 
@@ -157,8 +157,8 @@ public class Main {
             try (InputStream inputStream = new FileInputStream(input);
                     OutputStream outputStream = OutputStream.nullOutputStream()) {
 
-                BufferTransducer transducer =
-                        new BufferTransducer(mapper, inputStream, outputStream);
+                BufferSyncTransducer transducer =
+                        new BufferSyncTransducer(mapper, inputStream, outputStream);
 
                 transducer.process();
             }
@@ -171,8 +171,8 @@ public class Main {
                 try (InputStream inputStream = new FileInputStream(input);
                         OutputStream outputStream = OutputStream.nullOutputStream()) {
 
-                    BufferTransducer transducer =
-                            new BufferTransducer(mapper, inputStream, outputStream);
+                    BufferSyncTransducer transducer =
+                            new BufferSyncTransducer(mapper, inputStream, outputStream);
 
                     transducer.process();
 
@@ -192,11 +192,16 @@ public class Main {
             InputStream inputStream,
             OutputStream outputStream) {
 
+        JsonFactory factory = new JsonFactory();        
         if (mapper.getTransformationFormat().getType().equals("identity")) {
-            return new IdentityTransducer(mapper, inputStream, outputStream);
+            return new Transducer(mapper, 
+                                 IoHandler.createParser(factory, inputStream),
+                                 IoHandler.createGenerator(factory, outputStream));
         }
 
-        return new StackTransducer(mapper, inputStream, outputStream);
+        return new StackTransducer(mapper, 
+                                 IoHandler.createParser(factory, inputStream),
+                                 IoHandler.createGenerator(factory, outputStream));
     }
 
     public static Mapper initializeMapper(String specificationFileName) {

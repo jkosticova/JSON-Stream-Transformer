@@ -3,7 +3,8 @@ package prototype.stateArchitecture.state.subtreeTraversal;
 import com.fasterxml.jackson.core.JsonParser;
 
 import prototype.stateArchitecture.state.State;
-import prototype.stateArchitecture.transducer.BufferTransducer;
+import prototype.stateArchitecture.transducer.BufferStackTransducer;
+import prototype.stateArchitecture.transducer.BufferSyncTransducer;
 import prototype.stateArchitecture.transducer.Transducer;
 
 /* 
@@ -13,11 +14,18 @@ import prototype.stateArchitecture.transducer.Transducer;
     Leaving token: one token after the end of given value
 */
 public class SubtreeMemin implements State {
-    private final Transducer transducer;    
+    private final BufferStackTransducer transducer;    
+    
     private SubtreeProcess subtreeProcessState;
     
     public SubtreeMemin(Transducer transducer) {
-        this.transducer = transducer;
+        
+        if (transducer instanceof BufferStackTransducer bufferStackTransducer) {
+            this.transducer = bufferStackTransducer;
+        } else {
+            throw new IllegalArgumentException(
+                    "SubtreeMemin state requires a BufferStackTransducer");
+        }
         this.subtreeProcessState = new SubtreeProcess();
     
     }
@@ -38,10 +46,10 @@ public class SubtreeMemin implements State {
             try {
                 // also last token of given subtree must be added to the memory
                 //transducer.addToMemory();                
-                if (transducer.getFirstMatch() == BufferTransducer.SRC_FIRST) {
+                if (transducer.getFirstMatch() == BufferSyncTransducer.SRC_FIRST) {
                     transducer.setState(transducer.getGenState());
                 }
-                else if (transducer.getFirstMatch() == BufferTransducer.DEST_FIRST) {
+                else if (transducer.getFirstMatch() == BufferSyncTransducer.DEST_FIRST) {
                     transducer.setState(transducer.getMemoutState());
                 }
                 else {

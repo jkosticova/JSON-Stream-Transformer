@@ -1,9 +1,12 @@
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import prototype.mapper.Mapper;
-import prototype.stateArchitecture.transducer.BufferTransducer;
-import prototype.stateArchitecture.transducer.IdentityTransducer;
+import prototype.stateArchitecture.transducer.BufferSyncTransducer;
+import prototype.stateArchitecture.transducer.IoHandler;
 import prototype.stateArchitecture.transducer.StackTransducer;
 import prototype.stateArchitecture.transducer.Transducer;
 
@@ -58,19 +61,24 @@ class TransformationTest {
         OutputStream outputStream = new FileOutputStream(outputFileName);
 
         if (mapper.getTransformationFormat().getType().equals("move")) {
-            BufferTransducer bufferTransducer = new BufferTransducer(mapper, inputStream, outputStream);
+            BufferSyncTransducer bufferTransducer = new BufferSyncTransducer(mapper, inputStream, outputStream);
             bufferTransducer.process();
         }
         else if (mapper.getTransformationFormat().getType().equals("copy") 
     ) {
-            BufferTransducer bufferTransducer = new BufferTransducer(mapper, inputStream, outputStream);
+            BufferSyncTransducer bufferTransducer = new BufferSyncTransducer(mapper, inputStream, outputStream);
             bufferTransducer.process();
         } else {
             Transducer transducer = null;
+            JsonFactory factory = new JsonFactory();
+            JsonParser parser = IoHandler.createParser(factory, inputStream);
+        
+            // TODO - close parse if generator creation fails
+            JsonGenerator generator = IoHandler.createGenerator(factory, outputStream);
             if (mapper.getTransformationFormat().getType().equals("identity")) {
-                transducer = new IdentityTransducer(mapper, inputStream, outputStream);
+                transducer = new Transducer(mapper, parser, generator);
             } else {
-                transducer = new StackTransducer(mapper, inputStream, outputStream);
+                transducer = new StackTransducer(mapper, parser, generator);
             }
             transducer.process();
         }

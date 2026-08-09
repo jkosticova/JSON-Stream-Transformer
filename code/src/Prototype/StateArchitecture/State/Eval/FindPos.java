@@ -8,6 +8,7 @@ import prototype.specificationParser.CopyTransformation;
 import prototype.specificationParser.MoveTransformation;
 import prototype.specificationParser.TransformationFormat;
 import prototype.stateArchitecture.state.State;
+import prototype.stateArchitecture.transducer.StackTransducer;
 import prototype.stateArchitecture.transducer.Transducer;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ If the previous match was entered at key, it is necessary to move to the corresp
 value and possibly align the content of the stacks.
 */
 public class FindPos implements State {
-    private final Transducer transducer;        
+    private final StackTransducer transducer;        
     private Stack<Integer> paStack;
     private Stack<Integer> indexStack;
     private TransformationFormat specification;    
@@ -35,8 +36,13 @@ public class FindPos implements State {
     private int depth;
     private Integer searchedIndex = null;      
     
-    public FindPos(Transducer transducer) {
-        this.transducer = transducer;
+    public FindPos(Transducer transducer){
+        if (!(transducer instanceof StackTransducer)) {
+            throw new IllegalArgumentException(
+                "MeminSkip requires a StackTransducer"
+            );
+        }
+        this.transducer = (StackTransducer) transducer;        
         init();
         this.depth = 0;
     

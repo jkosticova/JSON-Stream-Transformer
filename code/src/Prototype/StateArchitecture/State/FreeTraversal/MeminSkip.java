@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonParser;
 
 
 import prototype.stateArchitecture.state.State;
+import prototype.stateArchitecture.transducer.BufferStackTransducer;
+import prototype.stateArchitecture.transducer.StackTransducer;
 import prototype.stateArchitecture.transducer.Transducer;
 
 /*
@@ -11,12 +13,17 @@ import prototype.stateArchitecture.transducer.Transducer;
     It does not generate the output.        
 */
 public class MeminSkip implements State {
-    private final Transducer transducer;
+    private final BufferStackTransducer transducer;
     
     public MeminSkip(Transducer transducer) {
-        this.transducer = transducer;    
+    if (!(transducer instanceof BufferStackTransducer)) {
+        throw new IllegalArgumentException(
+            "MeminSkip requires a BufferStackTransducer"
+        );
     }
 
+    this.transducer = (BufferStackTransducer) transducer;
+}
     @Override
     public void process(JsonParser parser) {
         transducer.setPaused(false);        

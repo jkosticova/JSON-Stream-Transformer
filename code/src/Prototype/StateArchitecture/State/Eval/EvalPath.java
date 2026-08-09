@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import prototype.stateArchitecture.state.State;
 import prototype.stateArchitecture.state.match.MatchPath;
+import prototype.stateArchitecture.transducer.BufferStackTransducer;
+import prototype.stateArchitecture.transducer.StackTransducer;
 import prototype.stateArchitecture.transducer.Transducer;
 import prototype.stateArchitecture.transducer.TransducerException;
 import prototype.pathAutomaton.PathAutomaton;
@@ -13,16 +15,21 @@ import java.io.IOException;
 import java.util.Stack;
 
 public class EvalPath implements State {
-    private final Transducer transducer;
+    private final StackTransducer transducer;
     private Stack<Integer> paStack;
     private Stack<Integer> indexStack;
     private PathAutomaton pa;
 
     public EvalPath(Transducer transducer) {
-        this.transducer = transducer;
-        this.paStack = transducer.getPaStack();
-        this.indexStack = transducer.getIndexStack();
-        this.pa = transducer.getPa();
+        if (!(transducer instanceof StackTransducer)) {
+        throw new IllegalArgumentException(
+            "MeminSkip requires a StackTransducer"
+            );
+        }   
+        this.transducer = (StackTransducer)transducer;
+        this.paStack = this.transducer.getPaStack();
+        this.indexStack = this.transducer.getIndexStack();
+        this.pa = this.transducer.getPa();
     }
 
     @Override
@@ -133,8 +140,7 @@ public class EvalPath implements State {
     private void transitionToMatch(byte matchType) {
         transducer.setState(transducer.getMatchPathState());
         transducer.setPaused(true);
-        transducer.setGenerating(false);
-        transducer.matchType = matchType;
+        transducer.setGenerating(false);        
     }
 
     /*

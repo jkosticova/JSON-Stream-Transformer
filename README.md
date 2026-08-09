@@ -69,7 +69,9 @@ mvn exec:java@measurements
 
 ## Evaluation / Measurements
 
-Evaluation and benchmarking are supported by the `Measurements.Main` harness.
+Evaluation and benchmarking are supported by the `measurements.Main` harness.
+
+Adjust JAVA_HOME and $env:Path in the corresponding script before usage.
 
 Example script usage:
 

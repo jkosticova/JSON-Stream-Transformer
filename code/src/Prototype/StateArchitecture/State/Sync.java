@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import prototype.specificationParser.CopyTransformation;
 import prototype.specificationParser.MoveTransformation;
 import prototype.specificationParser.TransformationFormat;
-import prototype.stateArchitecture.transducer.BufferTransducer;
+import prototype.stateArchitecture.transducer.BufferSyncTransducer;
 import prototype.stateArchitecture.transducer.StackTransducer;
 import prototype.stateArchitecture.state.eval.EvalPath;
 import prototype.stateArchitecture.state.freeTraversal.MeminSkip;
@@ -23,7 +23,7 @@ public class Sync implements State {
     private final StackTransducer destinationTransducer;
     private final TransformationFormat specification;
 
-    public Sync(BufferTransducer transducer) {
+    public Sync(BufferSyncTransducer transducer) {
         this.sourceTransducer = transducer.getSourceTransducer();
         this.destinationTransducer = transducer.getDestinationTransducer();
         this.specification = transducer.getSpecification();

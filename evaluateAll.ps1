@@ -39,7 +39,7 @@ foreach ($input in $inputFiles) {
     
     java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch `
             -cp "target\classes;out\production\code;target\dependency\*" `
-            Measurements.Main `
+            measurements.Main `
             "JsonExamples\$input.json"
     
     foreach ($spec in $specifications) {
@@ -49,7 +49,7 @@ foreach ($input in $inputFiles) {
 
         java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch `
             -cp "target\classes;out\production\code;target\dependency\*" `
-            Measurements.Main `
+            measurements.Main `
             "JsonExamples\Evaluation\$spec.json" `
             "JsonExamples\$input.json"
 

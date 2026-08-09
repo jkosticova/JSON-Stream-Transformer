@@ -1,73 +1,89 @@
 package prototype;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+
 import prototype.mapper.Mapper;
-import prototype.stateArchitecture.transducer.BufferTransducer;
-import prototype.stateArchitecture.transducer.IdentityTransducer;
+import prototype.stateArchitecture.transducer.BufferSyncTransducer;
+import prototype.stateArchitecture.transducer.IoHandler;
 import prototype.stateArchitecture.transducer.StackTransducer;
 import prototype.stateArchitecture.transducer.Transducer;
+
 public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        Mapper mapper;
-
         if (args.length < 3) {
-            throw new RuntimeException("Missing specification file or input or output file");
+            throw new IllegalArgumentException(
+                    "Missing specification file, input file, or output file");
         }
 
-        Path specificationPath = Paths.get(args[0]).toAbsolutePath().normalize();
+        Path specificationPath =
+                Paths.get(args[0]).toAbsolutePath().normalize();
+        Path inputPath =
+                Paths.get(args[1]).toAbsolutePath().normalize();
+        Path outputPath =
+                Paths.get(args[2]).toAbsolutePath().normalize();
 
-        mapper = initializeMapper(specificationPath);
+        Mapper mapper = initializeMapper(specificationPath);
+        JsonFactory factory = new JsonFactory();
 
-        Path inputPath = Paths.get(args[1]).toAbsolutePath().normalize();
-        Path outputPath = Paths.get(args[2]).toAbsolutePath().normalize();
+        try (InputStream inputStream = Files.newInputStream(inputPath);
+             OutputStream outputStream = Files.newOutputStream(outputPath);
+             
+             JsonParser parser = IoHandler.createParser(factory, inputStream);
+             JsonGenerator generator = IoHandler.createGenerator(factory, outputStream)) {        
+            
+    
+            String type = mapper.getTransformationFormat().getType();
+            
 
-        //System.out.println("Processing...");
-        InputStream inputStream = Files.newInputStream(inputPath);
-        OutputStream outputStream = Files.newOutputStream(outputPath);
-
-        if (mapper.getTransformationFormat().getType().equals("copy")
-                || mapper.getTransformationFormat().getType().equals("move")) {
-            BufferTransducer bufferTransducer = new BufferTransducer(mapper, inputStream, outputStream);
-            if (bufferTransducer.process()) {
-                //System.out.println("SUCCESS");
-                // Clean up the file paths to extract clean names (e.g., "specIdentity" and "evaluationInputBig")
-                String specName = specificationPath.getFileName().toString();
-                String inputName = inputPath.getFileName().toString();
-
-                // Print a line starting with a specific prefix so PowerShell can grab it
-                // Format: EXPORT,Specification,InputFile,PeakBytes                
-            } else {
-                //System.out.println("FAILURE");
+            if (type.equals("copy") || type.equals("move")) {
+                BufferSyncTransducer transducer =  new BufferSyncTransducer(
+                        mapper,
+                        inputStream,
+                        outputStream
+                );
+                transducer.process();
             }
-            //System.out.println("Done processing BUFFER Transformation.");
+
+            else if (type.equals("identity")) {
+                Transducer transducer = new Transducer(
+                        mapper,
+                        parser,
+                        generator
+                );
+                transducer.process();
+            }
+
+            else {
+                Transducer transducer = new StackTransducer(
+                    mapper,
+                    parser,
+                    generator
+                );
+                transducer.process();
+            }
         }
-        else {
-            Transducer transducer;                    
-            if (mapper.getTransformationFormat().getType().equals("identity")) {
-                transducer = new IdentityTransducer(mapper, inputStream, outputStream);
-            } else {
-                transducer = new StackTransducer(mapper, inputStream, outputStream);
-            }
-
-            if (transducer.process()) {
-              //  System.out.println("SUCCESS");
-            } else {
-              //  System.out.println("FAILURE");
-            }
-            //System.out.println("Done processing NON-BUFFER transformation.");
+        catch (Exception e) {
+            // TODO
+            e.printStackTrace();
         }
-
+        
     }
 
     public static Mapper initializeMapper(Path specificationPath) {
-        File specificationJsonFile = specificationPath.toFile();
-        return new Mapper(specificationJsonFile);
+        return new Mapper(specificationPath.toFile());
     }
+
+    
 }

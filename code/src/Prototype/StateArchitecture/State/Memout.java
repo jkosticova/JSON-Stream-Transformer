@@ -1,7 +1,10 @@
 package prototype.stateArchitecture.state;
 
+import java.nio.Buffer;
+
 import com.fasterxml.jackson.core.JsonParser;
 
+import prototype.stateArchitecture.transducer.BufferStackTransducer;
 import prototype.stateArchitecture.transducer.Transducer;
 
 /* 
@@ -10,10 +13,15 @@ import prototype.stateArchitecture.transducer.Transducer;
    Entering token = leaving token.
 */
 public class Memout implements State {
-    private final Transducer transducer;
+    private final BufferStackTransducer transducer;
 
     public Memout(Transducer transducer) {
-        this.transducer = transducer;
+        if (transducer instanceof BufferStackTransducer bufferStackTransducer) {
+            this.transducer = bufferStackTransducer;
+        } else {
+            throw new IllegalArgumentException(
+                    "SubtreeMemin state requires a BufferStackTransducer");
+        }
         transducer.setGenerating(false);
     }
 
