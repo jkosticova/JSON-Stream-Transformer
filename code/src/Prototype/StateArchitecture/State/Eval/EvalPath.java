@@ -41,17 +41,15 @@ public class EvalPath implements State {
         JsonToken event = parser.currentToken();
         switch (event) {
             case START_ARRAY:
-                if (paStack.peek().equals(ARR_MARKER)) {
+                if (transducer.inArray()) {
                     handleArrayElement();
                 }
-                if (pa.isFinal(paStack.peek())) {
+                if (transducer.isFinal()) {
                     transitionToMatch(VALUE_MATCH);
-                    indexStack.push(0);
-                    paStack.push(ARR_MARKER);
+                    transducer.pushArray();                    
                     return;
                 }
-                indexStack.push(0);
-                paStack.push(ARR_MARKER);
+                transducer.pushArray();                    
                 break;
             case END_ARRAY:
                 indexStack.pop();
@@ -60,15 +58,15 @@ public class EvalPath implements State {
 
                 break;
             case START_OBJECT:
-                if (paStack.peek().equals(ARR_MARKER)) {
+                 if (transducer.inArray()) {
                     handleArrayElement();
                 }
-                if (pa.isFinal(paStack.peek())) {
+                if (transducer.isFinal()) {
                     transitionToMatch(VALUE_MATCH);
-                    paStack.push(OBJ_MARKER);
+                    transducer.pushObject();
                     return;
                 }
-                paStack.push(OBJ_MARKER);
+                transducer.pushObject();
 
                 break;
             case END_OBJECT:
@@ -108,7 +106,7 @@ public class EvalPath implements State {
                 paStack.push(pa.transition(paState, fieldName));
 
                 // fieldname match
-                if (pa.isFinal(paStack.peek())) {
+                if (transducer.isFinal()) {
                     transitionToMatch(FIELDNAME_MATCH);
                     return;
                 }
@@ -120,10 +118,10 @@ public class EvalPath implements State {
             case VALUE_STRING:
             case VALUE_NUMBER_INT:
             case VALUE_NUMBER_FLOAT:
-                if (paStack.peek().equals(ARR_MARKER)) {
+                if (transducer.inArray()) {
                     handleArrayElement();
                 }
-                if (pa.isFinal(paStack.peek())) {
+                if (transducer.isFinal()) {
                     transitionToMatch(VALUE_MATCH);
 
                     return;
@@ -143,10 +141,6 @@ public class EvalPath implements State {
         transducer.setGenerating(false);        
     }
 
-    /*
-     * Perform path automaton transition on index of an array element and
-     * increment array size correspondingly
-     */
     private void handleArrayElement() {
         Integer i = indexStack.pop();
         paStack.pop(); // pop ARR_MARKER

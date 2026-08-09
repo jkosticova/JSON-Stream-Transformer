@@ -137,6 +137,47 @@ public class StackTransducer extends Transducer {
         return success;
     }
 
+    public void pushArray() {
+        paStack.push(State.ARR_MARKER);
+        indexStack.push(0);
+    }
+
+    public void pushObject() {
+        paStack.push(State.OBJ_MARKER);        
+    }
+
+    public int getPaStackPeek() {
+        return paStack.peek();
+    }
+
+    public boolean inArray() {
+        return paStack.peek().equals(State.ARR_MARKER);
+    }
+
+    public boolean isFinal() {
+        return pa.isFinal(paStack.peek());
+    }
+
+    /*
+     * Perform path automaton transition on index of an array element and
+     * increment array size correspondingly
+     */
+
+    public void handleArrayElement() {
+        Integer i = indexStack.pop();
+        paStack.pop(); // pop ARR_MARKER
+        int paState = paStack.peek();
+        paStack.push(State.ARR_MARKER); // push ARR_MARKER back
+        paStack.push(pa.transition(paState, i.toString()));
+        indexStack.push(i + 1);
+    }
+
+    
+
+    public void popArray() {
+        paStack.pop();
+    }
+    
     public Stack<Integer> getPaStack() {
         return this.paStack;
     }
