@@ -174,6 +174,28 @@ public class StackTransducer extends Transducer {
         paStack.push(pa.transition(paState, key));   
     }
 
+    public void popArray() {
+        indexStack.pop();
+        paStack.pop();
+        paStack.pop();
+
+    }
+
+    public void popObject() {
+        if (!paStack.peek().equals(State.ARR_MARKER)) {
+            paStack.pop();
+        }
+        if (!paStack.peek().equals(State.ARR_MARKER)) {
+            paStack.pop();
+        }
+    }
+
+    public void popPrimitive() {    
+        paStack.pop();
+    }
+    
+        
+
     /*
      * Perform path automaton transition on index of an array element and
      * increment array size correspondingly
@@ -190,9 +212,7 @@ public class StackTransducer extends Transducer {
 
     
 
-    public void popArray() {
-        paStack.pop();
-    }
+    
     
     public Stack<Integer> getPaStack() {
         return this.paStack;

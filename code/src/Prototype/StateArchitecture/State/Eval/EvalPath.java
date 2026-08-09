@@ -50,10 +50,7 @@ public class EvalPath implements State {
                 transducer.pushArray();                    
                 break;
             case END_ARRAY:
-                indexStack.pop();
-                paStack.pop();
-                paStack.pop();
-
+                transducer.popArray();
                 break;
             case START_OBJECT:
                  if (transducer.inArray()) {
@@ -66,13 +63,7 @@ public class EvalPath implements State {
 
                 break;
             case END_OBJECT:
-                if (!paStack.peek().equals(ARR_MARKER)) {
-                    paStack.pop();
-                }
-                if (!paStack.peek().equals(ARR_MARKER)) {
-                    paStack.pop();
-                }
-
+                transducer.popObject();
                 break;
             case FIELD_NAME:                
 
@@ -110,7 +101,7 @@ public class EvalPath implements State {
                     transitionToMatch();                 
                 }
                 else {
-                    paStack.pop(); // pop new state in case of array or fieldname
+                    transducer.popPrimitive(); // pop new state in case of array or fieldname                    
                 }
                 break;
             default:
