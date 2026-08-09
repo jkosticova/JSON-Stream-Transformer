@@ -66,5 +66,28 @@ public class SimplePathAutomaton implements PathAutomaton {
         // entering error state from other symbol than the last one
         return errorState;
     }
+
+    @Override
+    public int transition(int currentState, int index) {
+        // entering error state from last symbol and looping in error state
+        if (currentState >= segments.size() || currentState == errorState) {
+            return errorState;
+        }
+        // match
+        // replace with Objects.equals(segments.get(currentState), inputSegment) if inputSegment can be NULL        
+        try {
+            if (Integer.parseInt(segments.get(currentState)) == index) {
+                currentState++;
+                return currentState;
+            }
+        }
+        catch (NumberFormatException e) {
+             throw new NumberFormatException(
+                "Invalid array index: " + segments.get(currentState)
+            );
+        }   
+        // entering error state from other symbol than the last one
+        return errorState;
+    }
     
 }

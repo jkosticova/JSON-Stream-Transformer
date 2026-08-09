@@ -16,7 +16,6 @@ import prototype.stateArchitecture.state.subtreeTraversal.SubtreeSkip;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Stack;
 
 public class StackTransducer extends Transducer {
     public static final int INITIAL_PA_STATE = 0;
@@ -263,9 +262,9 @@ public int paStackPeek() {
         int i = popIndexStack();
         popPaStack(); // pop ARR_MARKER
         int paState = paStackPeek();
-        pushPaStack(State.ARR_MARKER); // push ARR_MARKER back
-        // converting integer to string !!!!
-        pushPaStack(pa.transition(paState, Integer.toString(i)));
+        pushPaStack(State.ARR_MARKER); // push ARR_MARKER back        
+        // use transition version for int so that we avoid allocating a String on heap
+        pushPaStack(pa.transition(paState, i));
         pushIndexStack(i + 1);
     }
 

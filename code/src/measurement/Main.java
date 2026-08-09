@@ -32,7 +32,6 @@ public class Main {
 
         String transfType;
         String input;
-        String inputName;
         String specificationName = null;        
         Mapper mapper = null;
 
@@ -63,18 +62,10 @@ public class Main {
                     args[0].lastIndexOf(".")
             );
 
-            inputName = input.substring(
-                    input.lastIndexOf("\\") + 1,
-                    input.lastIndexOf(".")
-            );
         } else {
             transfType = "baseline";
             input = args[0];
 
-            inputName = input.substring(
-                    input.lastIndexOf("\\") + 1,
-                    input.lastIndexOf(".")
-            );
         }
 
         for (int rr = 0; rr < runRounds; rr++) {
