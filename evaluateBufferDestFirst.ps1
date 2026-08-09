@@ -6,7 +6,7 @@
 # specification and input file combinations in the JSON transformation prototype.
 $input = "evaluationInput_5_24666543"  
 
-$tests = @(    
+$specs = @(    
     "specCopyDestFirst_elements7",
     "specCopyDestFirst_elements130",
     "specCopyDestFirst_elements2800",
@@ -30,7 +30,7 @@ Write-Host "Running: baseline with $input"
 
     java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch `
             -cp "target\classes;out\production\code;target\dependency\*" `
-            measurements.Main `
+            measurement.Main `
             "measurements\inputs\basic\$input.json"
 
 foreach ($spec in $specs) {
@@ -40,7 +40,7 @@ foreach ($spec in $specs) {
 
     java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch -XX:TLABSize=2k -XX:-ResizeTLAB `
         -cp "out\production\code;target\dependency\*;target\classes" `
-        measurements.Main `
+        measurement.Main `
         "measurements\specifications\bufferDestFirst\$spec.json" `
         "measurements\inputs\basic\$input.json"
 

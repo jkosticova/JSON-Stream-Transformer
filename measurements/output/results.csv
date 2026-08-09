@@ -1,0 +1,3 @@
+run,algorithm,specification,input,setupRounds,evaluationRounds,allocationBytes,bytesPerRun
+0,baseline,null,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,7499128128,14998256
+0,baseline,null,measurements\inputs\basic\evaluationInput_5_24666543.json,500,500,7499128128,14998256

@@ -1,0 +1,11 @@
+specification,measurements\inputs\basic\input_1_6447_totalBytesPerRun,measurements\inputs\basic\input_1_6447_diffToBaseline,measurements\inputs\basic\input_2_118149_totalBytesPerRun,measurements\inputs\basic\input_2_118149_diffToBaseline,measurements\inputs\basic\input_3_2466657_totalBytesPerRun,measurements\inputs\basic\input_3_2466657_diffToBaseline,measurements\inputs\basic\input_4_9866619_totalBytesPerRun,measurements\inputs\basic\input_4_9866619_diffToBaseline,measurements\inputs\basic\input_5_24666543_totalBytesPerRun,measurements\inputs\basic\input_5_24666543_diffToBaseline
+baseline,5922,0,73296,0,1501136,0,6000176,0,14998256,0
+specIdentity,12841,6919,80216,6920,1508056,6920,6007096,6920,15005176,6920
+specRename,15489,9567,82864,9568,1510704,9568,6009744,9568,15007824,9568
+specRemove,14801,8879,82224,8928,1510064,8928,6009104,8928,15007184,8928
+specReplace,16242,10320,83804,10508,1511644,10508,6010684,10508,15008764,10508
+specAdd,16487,10565,84052,10756,1511892,10756,6010932,10756,15009012,10756
+specCopyDestFirst,22701,16779,191526,118230,1619232,118096,6118271,118095,15116351,118095
+specCopySrcFirst,16258,10336,83620,10324,1511451,10315,6010491,10315,15008571,10315
+specMoveDestFirst,22716,16794,191454,118158,1619160,118024,6118199,118023,15116280,118024
+specMoveSrcFirst,16072,10150,83619,10323,1511451,10315,6010491,10315,15008571,10315

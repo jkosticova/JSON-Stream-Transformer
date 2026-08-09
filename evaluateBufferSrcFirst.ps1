@@ -29,7 +29,7 @@ foreach ($test in $tests) {
     
     java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch `
             -cp "target\classes;out\production\code;target\dependency\*" `
-            measurements.Main `
+            measurement.Main `
             "measurements\inputs\bufferSrcFirst\$input.json"
   
   
@@ -37,7 +37,7 @@ foreach ($test in $tests) {
 
     java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch -XX:TLABSize=2k -XX:-ResizeTLAB `
         -cp "out\production\code;target\dependency\*;target\classes" `
-        measurements.Main `
+        measurement.Main `
         "measurements\specifications\basic\$spec.json" `
         "measurements\inputs\bufferSrcFirst\$input.json"
 

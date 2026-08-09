@@ -21,11 +21,11 @@ $specifications = @(
 
 # List of input files
 $inputFiles = @(
-    "evaluationInput_1_6447",
-    "evaluationInput_2_118149",
-    "evaluationInput_3_2466657",
-    "evaluationInput_4_9866619",
-    "evanluationInput_5_24666543"
+#    "evaluationInput_1_6447",
+#    "evaluationInput_2_118149",
+#    "evaluationInput_3_2466657",
+#    "evaluationInput_4_9866619",
+    "evaluationInput_5_24666543"
 )
 
 setx JAVA_HOME "c:\Users\kosticova\.jdks\openjdk-21.0.2"
@@ -43,7 +43,7 @@ foreach ($input in $inputFiles) {
     
     java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch `
             -cp "target\classes;out\production\code;target\dependency\*" `
-            measurements.Main `
+            measurement.Main `
             "measurements\inputs\basic\$input.json"
     
     foreach ($spec in $specifications) {
@@ -52,7 +52,7 @@ foreach ($input in $inputFiles) {
         
         java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch `
             -cp "target\classes;out\production\code;target\dependency\*" `
-            measurements.Main `
+            measurement.Main `
             "measurements\specifications\basic\$spec.json" `
             "measurements\inputs\basic\$input.json"
 

@@ -1,0 +1,13 @@
+run,algorithm,specification,input,setupRounds,evaluationRounds,allocationBytes,bytesPerRun
+0,baseline,null,measurements\inputs\bufferSrcFirst\evaluationInput_elements0130.json,500,500,36648128,73296
+0,copy,specCopySrcFirst,measurements\inputs\bufferSrcFirst\evaluationInput_elements0130.json,500,500,49620624,99241
+0,baseline,null,measurements\inputs\bufferSrcFirst\evaluationInput_elements1000.json,500,500,36648128,73296
+0,copy,specCopySrcFirst,measurements\inputs\bufferSrcFirst\evaluationInput_elements1000.json,500,500,101828880,203657
+0,baseline,null,measurements\inputs\bufferSrcFirst\evaluationInput_elements7500.json,500,500,36648128,73296
+0,copy,specCopySrcFirst,measurements\inputs\bufferSrcFirst\evaluationInput_elements7500.json,500,500,491827752,983655
+0,baseline,null,measurements\inputs\bufferSrcFirst\evaluationInput_elements0130.json,500,500,36648128,73296
+0,move,specMoveSrcFirst,measurements\inputs\bufferSrcFirst\evaluationInput_elements0130.json,500,500,49630800,99261
+0,baseline,null,measurements\inputs\bufferSrcFirst\evaluationInput_elements1000.json,500,500,36648128,73296
+0,move,specMoveSrcFirst,measurements\inputs\bufferSrcFirst\evaluationInput_elements1000.json,500,500,101859408,203718
+0,baseline,null,measurements\inputs\bufferSrcFirst\evaluationInput_elements7500.json,500,500,36648128,73296
+0,move,specMoveSrcFirst,measurements\inputs\bufferSrcFirst\evaluationInput_elements7500.json,500,500,491818288,983636

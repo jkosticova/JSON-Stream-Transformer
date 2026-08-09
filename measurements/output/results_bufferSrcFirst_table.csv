@@ -1,0 +1,4 @@
+specification,measurements\inputs\bufferSrcFirst\elements0130_totalBytesPerRun,measurements\inputs\bufferSrcFirst\elements0130_diffToBaseline,measurements\inputs\bufferSrcFirst\elements1000_totalBytesPerRun,measurements\inputs\bufferSrcFirst\elements1000_diffToBaseline,measurements\inputs\bufferSrcFirst\elements7500_totalBytesPerRun,measurements\inputs\bufferSrcFirst\elements7500_diffToBaseline
+baseline,73296,0,73296,0,73296,0
+specCopySrcFirst,99241,25945,203657,130361,983655,910359
+specMoveSrcFirst,99261,25965,203718,130422,983636,910340
