@@ -16,9 +16,6 @@ import java.util.Stack;
 
 public class EvalPath implements State {
     private final StackTransducer transducer;
-    private Stack<Integer> paStack;
-    private Stack<Integer> indexStack;
-    private PathAutomaton pa;
 
     public EvalPath(Transducer transducer) {
         if (!(transducer instanceof StackTransducer)) {
@@ -27,16 +24,13 @@ public class EvalPath implements State {
             );
         }   
         this.transducer = (StackTransducer)transducer;
-        this.paStack = this.transducer.getPaStack();
-        this.indexStack = this.transducer.getIndexStack();
-        this.pa = this.transducer.getPa();
     }
 
     @Override
     public void process(JsonParser parser) {
         transducer.setGenerating(true);
         transducer.setPaused(false);
-        int paState;
+
 
         JsonToken event = parser.currentToken();
         switch (event) {

@@ -28,13 +28,11 @@ If the previous match was entered at key, it is necessary to move to the corresp
 value and possibly align the content of the stacks.
 */
 public class FindPos implements State {
-    private final StackTransducer transducer;        
-    private Stack<Integer> paStack;
-    private Stack<Integer> indexStack;
+    private final StackTransducer transducer;            
     private TransformationFormat specification;    
     // we use depth integer instead of using stack to remember current nesting level
     private int depth;
-    private Integer searchedIndex = null;      
+    private Integer searchedIndex = null;
     
     public FindPos(Transducer transducer){
         if (!(transducer instanceof StackTransducer)) {
@@ -48,9 +46,7 @@ public class FindPos implements State {
     
     }
 
-    private void init() {        
-        this.paStack = this.transducer.getPaStack();
-        this.indexStack = this.transducer.getIndexStack();                
+    private void init() {                
         this.specification = transducer.getSpecification();
         if (specification instanceof AddTransformation) {
             this.searchedIndex = ((AddTransformation) specification).getIndex();
@@ -64,8 +60,7 @@ public class FindPos implements State {
     }
 
     @Override
-    public void process(JsonParser parser) {
-        init();                
+    public void process(JsonParser parser) {                 
         transducer.setGenerating(true);
         transducer.setPaused(false);
         try {
@@ -73,19 +68,17 @@ public class FindPos implements State {
             switch (event) {
                 case START_ARRAY:
                     if (this.depth == 0) {
-                        paStack.push(ARR_MARKER);
-                        indexStack.push(0);
-                    }
+                        transducer.pushArray();                        
+                    }                    
                 case START_OBJECT:                    
                     // i-th array element 
-                    if (this.depth == 1 && paStack.peek().equals(ARR_MARKER)) {
-                        Integer i = indexStack.pop();
-                        if (searchedIndex.equals(i)) {
-                            transitionToMatchPos(); 
-                            indexStack.push(i + 1);
-                            return;                                                                       
+                    if (this.depth == 1 && transducer.inArray()) {
+                        if (transducer.atArrayIndex(searchedIndex)) {                        
+                            transducer.increaseArraySize();
+                            transitionToMatchPos();
+                            return;                        
                         }
-                        indexStack.push(i + 1);
+                        transducer.increaseArraySize();
                     }                    
                     depth++;                    
                     break;                
@@ -107,15 +100,14 @@ public class FindPos implements State {
                 case VALUE_NUMBER_INT:
                 case VALUE_NUMBER_FLOAT:
                     // ak sme na i-tom prvku pola
-                    if (this.depth == 1 && paStack.peek().equals(ARR_MARKER)) {
-                        Integer i = indexStack.pop();
-                        if (searchedIndex.equals(i)) {
+                    if (this.depth == 1 && transducer.inArray()) {
+                        if (transducer.atArrayIndex(searchedIndex)) {                        
+                            transducer.increaseArraySize();
                             transitionToMatchPos();
-                            indexStack.push(i+1);
-                            return;
+                            return;                        
                         }
-                        indexStack.push(i+1);
-                    }                                        
+                        transducer.increaseArraySize();
+                    }                                       
                     break;
             }       
         } catch (Exception e) {

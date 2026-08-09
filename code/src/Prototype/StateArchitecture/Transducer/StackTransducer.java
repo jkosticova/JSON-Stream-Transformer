@@ -193,9 +193,15 @@ public class StackTransducer extends Transducer {
     public void popPrimitive() {    
         paStack.pop();
     }
-    
-        
 
+    public boolean atArrayIndex(Integer searchedIndex) {
+        return inArray() && searchedIndex.equals(indexStack.peek());
+    }
+    public void increaseArraySize() {
+        int i = indexStack.pop();
+        indexStack.push(i+1);
+    }
+            
     /*
      * Perform path automaton transition on index of an array element and
      * increment array size correspondingly
@@ -210,29 +216,10 @@ public class StackTransducer extends Transducer {
         indexStack.push(i + 1);
     }
 
-    
-
-    
-    
-    public Stack<Integer> getPaStack() {
-        return this.paStack;
-    }
-
-    public Stack<Integer> getIndexStack() {
-        return this.indexStack;
-    }
-
-    public PathAutomaton getPa() {
-        return this.pa;
-    }
-
-    public void setPa(PathAutomaton pa) {
-        this.pa = pa;
-    }
-    
+    // move to value and if it is a structure, process opening token
     public void moveToValue() {
         try {
-            parser.nextToken(); // move to value and if it is a structure, process opening token
+            parser.nextToken(); 
         } catch (IOException e) {            
             throw new TransducerException("Failed to advance parser while moving to value", e);
         }
@@ -246,6 +233,25 @@ public class StackTransducer extends Transducer {
         }
     }
 
+
+            
+    protected Stack<Integer> getPaStack() {
+        return this.paStack;
+    }
+
+    protected Stack<Integer> getIndexStack() {
+        return this.indexStack;
+    }
+
+    protected PathAutomaton getPa() {
+        return this.pa;
+    }
+
+    protected void setPa(PathAutomaton pa) {
+        this.pa = pa;
+    }
+    
+    
     public State getEvalPathState() {
         return this.evalPathState;
     }
