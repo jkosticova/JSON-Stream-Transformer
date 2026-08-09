@@ -1,9 +1,0 @@
-[
-  {
-    "copy": {
-      "path": "$[130].email",
-      "destPath": "$[0]",
-      "key": "newEmail"
-    }
-  }
-]

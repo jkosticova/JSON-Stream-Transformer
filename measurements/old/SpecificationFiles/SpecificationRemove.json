@@ -1,7 +1,0 @@
-[
-  {
-    "remove": {
-      "path": "$[0].contact.email"
-    }
-  }
-]

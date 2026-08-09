@@ -1,8 +1,0 @@
-[
-  {
-    "rename": {
-      "path": "$[0].email",
-      "key": "newEmail"
-    }
-  }
-]
