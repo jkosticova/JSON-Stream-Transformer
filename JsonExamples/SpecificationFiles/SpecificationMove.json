@@ -1,9 +1,0 @@
-[
-  {
-    "move": {
-      "path": "$[1].contact.phone[0]",
-      "destPath": "$[0].contact.phone",
-      "index": 1
-    }
-  }
-]

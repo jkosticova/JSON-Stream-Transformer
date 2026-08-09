@@ -1,0 +1,13 @@
+run,algorithm,specification,input,setupRounds,evaluationRounds,allocationBytes,bytesPerRun
+0,move,specMoveDestFirstBig,JsonExamples\evaluationInputGiant.json,500,500,9138293144,18276586
+0,move,specMoveDestFirstMid,JsonExamples\evaluationInputGiant.json,500,500,7586741144,15173482
+0,move,specMoveDestFirstSmall,JsonExamples\evaluationInputGiant.json,500,500,7518625144,15037250
+0,copy,specCopyDestFirstBig,JsonExamples\evaluationInputGiant.json,500,500,9138301144,18276602
+0,copy,specCopyDestFirstMid,JsonExamples\evaluationInputGiant.json,500,500,7586748984,15173497
+0,copy,specCopyDestFirstSmall,JsonExamples\evaluationInputGiant.json,500,500,7518633144,15037266
+0,move,specMoveSrcFirstGiant,JsonExamples\evaluationInputGiant.json,500,500,9675469144,19350938
+0,move,specMoveSrcFirstVeryBig,JsonExamples\evaluationInputGiant.json,500,500,8381805144,16763610
+0,move,specMoveSrcFirstBig,JsonExamples\evaluationInputGiant.json,500,500,7727285144,15454570
+0,move,specMoveSrcFirstMid,JsonExamples\evaluationInputGiant.json,500,500,7524125144,15048250
+0,move,specMoveSrcFirstSmall,JsonExamples\evaluationInputGiant.json,500,500,7515589144,15031178
+0,move,specMoveDestFirstGiant,JsonExamples\evaluationInputGiant.json,500,500,23712033144,47424066

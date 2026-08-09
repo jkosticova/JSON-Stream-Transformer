@@ -1,0 +1,9 @@
+[
+  {
+    "add": {
+      "path": "$[0]",
+      "key": "maidenName",
+      "value": "Valdez"
+    }
+  }
+]

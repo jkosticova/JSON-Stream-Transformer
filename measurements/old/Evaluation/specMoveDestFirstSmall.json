@@ -1,0 +1,9 @@
+[
+  {
+    "move": {
+      "path": "$[7].email",
+      "destPath": "$[0]",
+      "key": "newEmail"
+    }
+  }
+]

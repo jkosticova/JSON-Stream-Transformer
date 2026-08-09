@@ -1,0 +1,9 @@
+[
+  {
+    "move": {
+      "path": "$[1].contact",
+      "destPath": "$[0].array",
+      "index": 4
+    }
+  }
+]

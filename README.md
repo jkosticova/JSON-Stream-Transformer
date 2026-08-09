@@ -71,15 +71,26 @@ mvn exec:java@measurements
 
 Evaluation and benchmarking are supported by the `measurements.Main` harness.
 
-Adjust JAVA_HOME and $env:Path in the corresponding script before usage.
+- evaluateAll.ps1: Memory allocations of stack-class transformations and buffer-class transformations for fixed size of buffered data
+- evaluateCopyAndMove.ps1: Memory allocations of buffer-class transformations for variable size of buffered data
 
-Example script usage:
+# Usage
+Copy dependencies to target
+
+```powershell
+mvn dependency:copy-dependencies
+```
+Adjust JAVA_HOME and $env:Path in the corresponding script.
 
 ```powershell
 ./evaluateAll.ps1
 ```
 
-This runs measurement scenarios across multiple specification and input sizes, producing results in `JsonExamples/Evaluation/`.
+```powershell
+./evaluateCopyAndMove.ps1
+```
+
+This runs measurement scenarios across multiple specification and input sizes, producing results in `measurements/outputs`.
 
 ## Specification Format
 

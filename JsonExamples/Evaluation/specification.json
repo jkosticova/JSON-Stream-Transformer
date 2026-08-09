@@ -1,9 +1,0 @@
-[
-  {
-    "copy": {
-      "path": "nonexistent",
-      "destPath": "nonexistent",
-      "key": "shouldNotExist"
-    }
-  }
-]

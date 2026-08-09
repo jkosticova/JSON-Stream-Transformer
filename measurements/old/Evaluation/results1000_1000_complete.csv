@@ -1,0 +1,13 @@
+,,"|src,dest| = 28400 elements",,,,"|src,dest|= 2800 elements",,"|src,dest| = 130 elements",,
+,,Total,Diff to baseline,Total,Diff to baseline,Total,Diff to baseline,Total,Diff to baseline,Small
+baseline,,14998266,0,14998266,0,14998266,0,14998266,0,
+copy (src first),src,19350937,4352671,16763610,1765344,15454570,456304,15048250,49984,15031178
+copy (dest first),dst,47424074,32425808,28030649,13032383,18276602,3278336,15173497,175231,15037266
+move (src first),src,19350938,4352672,16763610,,15454570,456304,15048250,49984,15031178
+move (dest first),dst,47424066,32425800,,,18276586,3278320,15173482,175216,15037250
+,,,,,,,,,,
+,,src tree = 7500 elements,,200 levels,,src tree = 1000 elements,,src tree = 130 elements,,
+,,Total,Diff to baseline,Total,Diff to baseline,Total,Diff to baseline,Total,Diff to baseline,
+baseline,,73296,,,,73296,,73296,,
+copy src first,,1979345,1906049,,,813746,740450,151619,78323,
+dest src first,,1979345,1906049,,,813746,740450,151588,78292,

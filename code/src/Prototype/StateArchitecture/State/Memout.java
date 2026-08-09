@@ -29,6 +29,7 @@ public class Memout implements State {
     public void process(JsonParser parser) {        
         transducer.setGenerating(false);
         transducer.getFromMemory();            
+        // implicit transition - now sufficies, but can be generalized in the future
         transducer.setState(transducer.getGenState());        
         transducer.setPaused(true);        
     }

@@ -1,0 +1,8 @@
+run,algorithm,specification,input,setupRounds,evaluationRounds,allocationBytes,bytesPerRun
+0,copy,specCopySrcFirstGiant,JsonExamples\evaluationInputGiant.json,500,500,9675468984,19350937
+0,copy,specCopySrcFirstVeryBig,JsonExamples\evaluationInputGiant.json,500,500,8381805144,16763610
+0,copy,specCopySrcFirstBig,JsonExamples\evaluationInputGiant.json,500,500,7727285144,15454570
+0,copy,specCopySrcFirstMid,JsonExamples\evaluationInputGiant.json,500,500,7524125144,15048250
+0,copy,specCopySrcFirstSmall,JsonExamples\evaluationInputGiant.json,500,500,7515589144,15031178
+0,copy,specCopyDestFirstGiant,JsonExamples\evaluationInputGiant.json,500,500,23712037144,47424074
+0,copy,specCopyDestFirstVeryBig,JsonExamples\evaluationInputGiant.json,500,500,14015324984,28030649

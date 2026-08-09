@@ -1,0 +1,9 @@
+[
+  {
+    "add": {
+      "path": "$[0].contact.email",
+      "index": 1,
+      "value": "added.valdez@mail.com"
+    }
+  }
+]

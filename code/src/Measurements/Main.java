@@ -36,8 +36,17 @@ public class Main {
         String specificationName = null;        
         Mapper mapper = null;
 
-        Path csv = Path.of("JsonExamples/Evaluation/results.csv");
+        
+        Path dir = Path.of("measurements/output");
+        Path csv = Path.of(dir + "/results.csv");
 
+        try {
+            Files.createDirectories(dir);
+        } catch (IOException e) {
+            System.out.println("Failed to create directory " + dir.toString() + " .");
+            //e.printStackTrace();
+        }
+        
         initCsv(csv);
 
         System.gc();

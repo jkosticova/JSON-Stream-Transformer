@@ -1,3 +1,7 @@
+# Memory allocations of 
+# - stack-class transformations and 
+# - buffer-class transformations for fixed size of buffered data
+
 # This script was generated with the assistance of OpenAI ChatGPT.
 # It automates the execution of evaluation measurements for multiple
 # specification and input file combinations in the JSON transformation prototype.
@@ -8,7 +12,7 @@ $specifications = @(
     "specRename",
     "specRemove",
     "specReplace",
-    "specAdd",
+    "specAdd"
     "specCopyDestFirst"
     "specCopySrcFirst",
     "specMoveDestFirst",
@@ -17,11 +21,11 @@ $specifications = @(
 
 # List of input files
 $inputFiles = @(
-    "evaluationInputGiant",
-    "evaluationInputVeryBig",
-    "evaluationInputBig",
-    "evaluationInputMid",
-    "evaluationInputSmall"
+    "evaluationInput_1_6447",
+    "evaluationInput_2_118149",
+    "evaluationInput_3_2466657",
+    "evaluationInput_4_9866619",
+    "evanluationInput_5_24666543"
 )
 
 setx JAVA_HOME "c:\Users\kosticova\.jdks\openjdk-21.0.2"
@@ -40,23 +44,22 @@ foreach ($input in $inputFiles) {
     java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch `
             -cp "target\classes;out\production\code;target\dependency\*" `
             measurements.Main `
-            "JsonExamples\$input.json"
+            "measurements\inputs\basic\$input.json"
     
     foreach ($spec in $specifications) {
 
         Write-Host "Running: $spec with $input"
         
-
         java -Xms2g -Xmx2g -XX:+UseG1GC -XX:+AlwaysPreTouch `
             -cp "target\classes;out\production\code;target\dependency\*" `
             measurements.Main `
-            "JsonExamples\Evaluation\$spec.json" `
-            "JsonExamples\$input.json"
+            "measurements\specifications\basic\$spec.json" `
+            "measurements\inputs\basic\$input.json"
 
         if ($LASTEXITCODE -ne 0) {
             Write-Host "Execution failed for $spec with $input"
             exit $LASTEXITCODE
-        }
+        }        
     }
 }
 
